@@ -12,6 +12,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
+        {/* This is the Landing Page Route */}
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/ourstaff" element={<OurStaff />} />
@@ -20,6 +21,7 @@ export default function App() {
         <Route path="/contact" element={<Contact />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        {/* Other routes stay below */}
       </Routes>
     </BrowserRouter>
   );
