@@ -1,7 +1,7 @@
 .regHeader {
-  background: url("src/assets/student 3.jpg");
+  background: url("src/assets/Student write.jpg");
   background: linear-gradient(rgba(65, 65, 243, 0.9)),
-    url("src/assets/student 3.jpg");
+    url("src/assets/Student write.jpg");
   background-size: cover;
   height: 60rem;
   color: white;

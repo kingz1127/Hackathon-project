@@ -1,9 +1,9 @@
 .regHeader {
-  background: url("src/assets/student 3.jpg");
+  background: url("src/assets/staffs.jpg");
   background: linear-gradient(rgba(65, 65, 243, 0.9)),
-    url("src/assets/student 3.jpg");
+    url("src/assets/staffs.jpg");
   background-size: cover;
-  height: 60rem;
+  height: 75rem;
   color: white;
   font-family: "MS Sans Serif", Geneva, sans-serif;
 }

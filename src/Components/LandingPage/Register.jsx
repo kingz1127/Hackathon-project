@@ -5,10 +5,25 @@ import { IoMdCall } from "react-icons/io";
 import { AiOutlineQuestionCircle } from "react-icons/ai";
 import styles from "./Register.module.css";
 import { IoMdPerson } from "react-icons/io";
-import { Link, Navigate, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 
 export default function Register() {
   const navigate = useNavigate();
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 2) {
+        setScrolled(true);
+      } else {
+        setScrolled(false);
+      }
+    };
+    window.addEventListener("scroll", handleScroll);
+
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
     <>
@@ -34,8 +49,8 @@ export default function Register() {
           </div>
         </div>
         <hr />
-        <div className={styles.div3}>
-          <h2>Learner</h2>
+        <div className={`${styles.div3} ${scrolled ? styles.scrolled : ""}`}>
+          <h2>Learner.</h2>
           <div>
             <p onClick={() => navigate("/")}>Home</p>
 
