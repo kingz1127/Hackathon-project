@@ -1,5 +1,5 @@
-import { AiOutlineQuestionCircle } from "react-icons/ai";
 import { BiLockAlt } from "react-icons/bi";
+import { AiOutlineQuestionCircle } from "react-icons/ai";
 import { HiMail } from "react-icons/hi";
 import { IoMdCall, IoMdPerson } from "react-icons/io";
 import { Link, useNavigate } from "react-router-dom";
@@ -60,6 +60,29 @@ export default function Login() {
           </div>
           <button>ENROLL NOW</button>
         </div>
+      </div>
+      <div className={styles.login}>
+        <h1>Login</h1>
+        <form action="" className={styles.form}>
+          <input
+            type="text"
+            placeholder="Student_ID"
+            id="StudentID"
+            className={styles.formtext}
+          />
+          <input
+            type="password"
+            name=""
+            placeholder="Password"
+            id="StudentPassword"
+            className={styles.formtext}
+          />
+          <div>
+            <input type="checkbox" name="" id="" />
+            <p>Remember me</p>
+          </div>
+          <button type="submit">Log In</button>
+        </form>
       </div>
     </>
   );
