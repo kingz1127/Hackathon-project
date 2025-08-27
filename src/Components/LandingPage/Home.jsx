@@ -1,7 +1,12 @@
+import { IoMdPerson } from "react-icons/io";
+import { Link } from "react-router-dom";
+
 export default function Home() {
   return (
     <>
-      <h1>landing page home</h1>
+      <Link to="/register">
+        <IoMdPerson />
+      </Link>
     </>
   );
 }

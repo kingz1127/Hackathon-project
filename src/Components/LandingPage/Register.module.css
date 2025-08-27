@@ -1,0 +1,45 @@
+.regHeader {
+  background: url("src/assets/student 3.jpg");
+  background: linear-gradient(rgba(65, 65, 243, 0.9)),
+    url("src/assets/student 3.jpg");
+  background-size: cover;
+  height: 60rem;
+  color: white;
+  font-family: "MS Sans Serif", Geneva, sans-serif;
+}
+.regHeader .div0 {
+  display: flex;
+  justify-content: space-around;
+  column-gap: 35rem;
+}
+.regHeader .div1,
+.div2 {
+  display: flex;
+  column-gap: 1.5rem;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+.regHeader a {
+  text-decoration: none;
+  color: white;
+  display: flex;
+  column-gap: 0.3rem;
+  font-size: 1.4rem;
+}
+.regHeader .div0 p {
+  font-size: 1.3rem;
+}
+.regHeader .div3 {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  margin-top: 2rem;
+}
+.regHeader .div3 div {
+  display: flex;
+  column-gap: 3rem;
+  color: rgb(163, 163, 242);
+}
+.regHeader .div3 div p:hover {
+  color: white;
+}
