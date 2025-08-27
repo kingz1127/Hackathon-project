@@ -40,11 +40,11 @@ export default function Register() {
             <p onClick={() => navigate("/")}>Home</p>
 
             <p>Dropdown</p>
-            <p>Our Staff</p>
-            <p>News</p>
-            <p>Gallery</p>
-            <p>About</p>
-            <p>Contact</p>
+            <p onClick={() => navigate("/ourstaff")}>Our Staff</p>
+            <p onClick={() => navigate("/news")}>News</p>
+            <p onClick={() => navigate("/gallery")}>Gallery</p>
+            <p onClick={() => navigate("/about")}>About</p>
+            <p onClick={() => navigate("/contact")}>Contact</p>
           </div>
           <button>ENROLL NOW</button>
         </div>

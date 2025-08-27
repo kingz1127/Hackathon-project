@@ -43,3 +43,13 @@
 .regHeader .div3 div p:hover {
   color: white;
 }
+.regHeader .div3 button {
+  background-color: rgb(5, 116, 251);
+  border: none;
+  height: 4rem;
+  width: 12rem;
+  border-radius: 2rem;
+  color: white;
+  font-size: 1.2rem;
+  font-family: "MS Sans Serif", Geneva, sans-serif;
+}
