@@ -10,6 +10,43 @@ export default function Login() {
   const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
 
+  const [schoolID, setSchoolID] = useState("");
+  const [schoolPassword, setSchoolPassword] = useState("");
+  const [error, setError] = useState("");
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      const response = await fetch("http://localhost:5000/admin/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: schoolID.includes("@") ? undefined : schoolID, // email if teacher
+          email: schoolID.includes("@") ? schoolID : undefined,
+          password: schoolPassword,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.message);
+      } else {
+        localStorage.setItem("token", data.token); // save token for session
+        if (data.teacherId) {
+          localStorage.setItem("teacherId", data.teacherId); // store teacherId
+          navigate("/teacherdashboard"); // optional separate dashboard
+        } else {
+          navigate("/admindashboard"); // admin dashboard
+        }
+      }
+    } catch (err) {
+      console.error("Login failed", err);
+      setError("Something went wrong. Try again.");
+    }
+  };
+
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > 2) {
@@ -63,24 +100,26 @@ export default function Login() {
       </div>
       <div className={styles.login}>
         <h1>Login</h1>
-        <form action="" className={styles.form}>
+        <form className={styles.form} onSubmit={handleSubmit}>
           <input
             type="text"
-            placeholder="Student_ID"
-            id="StudentID"
+            placeholder="Enter your ID number"
+            value={schoolID}
+            onChange={(e) => setSchoolID(e.target.value)}
             className={styles.formtext}
           />
           <input
             type="password"
-            name=""
             placeholder="Password"
-            id="StudentPassword"
+            value={schoolPassword}
+            onChange={(e) => setSchoolPassword(e.target.value)}
             className={styles.formtext}
           />
-          <div>
-            <input type="checkbox" name="" id="" />
+          <div className={styles.remember}>
+            <input type="checkbox" />
             <p>Remember me</p>
           </div>
+          {error && <p style={{ color: "red" }}>{error}</p>}
           <button type="submit">Log In</button>
         </form>
       </div>
