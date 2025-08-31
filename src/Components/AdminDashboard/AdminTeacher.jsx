@@ -180,8 +180,10 @@ export default function AdminTeacher() {
       <table border="1" cellPadding="5">
         <thead>
           <tr>
+            <th>ID</th>
             <th>Teacher img</th>
             <th>Fullname</th>
+
             <th>Email</th>
             <th>DOB</th>
             <th>Course</th>
@@ -193,6 +195,7 @@ export default function AdminTeacher() {
         <tbody>
           {teachers.map((teacher, index) => (
             <tr key={index}>
+              <td>{teacher.teacherId}</td>
               <td>
                 {teacher.TeacherIMG ? (
                   <img
@@ -204,9 +207,11 @@ export default function AdminTeacher() {
                 ) : (
                   "No Image"
                 )}
+                {teacher.FullName}
               </td>
-              <td>{teacher.FullName}</td>
+
               <td>{teacher.Email}</td>
+
               <td>{teacher.DOfB}</td>
               <td>{teacher.Course}</td>
               <td>{teacher.DateJoined}</td>
