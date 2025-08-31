@@ -6,24 +6,60 @@ import { AiOutlineQuestionCircle } from "react-icons/ai";
 import styles from "./Register.module.css";
 import { IoMdPerson } from "react-icons/io";
 import { Link, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
+import Select from "react-select";
+import countryList from "react-select-country-list";
 
 export default function Register() {
   const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
 
+  const [form, setForm] = useState({
+    Email: "",
+    FullName: "",
+    DOfB: "",
+    Course: "",
+    Country: "",
+  });
+
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 2) {
-        setScrolled(true);
-      } else {
-        setScrolled(false);
-      }
+      setScrolled(window.scrollY > 2);
     };
     window.addEventListener("scroll", handleScroll);
-
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  const handleCountryChange = (selected) => {
+    setForm({ ...form, Country: selected.label });
+  };
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await fetch("http://localhost:3000/api/students/pending", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+
+      if (res.ok) {
+        alert("Registration submitted! Waiting for admin approval.");
+        navigate("/login");
+      } else {
+        alert("Error submitting registration");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Server error");
+    }
+  };
+
+  const options = useMemo(() => countryList().getData(), []);
 
   return (
     <>
@@ -53,7 +89,6 @@ export default function Register() {
           <h2>Learner.</h2>
           <div>
             <p onClick={() => navigate("/")}>Home</p>
-
             <p>Dropdown</p>
             <p onClick={() => navigate("/ourstaff")}>Our Staff</p>
             <p onClick={() => navigate("/news")}>News</p>
@@ -62,6 +97,57 @@ export default function Register() {
             <p onClick={() => navigate("/contact")}>Contact</p>
           </div>
           <button>ENROLL NOW</button>
+        </div>
+
+        <div className={styles.login}>
+          <h1>Register</h1>
+          <form className={styles.form} onSubmit={handleSubmit}>
+            <input
+              type="text"
+              placeholder="Fullname"
+              name="FullName"
+              value={form.FullName}
+              onChange={handleChange}
+              className={styles.formtext}
+            />
+            <input
+              type="email"
+              placeholder="Email"
+              name="Email"
+              value={form.Email}
+              onChange={handleChange}
+            />
+            <input type="number" name="" id="" />
+            <input
+              type="date"
+              placeholder="Date of birth"
+              name="DOfB"
+              value={form.DOfB}
+              onChange={handleChange}
+              className={styles.formtext}
+            />
+            <input
+              type="text"
+              placeholder="Course"
+              name="Course"
+              value={form.Course}
+              onChange={handleChange}
+              className={styles.formtext}
+            />
+            {/* ✅ Searchable Country Select */}
+            <Select
+              options={options}
+              onChange={handleCountryChange}
+              placeholder="Select Country"
+              value={options.find((opt) => opt.label === form.Country) || null}
+            />
+            <div className={styles.remember}>
+              <input type="checkbox" />
+              <p>I agree to the terms and condition of the school</p>
+            </div>
+
+            <button type="submit">Register</button>
+          </form>
         </div>
       </div>
     </>

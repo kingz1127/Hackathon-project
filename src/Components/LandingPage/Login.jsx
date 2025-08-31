@@ -33,12 +33,21 @@ export default function Login() {
       if (!response.ok) {
         setError(data.message);
       } else {
-        localStorage.setItem("token", data.token); // save token for session
-        if (data.teacherId) {
-          localStorage.setItem("teacherId", data.teacherId); // store teacherId
-          navigate("/teacherdashboard"); // optional separate dashboard
-        } else {
-          navigate("/admindashboard"); // admin dashboard
+        localStorage.setItem("token", data.token);
+
+        // Handle different user types
+        if (data.admin) {
+          localStorage.setItem("userRole", "admin");
+          localStorage.setItem("adminId", data.admin.id);
+          navigate("/admindashboard");
+        } else if (data.teacher) {
+          localStorage.setItem("userRole", "teacher");
+          localStorage.setItem("teacherId", data.teacherId);
+          navigate("/teacherdashboard");
+        } else if (data.student) {
+          localStorage.setItem("userRole", "student");
+          localStorage.setItem("studentId", data.studentId);
+          navigate("/student");
         }
       }
     } catch (err) {
@@ -120,7 +129,7 @@ export default function Login() {
             <p>Remember me</p>
           </div>
           {error && <p style={{ color: "red" }}>{error}</p>}
-          <button type="submit">Log In</button>
+          <button type="submit">Login</button>
         </form>
       </div>
     </>

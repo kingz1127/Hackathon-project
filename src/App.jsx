@@ -12,6 +12,7 @@ import AdminTeacher from "./Components/AdminDashboard/AdminTeacher";
 import AdminDashboard1 from "./Components/AdminDashboard/AdminDashboard1";
 import AdminStudent from "./Components/AdminDashboard/AdminStudent";
 import TeacherDashboard from "./Components/Teacher/TeacherDashboard";
+import Student from "./Components/Student/Student";
 
 export default function App() {
   return (
@@ -38,7 +39,11 @@ export default function App() {
           <Route path="*" element={<p>Invalid route (404 Not Found)!!!</p>} />
         </Route>
 
+        {/* Teacher page routes */}
         <Route path="/teacherdashboard" element={<TeacherDashboard />} />
+
+        {/* Student page routes */}
+        <Route path="/student" element={<Student />} />
       </Routes>
     </BrowserRouter>
   );

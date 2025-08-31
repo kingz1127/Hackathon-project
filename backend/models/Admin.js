@@ -9,6 +9,8 @@ const teacherSchema = new mongoose.Schema({
   dob: { type: String, required: true },
   course: { type: String, required: true },
   dateJoined: { type: String, required: true },
+  teacherImg: { type: String, required: true },
+  nation: { type: String, required: true },
   password: { type: String, required: true }, // hashed
 });
 
@@ -42,9 +44,34 @@ const adminSchema = new mongoose.Schema({
       dob: String,
       course: String,
       dateJoined: String,
+      teacherImg: String,
+      nation: String,
       password: String,
     },
   ],
+  students: [
+    {
+      studentId: String,
+      email: String,
+      fullName: String,
+      dob: String,
+      course: String,
+      gradeLevel: String,
+      guardian: String,
+      dateJoined: String,
+      studentImg: String,
+      nation: String,
+      password: String,
+    },
+  ],
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
 // Hash admin password before saving
