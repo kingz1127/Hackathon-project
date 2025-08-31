@@ -343,7 +343,7 @@ router.post(
 
 // PUT /admin/teachers/:id - Update teacher
 router.put(
-  "/admin/teachers/:id",
+  "/admin/update-teacher/:id",
   upload.single("TeacherIMG"),
   async (req, res) => {
     try {
@@ -385,28 +385,27 @@ router.put(
   }
 );
 
-// DELETE /admin/teachers/:id - Soft delete teacher
-router.delete("/admin/teachers/:id", async (req, res) => {
+// DELETE /admin/teachers/:id - Hard delete teacher
+// DELETE /admin/teachers/:teacherId - Hard delete teacher
+// DELETE teacher
+// match frontend: /admin/teachers/:teacherId
+router.delete("/admin/teachers/:teacherId", async (req, res) => {
   try {
-    const teacherId = req.params.id;
+    const { teacherId } = req.params;
 
-    const updatedTeacher = await Teacher.findOneAndUpdate(
-      { teacherId: teacherId },
-      { isActive: false, updatedAt: new Date() },
-      { new: true }
-    );
-
-    if (!updatedTeacher) {
+    // 1. Delete from Teachers collection
+    const deletedTeacher = await Teacher.findOneAndDelete({ teacherId });
+    if (!deletedTeacher) {
       return res.status(404).json({ message: "Teacher not found" });
     }
 
-    res.json({
-      message: "Teacher deactivated successfully",
-      teacher: updatedTeacher,
-    });
-  } catch (err) {
-    console.error("Error deactivating teacher:", err);
-    res.status(500).json({ message: "Server error", error: err.message });
+    // 2. Remove from Admin.teachers array
+    await Admin.updateMany({}, { $pull: { teachers: { teacherId } } });
+
+    res.json({ message: "Teacher deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting teacher:", error);
+    res.status(500).json({ message: "Error deleting teacher" });
   }
 });
 

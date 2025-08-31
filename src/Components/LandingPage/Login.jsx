@@ -129,6 +129,7 @@ export default function Login() {
             <p>Remember me</p>
           </div>
           {error && <p style={{ color: "red" }}>{error}</p>}
+
           <button type="submit">Login</button>
         </form>
       </div>
