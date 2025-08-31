@@ -181,22 +181,9 @@ export default function AdminStudent() {
   return (
     <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
       <div style={{ marginBottom: "20px" }}>
-        <h2 style={{ color: "#333", marginBottom: "10px" }}>
-          Student Management
-        </h2>
+        <h2 style={{ color: "#333", marginBottom: "10px" }}>Student</h2>
         <h4
           onClick={() => setIsFormOpen(true)}
-          style={{
-            cursor: "pointer",
-            color: "#007bff",
-            background: "#f8f9fa",
-            padding: "10px 15px",
-            border: "1px solid #dee2e6",
-            borderRadius: "5px",
-            display: "inline-block",
-            margin: 0,
-            transition: "all 0.3s ease",
-          }}
           onMouseOver={(e) => (e.target.style.background = "#e9ecef")}
           onMouseOut={(e) => (e.target.style.background = "#f8f9fa")}
         >
@@ -244,15 +231,9 @@ export default function AdminStudent() {
             marginBottom: "20px",
           }}
         >
-          <h3 style={{ marginTop: 0, color: "#333" }}>Add New Student</h3>
+          <h3>+ Add Student</h3>
 
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
-              gap: "15px",
-            }}
-          >
+          <div>
             <input
               type="email"
               name="Email"
@@ -260,12 +241,6 @@ export default function AdminStudent() {
               value={form.Email}
               onChange={handleInputChange}
               required
-              style={{
-                padding: "8px 12px",
-                border: "1px solid #ced4da",
-                borderRadius: "4px",
-                fontSize: "14px",
-              }}
             />
             <input
               type="text"
@@ -274,37 +249,15 @@ export default function AdminStudent() {
               value={form.FullName}
               onChange={handleInputChange}
               required
-              style={{
-                padding: "8px 12px",
-                border: "1px solid #ced4da",
-                borderRadius: "4px",
-                fontSize: "14px",
-              }}
             />
             <div>
-              <label
-                style={{
-                  fontSize: "12px",
-                  color: "#666",
-                  display: "block",
-                  marginBottom: "4px",
-                }}
-              >
-                Date of Birth *
-              </label>
+              <label>Date of Birth *</label>
               <input
                 type="date"
                 name="DOfB"
                 value={form.DOfB}
                 onChange={handleInputChange}
                 required
-                style={{
-                  padding: "8px 12px",
-                  border: "1px solid #ced4da",
-                  borderRadius: "4px",
-                  fontSize: "14px",
-                  width: "100%",
-                }}
               />
             </div>
             <input
@@ -314,12 +267,6 @@ export default function AdminStudent() {
               value={form.Course}
               onChange={handleInputChange}
               required
-              style={{
-                padding: "8px 12px",
-                border: "1px solid #ced4da",
-                borderRadius: "4px",
-                fontSize: "14px",
-              }}
             />
             <input
               type="text"
@@ -328,12 +275,6 @@ export default function AdminStudent() {
               value={form.GradeLevel}
               onChange={handleInputChange}
               required
-              style={{
-                padding: "8px 12px",
-                border: "1px solid #ced4da",
-                borderRadius: "4px",
-                fontSize: "14px",
-              }}
             />
             <input
               type="text"
@@ -342,89 +283,30 @@ export default function AdminStudent() {
               value={form.Guardian}
               onChange={handleInputChange}
               required
-              style={{
-                padding: "8px 12px",
-                border: "1px solid #ced4da",
-                borderRadius: "4px",
-                fontSize: "14px",
-              }}
             />
             <div>
-              <label
-                style={{
-                  fontSize: "12px",
-                  color: "#666",
-                  display: "block",
-                  marginBottom: "4px",
-                }}
-              >
-                Date Enrolled *
-              </label>
+              <label>Date Enrolled *</label>
               <input
                 type="datetime-local"
                 name="DateJoined"
                 value={form.DateJoined}
                 onChange={handleInputChange}
                 required
-                style={{
-                  padding: "8px 12px",
-                  border: "1px solid #ced4da",
-                  borderRadius: "4px",
-                  fontSize: "14px",
-                  width: "100%",
-                }}
               />
             </div>
             <div>
-              <label
-                style={{
-                  fontSize: "12px",
-                  color: "#666",
-                  display: "block",
-                  marginBottom: "4px",
-                }}
-              >
-                Student Photo *
-              </label>
+              <label>Student Photo *</label>
               <input
                 type="file"
                 accept="image/*"
                 name="StudentIMG"
                 onChange={handleImageChange}
                 required
-                style={{
-                  padding: "8px 12px",
-                  border: "1px solid #ced4da",
-                  borderRadius: "4px",
-                  fontSize: "14px",
-                  width: "100%",
-                }}
               />
-              {form.preview && (
-                <img
-                  src={form.preview}
-                  alt="Preview"
-                  style={{
-                    width: "50px",
-                    height: "50px",
-                    borderRadius: "4px",
-                    marginTop: "8px",
-                    objectFit: "cover",
-                  }}
-                />
-              )}
+              {form.preview && <img src={form.preview} alt="Preview" />}
             </div>
             <div>
-              <label
-                style={{
-                  fontSize: "12px",
-                  color: "#666",
-                  display: "block",
-                  marginBottom: "4px",
-                }}
-              >
-                Country *
-              </label>
+              <label>Country *</label>
               <Select
                 options={options}
                 onChange={handleCountryChange}
@@ -432,39 +314,10 @@ export default function AdminStudent() {
                 value={
                   options.find((opt) => opt.label === form.Country) || null
                 }
-                styles={{
-                  control: (base) => ({
-                    ...base,
-                    minHeight: "38px",
-                    border: "1px solid #ced4da",
-                    borderRadius: "4px",
-                  }),
-                }}
               />
             </div>
-            <div
-              style={{
-                gridColumn: "1 / -1",
-                display: "flex",
-                gap: "10px",
-                justifyContent: "flex-end",
-              }}
-            >
-              <button
-                type="button"
-                onClick={handleSave}
-                disabled={isLoading}
-                style={{
-                  background: isLoading ? "#6c757d" : "#28a745",
-                  color: "white",
-                  border: "none",
-                  padding: "10px 20px",
-                  borderRadius: "4px",
-                  cursor: isLoading ? "not-allowed" : "pointer",
-                  fontSize: "14px",
-                  opacity: isLoading ? 0.7 : 1,
-                }}
-              >
+            <div>
+              <button type="button" onClick={handleSave} disabled={isLoading}>
                 {isLoading ? "Processing..." : "Save Student"}
               </button>
               <button
@@ -492,12 +345,11 @@ export default function AdminStudent() {
         </div>
       )}
 
-      <div style={{ overflowX: "auto" }}>
+      <div>
         <table>
           <thead>
             <tr>
-              <th>Photo</th>
-              <th>Student ID</th>
+              <th> ID</th>
               <th>Full Name</th>
               <th>Email</th>
               <th>DOB</th>
@@ -519,6 +371,7 @@ export default function AdminStudent() {
             ) : (
               students.map((student, index) => (
                 <tr key={student._id || index}>
+                  <td>{student.studentId}</td>
                   <td>
                     {student.StudentIMG ? (
                       <img
@@ -534,9 +387,8 @@ export default function AdminStudent() {
                     ) : (
                       <div>No Photo</div>
                     )}
+                    {student.FullName}
                   </td>
-                  <td>{student.studentId}</td>
-                  <td>{student.FullName}</td>
                   <td>{student.Email}</td>
                   <td>{student.DOfB}</td>
                   <td>{student.Course}</td>
@@ -548,7 +400,7 @@ export default function AdminStudent() {
                       : ""}
                   </td>
                   <td>{student.Country}</td>
-                  <td style={{ padding: "8px", border: "1px solid #dee2e6" }}>
+                  <td>
                     <button
                       onClick={() => handleDelete(student.studentId, index)}
                     >
