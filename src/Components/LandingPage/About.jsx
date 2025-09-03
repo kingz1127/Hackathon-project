@@ -5,6 +5,7 @@ import { IoMdCall, IoMdPerson } from "react-icons/io";
 import { Link, useNavigate } from "react-router-dom";
 import styles from "./About.module.css";
 import { useEffect, useState } from "react";
+import Register from "./Register";
 
 export default function About() {
   const navigate = useNavigate();
@@ -58,7 +59,7 @@ export default function About() {
             <p onClick={() => navigate("/about")}>About</p>
             <p onClick={() => navigate("/contact")}>Contact</p>
           </div>
-          <button>ENROLL NOW</button>
+          <button onClick={() => navigate("/register")}>ENROLL NOW</button>
         </div>
       </div>
     </>

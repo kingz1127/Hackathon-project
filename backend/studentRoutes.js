@@ -13,13 +13,12 @@ const __dirname = path.dirname(__filename);
 
 let transporter = null;
 
+// Setup Nodemailer
 const setupEmailTransporter = () => {
   if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
     console.warn("Email credentials missing. Emails will not be sent.");
     return null;
   }
-
-  console.log("Setting up email for student routes:", process.env.EMAIL_USER);
 
   const mailer = nodemailer.createTransport({
     service: "gmail",
@@ -29,23 +28,19 @@ const setupEmailTransporter = () => {
     },
   });
 
-  mailer.verify((error, success) => {
+  mailer.verify((error) => {
     if (error) {
-      console.error(
-        "Gmail authentication error in student routes:",
-        error.message
-      );
+      console.error("Gmail authentication error:", error.message);
     } else {
-      console.log("Student email server is ready to send messages");
+      console.log("Student email server ready to send messages");
     }
   });
 
   return mailer;
 };
-
 transporter = setupEmailTransporter();
 
-// Configure multer for student file uploads
+// Multer config for uploads
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, "uploads/students/");
@@ -58,9 +53,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({
   storage: storage,
-  limits: {
-    fileSize: 5 * 1024 * 1024, // 5MB limit
-  },
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
   fileFilter: function (req, file, cb) {
     if (file.mimetype.startsWith("image/")) {
       cb(null, true);
@@ -75,8 +68,9 @@ const randomPassword = (length = 8) => {
   const chars =
     "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
   let pass = "";
-  for (let i = 0; i < length; i++)
+  for (let i = 0; i < length; i++) {
     pass += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
   return pass;
 };
 
@@ -85,11 +79,11 @@ const randomStudentId = () => {
   return "STU" + String(Math.floor(Math.random() * 99999 + 1)).padStart(5, "0");
 };
 
-// GET /admin/students - Fetch all students
+// ========== ROUTES ==========
+
+// GET all students
 router.get("/admin/students", async (req, res) => {
   try {
-    console.log("Fetching all students from Student collection...");
-
     const students = await Student.find({ isActive: true }).sort({
       createdAt: -1,
     });
@@ -108,6 +102,11 @@ router.get("/admin/students", async (req, res) => {
       Course: student.course,
       GradeLevel: student.gradeLevel,
       Guardian: student.guardian,
+      GuardianPhoneNumber: student.guardianPhoneNumber,
+      PhoneNumber: student.phoneNumber,
+      StateOfOrigin: student.stateOfOrigin,
+      Address: student.address,
+      Gender: student.gender,
       DateJoined: student.dateJoined,
       Country: student.nation,
       isActive: student.isActive,
@@ -115,7 +114,6 @@ router.get("/admin/students", async (req, res) => {
       createdAt: student.createdAt,
     }));
 
-    console.log("Found", studentsFormatted.length, "active students");
     res.json(studentsFormatted);
   } catch (err) {
     console.error("Error fetching students:", err);
@@ -123,16 +121,12 @@ router.get("/admin/students", async (req, res) => {
   }
 });
 
-// POST /admin/add-student - Add new student
+// ADD student
 router.post(
   "/admin/add-student",
   upload.single("StudentIMG"),
   async (req, res) => {
     try {
-      console.log("Received add-student request");
-      console.log("Form data:", req.body);
-      console.log("Uploaded file:", req.file);
-
       const {
         Email,
         FullName,
@@ -140,11 +134,15 @@ router.post(
         Course,
         GradeLevel,
         Guardian,
+        GuardianPhoneNumber,
+        PhoneNumber,
+        StateOfOrigin,
+        Address,
+        Gender,
         DateJoined,
         Country,
       } = req.body;
 
-      // Validate all fields
       if (
         !Email ||
         !FullName ||
@@ -152,87 +150,75 @@ router.post(
         !Course ||
         !GradeLevel ||
         !Guardian ||
+        !GuardianPhoneNumber ||
+        !PhoneNumber ||
+        !StateOfOrigin ||
+        !Address ||
+        !Gender ||
         !DateJoined ||
         !Country
       ) {
-        console.log("Missing required fields");
         return res.status(400).json({ message: "All fields are required" });
       }
 
       if (!req.file) {
-        console.log("No image file uploaded");
         return res.status(400).json({ message: "Student image is required" });
       }
 
-      // Check for duplicate email in Student collection
       const existingStudent = await Student.findOne({
         email: Email.toLowerCase(),
       });
       if (existingStudent) {
-        console.log("Email already exists in Student collection:", Email);
-        return res.status(400).json({
-          message: "Student with this email already exists",
-        });
+        return res
+          .status(400)
+          .json({ message: "Student with this email already exists" });
       }
 
-      // Check for duplicate email in Admin's students array
       const admin = await Admin.findOne({ username: "admin" });
       if (!admin) {
-        console.log("Admin not found");
         return res.status(404).json({ message: "Admin not found" });
       }
 
       const emailExistsInAdmin =
         admin.students && admin.students.some((s) => s.email === Email);
       if (emailExistsInAdmin) {
-        console.log("Email already exists in Admin students:", Email);
-        return res.status(400).json({
-          message: "Student with this email already exists",
-        });
+        return res
+          .status(400)
+          .json({ message: "Student with this email already exists" });
       }
 
-      // Generate password and studentId
       const studentPassword = randomPassword();
       const hashedPassword = await bcrypt.hash(studentPassword, 10);
       const studentId = randomStudentId();
 
-      console.log("Creating student:", { studentId, Email, FullName });
-
       const studentData = {
-        studentId,
         email: Email.toLowerCase(),
         fullName: FullName,
         dob: DOfB,
         course: Course,
         gradeLevel: GradeLevel,
         guardian: Guardian,
+        guardianPhoneNumber: GuardianPhoneNumber,
+        phoneNumber: PhoneNumber,
+        stateOfOrigin: StateOfOrigin,
+        address: Address,
+        gender: Gender,
         dateJoined: DateJoined,
         studentImg: req.file.path,
         nation: Country,
         password: hashedPassword,
       };
 
-      // 1. Create new student in Student collection
       const newStudent = new Student(studentData);
       await newStudent.save();
-      console.log("Student saved to Student collection");
 
-      // 2. Also add to Admin's students array for backward compatibility
       await Admin.updateOne(
         { username: "admin" },
-        {
-          $push: {
-            students: studentData,
-          },
-        }
+        { $push: { students: studentData } }
       );
-      console.log("Student also added to Admin collection");
 
-      // Send email to student
       if (transporter) {
         try {
-          console.log("Attempting to send email to:", Email);
-
           const mailOptions = {
             from: `"Learner Admin" <${process.env.EMAIL_USER}>`,
             to: Email,
@@ -265,55 +251,26 @@ router.post(
             text: `Hello ${FullName},\n\nYour student account has been created.\n\nLogin Credentials:\nStudent ID: ${studentId}\nEmail: ${Email}\nTemporary Password: ${studentPassword}\n\nLogin at: http://localhost:5173/login\n\nPlease change your password after your first login.\n\nThis is an automated message.`,
           };
 
-          const info = await transporter.sendMail(mailOptions);
-          console.log("Email sent successfully!");
-          console.log("Message ID:", info.messageId);
+          await transporter.sendMail(mailOptions);
 
           res.json({
             message: "Student added successfully and email sent!",
             studentId,
             emailSent: true,
             imageUrl: `http://localhost:5000/uploads/students/${req.file.filename}`,
-            studentDetails: {
-              studentId,
-              email: Email,
-              fullName: FullName,
-              course: Course,
-              gradeLevel: GradeLevel,
-              country: Country,
-              createdAt: newStudent.createdAt,
-            },
           });
         } catch (emailError) {
-          console.error("Email sending failed:", emailError.message);
-
           res.json({
-            message: "Student added successfully, but email failed to send",
+            message: "Student added successfully, but email failed",
             studentId,
             emailSent: false,
-            emailError: emailError.message,
-            imageUrl: `http://localhost:5000/uploads/students/${req.file.filename}`,
-            studentDetails: {
-              studentId,
-              email: Email,
-              fullName: FullName,
-              password: studentPassword,
-            },
           });
         }
       } else {
-        console.log("Email transporter not configured, skipping email");
         res.json({
           message: "Student added successfully (email not configured)",
           studentId,
           emailSent: false,
-          imageUrl: `http://localhost:5000/uploads/students/${req.file.filename}`,
-          studentDetails: {
-            studentId,
-            email: Email,
-            fullName: FullName,
-            password: studentPassword,
-          },
         });
       }
     } catch (err) {
@@ -322,5 +279,88 @@ router.post(
     }
   }
 );
+
+// UPDATE student
+// UPDATE student
+router.put(
+  "/admin/students/:studentId",
+  upload.single("StudentIMG"),
+  async (req, res) => {
+    try {
+      const { studentId } = req.params;
+      const {
+        Email,
+        FullName,
+        DOfB,
+        Course,
+        GradeLevel,
+        Guardian,
+        GuardianPhoneNumber,
+        PhoneNumber,
+        StateOfOrigin,
+        Address,
+        Gender,
+        Country,
+      } = req.body;
+
+      const updateData = {
+        email: Email?.toLowerCase(),
+        fullName: FullName,
+        dob: DOfB,
+        course: Course,
+        gradeLevel: GradeLevel,
+        guardian: Guardian,
+        guardianPhoneNumber: GuardianPhoneNumber,
+        phoneNumber: PhoneNumber,
+        stateOfOrigin: StateOfOrigin,
+        address: Address,
+        gender: Gender,
+        nation: Country,
+        updatedAt: new Date(),
+      };
+
+      if (req.file) {
+        updateData.studentImg = req.file.path;
+      }
+
+      const updatedStudent = await Student.findOneAndUpdate(
+        { studentId },
+        updateData,
+        { new: true }
+      );
+
+      if (!updatedStudent) {
+        return res.status(404).json({ message: "Student not found" });
+      }
+
+      res.json({
+        message: "Student updated successfully",
+        student: updatedStudent,
+      });
+    } catch (err) {
+      console.error("Error updating student:", err);
+      res.status(500).json({ message: "Server error", error: err.message });
+    }
+  }
+);
+
+// DELETE student
+router.delete("/admin/students/:studentId", async (req, res) => {
+  try {
+    const { studentId } = req.params;
+
+    const deletedStudent = await Student.findOneAndDelete({ studentId });
+    if (!deletedStudent) {
+      return res.status(404).json({ message: "Student not found" });
+    }
+
+    await Admin.updateMany({}, { $pull: { students: { studentId } } });
+
+    res.json({ message: "Student deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting student:", error);
+    res.status(500).json({ message: "Error deleting student" });
+  }
+});
 
 export default router;

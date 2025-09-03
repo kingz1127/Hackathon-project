@@ -11,6 +11,7 @@ import { fileURLToPath } from "url";
 import fs from "fs";
 import Student from "./models/Student.js";
 import studentRoutes from "./studentRoutes.js";
+import registerRoutes from "./models/registerRoutes.js";
 
 dotenv.config();
 
@@ -345,6 +346,8 @@ app.get("/health", (req, res) => {
 // Register routes
 app.use("/", teacherRoutes);
 app.use("/", studentRoutes);
+// Mount the register route
+app.use("/api", registerRoutes);
 
 mongoose
   .connect(MONGO_URI)

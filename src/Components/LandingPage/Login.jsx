@@ -104,7 +104,7 @@ export default function Login() {
             <p onClick={() => navigate("/about")}>About</p>
             <p onClick={() => navigate("/contact")}>Contact</p>
           </div>
-          <button>ENROLL NOW</button>
+          <button onClick={() => navigate("/register")}>ENROLL NOW</button>
         </div>
       </div>
       <div className={styles.login}>

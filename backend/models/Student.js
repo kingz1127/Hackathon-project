@@ -32,6 +32,14 @@ const studentSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  guardianPhoneNumber: {
+    type: String,
+    required: true,
+  },
+  phoneNumber: {
+    type: String,
+    required: true,
+  },
   dateJoined: {
     type: String,
     required: true,
@@ -41,6 +49,18 @@ const studentSchema = new mongoose.Schema({
     default: null,
   },
   nation: {
+    type: String,
+    required: true,
+  },
+  stateOfOrigin: {
+    type: String,
+    required: true,
+  },
+  address: {
+    type: String,
+    required: true,
+  },
+  gender: {
     type: String,
     required: true,
   },

@@ -385,8 +385,6 @@ router.put(
   }
 );
 
-// DELETE /admin/teachers/:id - Hard delete teacher
-// DELETE /admin/teachers/:teacherId - Hard delete teacher
 // DELETE teacher
 // match frontend: /admin/teachers/:teacherId
 router.delete("/admin/teachers/:teacherId", async (req, res) => {

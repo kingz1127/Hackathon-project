@@ -20,6 +20,13 @@ export default function Register() {
     DOfB: "",
     Course: "",
     Country: "",
+    Grade: "",
+    PhoneNumber: "",
+    Guardian: "",
+    GuardianPhoneNumber: "",
+    StateOfOrigin: "",
+    Address: "",
+    Gender: "",
   });
 
   useEffect(() => {
@@ -41,14 +48,16 @@ export default function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch("http://localhost:3000/api/students/pending", {
+      const res = await fetch("http://localhost:5000/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
       });
 
       if (res.ok) {
-        alert("Registration submitted! Waiting for admin approval.");
+        alert(
+          "✅ Registration submitted! also check your mail for Admin feedback"
+        );
         navigate("/login");
       } else {
         alert("Error submitting registration");
@@ -96,7 +105,7 @@ export default function Register() {
             <p onClick={() => navigate("/about")}>About</p>
             <p onClick={() => navigate("/contact")}>Contact</p>
           </div>
-          <button>ENROLL NOW</button>
+          <button onClick={() => navigate("/register")}>ENROLL NOW</button>
         </div>
 
         <div className={styles.login}>
@@ -116,33 +125,129 @@ export default function Register() {
               name="Email"
               value={form.Email}
               onChange={handleChange}
+              className={styles.formtext}
             />
-            <input type="number" name="" id="" />
             <input
-              type="date"
-              placeholder="Date of birth"
-              name="DOfB"
-              value={form.DOfB}
+              type="number"
+              placeholder="Phone Number"
+              name="PhoneNumber"
+              value={form.PhoneNumber}
+              onChange={handleChange}
+              className={styles.formtext}
+            />
+
+            <div className={styles.dobIn}>
+              <label>Date of Birth:</label>
+              <input
+                type="date"
+                placeholder="Date of Birth"
+                name="DOfB"
+                value={form.DOfB}
+                onChange={handleChange}
+                max={
+                  new Date(
+                    new Date().setFullYear(new Date().getFullYear() - 15)
+                  )
+                    .toISOString()
+                    .split("T")[0]
+                } // max = 15 years ago
+                min={
+                  new Date(
+                    new Date().setFullYear(new Date().getFullYear() - 60)
+                  )
+                    .toISOString()
+                    .split("T")[0]
+                } // min = 60 years ago
+              />
+            </div>
+
+            <input
+              type="text"
+              placeholder="Grade"
+              name="Grade"
+              value={form.Grade}
+              onChange={handleChange}
+              className={styles.formtext}
+            />
+
+            <input
+              type="text"
+              placeholder="Guardian"
+              name="Guardian"
+              value={form.Guardian}
               onChange={handleChange}
               className={styles.formtext}
             />
             <input
-              type="text"
+              type="number"
+              placeholder="Guardian Phone Number"
+              name="GuardianPhoneNumber"
+              value={form.GuardianPhoneNumber}
+              onChange={handleChange}
+              className={styles.formtext}
+            />
+
+            <select
               placeholder="Course"
               name="Course"
               value={form.Course}
               onChange={handleChange}
               className={styles.formtext}
-            />
+            >
+              <option value="">Preferred Course</option>
+              <option value="AI & Machine Learning">
+                AI & Machine Learning
+              </option>
+              <option value="Cyber Security">Cyber Security</option>
+              <option value="Data Analytics">Data Analytics</option>
+              <option value="Networking">Networking</option>
+              <option value="Python">Python</option>
+              <option value="Software Engineering">
+                Software Engineering / FullStack
+              </option>
+            </select>
+
             {/* ✅ Searchable Country Select */}
-            <Select
-              options={options}
-              onChange={handleCountryChange}
-              placeholder="Select Country"
-              value={options.find((opt) => opt.label === form.Country) || null}
+            <div className={styles.selectCountry}>
+              <Select
+                options={options}
+                onChange={handleCountryChange}
+                placeholder="Nationality"
+                value={
+                  options.find((opt) => opt.label === form.Country) || null
+                }
+              />
+            </div>
+            <input
+              type="text"
+              placeholder="State of Origin"
+              name="StateOfOrigin"
+              value={form.StateOfOrigin}
+              onChange={handleChange}
+              className={styles.formtext}
             />
+            <input
+              type="text"
+              placeholder="Address"
+              name="Address"
+              value={form.Address}
+              onChange={handleChange}
+              className={styles.formtext}
+            />
+
+            <select
+              name="Gender"
+              value={form.Gender}
+              onChange={handleChange}
+              className={styles.formtext}
+            >
+              <option value="">Gender</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+            </select>
+
             <div className={styles.remember}>
-              <input type="checkbox" />
+              <input type="checkbox" required />
               <p>I agree to the terms and condition of the school</p>
             </div>
 
