@@ -1,10 +1,10 @@
+import { useEffect, useState } from "react";
 import { AiOutlineQuestionCircle } from "react-icons/ai";
 import { BiLockAlt } from "react-icons/bi";
 import { HiMail } from "react-icons/hi";
 import { IoMdCall, IoMdPerson } from "react-icons/io";
 import { Link, useNavigate } from "react-router-dom";
 import styles from "./Home.module.css";
-import { useEffect, useState } from "react";
 
 export default function Home() {
   const navigate = useNavigate();
@@ -48,7 +48,7 @@ export default function Home() {
         </div>
         <hr />
         <div className={`${styles.div3} ${scrolled ? styles.scrolled : ""}`}>
-          <h2>Learner.</h2>
+          <h2>Learner</h2>
           <div>
             <p onClick={() => navigate("/")}>Home</p>
             <p>Dropdown</p>
