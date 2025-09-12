@@ -1,6 +1,6 @@
 // src/pages/Announcements.jsx
 import { useState } from "react";
-import "../Styles/Teacher.css";
+import "./Teacher.css";
 
 export default function Announcements() {
   const [announcements, setAnnouncements] = useState([

@@ -1,7 +1,7 @@
 // src/components/Sidebar.jsx
 import { FaBook, FaClipboardCheck, FaCog, FaEnvelope, FaTachometerAlt, FaUsers } from "react-icons/fa";
 import { NavLink } from "react-router";
-import "../Styles/Teacher.css";
+import "./Teacher.css";
 export default function TeacherSidebar() {
   return (
     <div className="sidebar">

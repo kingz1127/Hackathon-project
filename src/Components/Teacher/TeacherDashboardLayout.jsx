@@ -1,6 +1,6 @@
 // src/layouts/TeacherDashboardLayout.jsx
 import { Outlet } from "react-router-dom";
-import "../styles/teacher.css";
+import "./Teacher.css";
 import Sidebar from "./TeacherSidebar";
 
 export default function TeacherDashboardLayout() {

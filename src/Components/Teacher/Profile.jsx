@@ -103,7 +103,7 @@
 
 
 import { useEffect, useState } from "react";
-import "../styles/teacher.css";
+import "./Teacher.css";
 
 export default function MyProfile() {
   const [profile, setProfile] = useState(null);

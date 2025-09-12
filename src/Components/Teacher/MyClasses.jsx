@@ -1,7 +1,7 @@
 // src/pages/MyClasses.jsx
 import { useEffect, useState } from "react";
 import { FaBookOpen, FaEdit, FaUpload } from "react-icons/fa";
-import "../Styles/Teacher.css"; // <-- custom css file
+import "./Teacher.css"; // <-- custom css file
 
 export default function MyClasses() {
   const [classes, setClasses] = useState([]);

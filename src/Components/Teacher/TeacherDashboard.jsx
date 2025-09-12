@@ -1,6 +1,6 @@
 // src/pages/TeacherDashboard.jsx
 import { FaBell, FaChalkboard, FaChalkboardTeacher, FaEnvelope, FaTasks, FaUserGraduate } from "react-icons/fa";
-import "../styles/teacher.css";
+import "./Teacher.css";
 
 export default function TeacherDashboard() {
   return (

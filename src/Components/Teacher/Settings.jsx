@@ -1,5 +1,5 @@
 import { useState } from "react";
-import "../Styles/Teacher.css";
+import "./Teacher.css";
 
 export default function Settings() {
   const [darkMode, setDarkMode] = useState(false);

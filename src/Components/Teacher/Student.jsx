@@ -1,6 +1,6 @@
 // src/pages/StudentsPage.jsx
 import { useState } from "react";
-import "../Styles/Teacher.css";
+import "./Teacher.css";
 
 const sampleStudents = [
   { id: 1, name: "Jude Opueh", grade: "Grade 10", class: "10A" },

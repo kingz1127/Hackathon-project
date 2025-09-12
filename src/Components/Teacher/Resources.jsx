@@ -1,6 +1,6 @@
 // src/pages/Resources.jsx
 import { useState } from "react";
-import "../Styles/Teacher.css";
+import "./Teacher.css";
 
 export default function Resources() {
   const [resources, setResources] = useState([

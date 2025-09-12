@@ -1,6 +1,6 @@
 // src/pages/Attendance.jsx
 import { useState } from "react";
-import "../Styles/Teacher.css";
+import "./Teacher.css";
 
 export default function Attendance() {
   const [date, setDate] = useState("");
