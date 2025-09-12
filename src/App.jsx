@@ -7,6 +7,12 @@ import Gallery from "./Components/LandingPage/Gallery";
 import Contact from "./Components/LandingPage/Contact";
 import Login from "./Components/LandingPage/Login";
 import Register from "./Components/LandingPage/Register";
+import AdminDashboard from "./Components/AdminDashboard/AdminDashboard";
+import AdminTeacher from "./Components/AdminDashboard/AdminTeacher";
+import AdminDashboard1 from "./Components/AdminDashboard/AdminDashboard1";
+import AdminStudent from "./Components/AdminDashboard/AdminStudent";
+import TeacherDashboard from "./Components/Teacher/TeacherDashboard";
+import Student from "./Components/Student/Student";
 
 export default function App() {
   return (
@@ -22,6 +28,22 @@ export default function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         {/* Other routes stay below */}
+
+        {/* Admin page routes */}
+
+        <Route path="/admindashboard" element={<AdminDashboard />}>
+          <Route path="admindashboard1" element={<AdminDashboard1 />} />
+          <Route path="adminstudent" element={<AdminStudent />} />
+
+          <Route path="adminteacher" element={<AdminTeacher />} />
+          <Route path="*" element={<p>Invalid route (404 Not Found)!!!</p>} />
+        </Route>
+
+        {/* Teacher page routes */}
+        <Route path="/teacherdashboard" element={<TeacherDashboard />} />
+
+        {/* Student page routes */}
+        <Route path="/student" element={<Student />} />
       </Routes>
     </BrowserRouter>
   );
