@@ -19,7 +19,7 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI;
 const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const _dirname = path.dirname(_filename);
 
 console.log("Mongo URI:", MONGO_URI);
 
@@ -384,4 +384,4 @@ mongoose
     console.error("MongoDB connection error:", err);
   });
 
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

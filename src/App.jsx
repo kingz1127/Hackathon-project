@@ -7,6 +7,8 @@ import Gallery from "./Components/LandingPage/Gallery";
 import Contact from "./Components/LandingPage/Contact";
 import Login from "./Components/LandingPage/Login";
 import Register from "./Components/LandingPage/Register";
+// import AdminDashboard from "./Components/AdminDashboard/Dashboard";
+
 import AdminDashboard from "./Components/AdminDashboard/AdminDashboard";
 import AdminTeacher from "./Components/AdminDashboard/AdminTeacher";
 import AdminDashboard1 from "./Components/AdminDashboard/AdminDashboard1";
