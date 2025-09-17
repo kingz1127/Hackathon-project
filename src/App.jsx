@@ -1,18 +1,29 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import Home from "./Components/LandingPage/Home";
-import About from "./Components/LandingPage/About";
-import OurStaff from "./Components/LandingPage/OurStaff";
-import News from "./Components/LandingPage/News";
-import Gallery from "./Components/LandingPage/Gallery";
-import Contact from "./Components/LandingPage/Contact";
-import Login from "./Components/LandingPage/Login";
-import Register from "./Components/LandingPage/Register";
 import AdminDashboard from "./Components/AdminDashboard/AdminDashboard";
-import AdminTeacher from "./Components/AdminDashboard/AdminTeacher";
 import AdminDashboard1 from "./Components/AdminDashboard/AdminDashboard1";
 import AdminStudent from "./Components/AdminDashboard/AdminStudent";
+import AdminTeacher from "./Components/AdminDashboard/AdminTeacher";
+import About from "./Components/LandingPage/About";
+import Contact from "./Components/LandingPage/Contact";
+import Gallery from "./Components/LandingPage/Gallery";
+import Home from "./Components/LandingPage/Home";
+import Login from "./Components/LandingPage/Login";
+import News from "./Components/LandingPage/News";
+import OurStaff from "./Components/LandingPage/OurStaff";
+import Register from "./Components/LandingPage/Register";
+import Announcements from "./Components/Teacher/Announcements";
+import Attendance from "./Components/Teacher/Attendance";
+import MyClasses from "./Components/Teacher/MyClasses";
+import MyProfile from "./Components/Teacher/Profile";
+import Resources from "./Components/Teacher/Resources";
+import Settings from "./Components/Teacher/Settings";
+import Student from "./Components/Teacher/Student";
 import TeacherDashboard from "./Components/Teacher/TeacherDashboard";
+<<<<<<< HEAD
 import Student from "./Components/Student/StudentDashboard";
+=======
+import TeacherDashboardLayout from "./Components/Teacher/TeacherDashboardLayout";
+>>>>>>> 379e5e8abd3980c17b90b52ecebd0e6f777b42d0
 
 export default function App() {
   return (
@@ -40,7 +51,16 @@ export default function App() {
         </Route>
 
         {/* Teacher page routes */}
-        <Route path="/teacherdashboard" element={<TeacherDashboard />} />
+          <Route path= "/" element={<TeacherDashboardLayout/>}>
+      <Route path= "teachdashboard" element={<TeacherDashboard/>}/>
+       <Route path= "teachclasses" element={<MyClasses/>}/>
+       <Route path= "teachprofile" element={<MyProfile/>}/>
+        <Route path= "teachattendance" element={<Attendance/>}/>
+        <Route path= "teachstudent" element={<Student/>}/>
+        <Route path= "teachannouncements" element={<Announcements/>}/>
+        <Route path= "teachresources" element={<Resources/>}/>
+        <Route path= "teachsettings" element={<Settings/>}/>
+      </Route>
 
         {/* Student page routes */}
         <Route path="/student" element={<Student />} />

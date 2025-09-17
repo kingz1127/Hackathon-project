@@ -16,7 +16,7 @@ const teacherSchema = new mongoose.Schema({
   },
   fullName: {
     type: String,
-    required: true,
+    required: true, 
     trim: true,
   },
   dob: {

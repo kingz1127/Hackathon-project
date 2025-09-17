@@ -1,11 +1,13 @@
-import express from "express";
-import Student from "./models/Student.js";
-import Admin from "./models/Admin.js";
 import bcrypt from "bcrypt";
+import express from "express";
 import multer from "multer";
+import nodemailer from "nodemailer";
 import path from "path";
 import { fileURLToPath } from "url";
-import nodemailer from "nodemailer";
+import Admin from "./models/Admin.js";
+import Student from "./models/Student.js";
+import Teacher from "./models/Teacher.js";
+
 
 const router = express.Router();
 const __filename = fileURLToPath(import.meta.url);
@@ -120,6 +122,31 @@ router.get("/admin/students", async (req, res) => {
     res.status(500).json({ message: "Server error", error: err.message });
   }
 });
+
+// Get all students under a teacher’s course & term level
+router.get("/by-teacher/:teacherId", async (req, res) => {
+  try {
+    const { termLevel } = req.query; // e.g. /by-teacher/TEA123?termLevel=200
+
+    const teacher = await Teacher.findOne({ teacherId: req.params.teacherId });
+    if (!teacher) {
+      return res.status(404).json({ message: "Teacher not found" });
+    }
+
+    const query = { course: teacher.course };
+    if (termLevel) {
+      query.gradeLevel = termLevel;
+    }
+
+    const students = await Student.find(query);
+
+    res.json(students);
+  } catch (err) {
+    console.error("Error fetching students by teacher:", err);
+    res.status(500).json({ error: "Failed to fetch students" });
+  }
+});
+
 
 // ADD student
 router.post(

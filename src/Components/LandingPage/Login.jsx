@@ -1,10 +1,10 @@
-import { BiLockAlt } from "react-icons/bi";
+import { useEffect, useState } from "react";
 import { AiOutlineQuestionCircle } from "react-icons/ai";
+import { BiLockAlt } from "react-icons/bi";
 import { HiMail } from "react-icons/hi";
 import { IoMdCall, IoMdPerson } from "react-icons/io";
 import { Link, useNavigate } from "react-router-dom";
 import styles from "./Login.module.css";
-import { useEffect, useState } from "react";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -40,10 +40,10 @@ export default function Login() {
           localStorage.setItem("userRole", "admin");
           localStorage.setItem("adminId", data.admin.id);
           navigate("/admindashboard");
-        } else if (data.teacher) {
+         } else if (data.teacher) {
           localStorage.setItem("userRole", "teacher");
-          localStorage.setItem("teacherId", data.teacherId);
-          navigate("/teacherdashboard");
+          localStorage.setItem("teacherId", data.teacher.id); // correct key
+          navigate("/teachdashboard");
         } else if (data.student) {
           localStorage.setItem("userRole", "student");
           localStorage.setItem("studentId", data.studentId);

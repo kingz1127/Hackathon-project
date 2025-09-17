@@ -1,12 +1,12 @@
-import express from "express";
-import Admin from "./models/Admin.js";
-import Teacher from "./models/Teacher.js"; // Import the new Teacher model
 import bcrypt from "bcrypt";
-import nodemailer from "nodemailer";
 import dotenv from "dotenv";
+import express from "express";
 import multer from "multer";
+import nodemailer from "nodemailer";
 import path from "path";
 import { fileURLToPath } from "url";
+import Admin from "./models/Admin.js";
+import Teacher from "./models/Teacher.js"; // Import the new Teacher model
 
 dotenv.config();
 
@@ -230,6 +230,24 @@ router.post(
         nation: Country,
         password: hashedPassword,
       };
+
+      // Update teacher password
+router.put("/admin/teachers/:id/password", async (req, res) => {
+  try {
+    const { password } = req.body;
+    const teacher = await Teacher.findOne({ teacherId: req.params.id });
+
+    if (!teacher) return res.status(404).json({ message: "Teacher not found" });
+
+    teacher.password = password; // ⚠️ make sure to hash before saving if using bcrypt
+    await teacher.save();
+
+    res.json({ message: "Password updated successfully" });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to update password" });
+  }
+});
+
 
       // 1. Create new teacher in Teacher collection
       const newTeacher = new Teacher(teacherData);
