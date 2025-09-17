@@ -1,3 +1,5 @@
+<<<<<<< HEAD
+=======
 import styles from "./Student.module.css";
 
 export default function Student() {
@@ -8,3 +10,4 @@ export default function Student() {
     </>
   );
 }
+>>>>>>> 379e5e8abd3980c17b90b52ecebd0e6f777b42d0

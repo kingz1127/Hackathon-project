@@ -25,7 +25,7 @@ export default function Sidebar() {
       {/* Navigation Links */}
       <nav className={styles.navContainer}>
         <div className={styles.navSection}>
-          
+          <span className={styles.sectionLabel}>MAIN NAVIGATION</span>
         </div>
         
         <NavLink 
