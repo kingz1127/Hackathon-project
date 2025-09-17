@@ -12,7 +12,7 @@ import AdminTeacher from "./Components/AdminDashboard/AdminTeacher";
 import AdminDashboard1 from "./Components/AdminDashboard/AdminDashboard1";
 import AdminStudent from "./Components/AdminDashboard/AdminStudent";
 import TeacherDashboard from "./Components/Teacher/TeacherDashboard";
-import Student from "./Components/Student/Student";
+import Student from "./Components/Student/StudentDashboard";
 
 export default function App() {
   return (
