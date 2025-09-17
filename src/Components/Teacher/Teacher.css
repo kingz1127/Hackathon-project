@@ -400,6 +400,169 @@ body {
   color: #e74c3c;
 }
 
+/* =====================
+   Students Page Styles
+   ===================== */
+.students-page {
+  padding: 2rem;
+  background: #f9f9f9;
+  min-height: 100vh;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.students-page h2 {
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  color: #23144b; /* deep blue */
+}
+
+/* Controls (Search + Filter) */
+.student-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.student-controls input,
+.student-controls select {
+  padding: 0.6rem 1rem;
+  font-size: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  outline: none;
+  transition: border 0.3s ease;
+}
+
+.student-controls input:focus,
+.student-controls select:focus {
+  border-color: #f15f11; /* orange */
+}
+
+/* Student Table */
+.student-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.student-table th,
+.student-table td {
+  text-align: left;
+  padding: 1rem;
+  font-size: 0.95rem;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.student-table th {
+  background: #23144b; /* deep blue */
+  color: white;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.student-table tr:nth-child(even) {
+  background: #fafafa;
+}
+
+.student-table tr:hover {
+  background: #fdf1eb; /* soft orange hover */
+  transition: background 0.3s ease;
+}
+
+/* Buttons */
+.view-btn,
+.message-btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  margin-right: 0.5rem;
+}
+
+.view-btn {
+  background: #23144b;
+  color: white;
+}
+
+.view-btn:hover {
+  background: #3a2675;
+}
+
+.message-btn {
+  background: #f15f11;
+  color: white;
+}
+
+.message-btn:hover {
+  background: #d44c09;
+}
+
+/* Empty state */
+.students-page p {
+  text-align: center;
+  color: #777;
+  margin-top: 2rem;
+  font-style: italic;
+}
+/* Modal overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* Modal box */
+.modal-content {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 12px;
+  max-width: 450px;
+  width: 90%;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  text-align: left;
+  position: relative;
+}
+
+.modal-content h3 {
+  margin-bottom: 1rem;
+  color: #23144b;
+}
+
+.modal-content p {
+  margin: 0.5rem 0;
+  font-size: 0.95rem;
+  color: #333;
+}
+
+/* Close button */
+.close-btn {
+  margin-top: 1.5rem;
+  padding: 0.5rem 1rem;
+  background: #f15f11;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.close-btn:hover {
+  background: #d44c09;
+}
+
 
 /* ===========================
    Classes Page Styles

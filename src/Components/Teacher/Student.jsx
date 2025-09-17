@@ -6,6 +6,7 @@ export default function Student() {
   const [students, setStudents] = useState([]);
   const [search, setSearch] = useState("");
   const [gradeFilter, setGradeFilter] = useState("");
+  const [selectedStudent, setSelectedStudent] = useState(null); // ✅ for modal
 
   const teacherId = localStorage.getItem("teacherId"); // stored at login
 
@@ -67,7 +68,9 @@ export default function Student() {
               <td>{student.className}</td>
               <td>{student.gradeLevel}</td>
               <td>
-                <button className="view-btn">View</button>
+                <button className="view-btn" onClick={() => setSelectedStudent(student)}>
+                  View
+                </button>
                 <button className="message-btn">Message</button>
               </td>
             </tr>
@@ -76,6 +79,23 @@ export default function Student() {
       </table>
 
       {filteredStudents.length === 0 && <p>No students found.</p>}
+
+      {/* ✅ Modal for student details */}
+      {selectedStudent && (
+        <div className="modal-overlay" onClick={() => setSelectedStudent(null)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <h3>👤 {selectedStudent.fullName}</h3>
+            <p><strong>Class:</strong> {selectedStudent.className}</p>
+            <p><strong>Grade Level:</strong> {selectedStudent.gradeLevel}</p>
+            <p><strong>Email:</strong> {selectedStudent.email || "Not provided"}</p>
+            <p><strong>DOB:</strong> {selectedStudent.dob || "Not provided"}</p>
+
+            <button className="close-btn" onClick={() => setSelectedStudent(null)}>
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
