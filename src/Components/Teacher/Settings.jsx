@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import "./Teacher.css";
 
 export default function Settings({ teacher, setTeacher }) {
-  const teacherId = teacher?.teacherId; // ✅ fix: use teacherId from props
+  const teacherId = teacher?.teacherId;
   const [darkMode, setDarkMode] = useState(false);
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -11,12 +11,16 @@ export default function Settings({ teacher, setTeacher }) {
   const [newPassword, setNewPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  
+
 
   // ✅ Fetch teacher info
   useEffect(() => {
     const fetchTeacher = async () => {
       try {
-        const res = await fetch(`http://localhost:5000/api/admin/teachers/${teacherId}`);
+        const res = await fetch(
+          `http://localhost:5000/admin/teachers/${teacherId}`
+        );
         const data = await res.json();
         setFullName(data.fullName);
         setEmail(data.email);
@@ -32,11 +36,14 @@ export default function Settings({ teacher, setTeacher }) {
     setLoading(true);
     setMessage("");
     try {
-      const res = await fetch(`http://localhost:5000/api/admin/teachers/${teacherId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ fullName, email }),
-      });
+      const res = await fetch(
+        `http://localhost:5000/api/admin/teachers/${teacherId}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ fullName, email }),
+        }
+      );
       const data = await res.json();
       if (!res.ok) throw new Error(data.message);
       setMessage("✅ Profile updated successfully!");
@@ -57,7 +64,7 @@ export default function Settings({ teacher, setTeacher }) {
     setMessage("");
     try {
       const res = await fetch(
-        `http://localhost:5000/api/admin/teachers/${teacherId}/change-password`,
+        `http://localhost:5000/admin/teachers/${teacherId}/change-password`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -76,28 +83,14 @@ export default function Settings({ teacher, setTeacher }) {
     }
   };
 
-  // ✅ Logout
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    setTeacher(null);
-    window.location.href = "/login"; // redirect
-  };
+  localStorage.removeItem("teacherId");
+  localStorage.removeItem("token");
 
-  // ✅ Delete account
-  const handleDelete = async () => {
-    if (!window.confirm("⚠️ Are you sure you want to delete your account?")) return;
-    try {
-      const res = await fetch(`http://localhost:5000/admin/teachers/${teacherId}`, {
-        method: "DELETE",
-      });
-      if (!res.ok) throw new Error("Failed to delete account");
-      localStorage.removeItem("token");
-      setTeacher(null);
-      window.location.href = "/register"; // redirect after delete
-    } catch (err) {
-      setMessage(`❌ ${err.message}`);
-    }
-  };
+  // Instead of setTeacher(null)
+  window.location.href = "/login"; 
+};
+
 
   return (
     <div className={`settings-container ${darkMode ? "dark" : ""}`}>
@@ -108,11 +101,19 @@ export default function Settings({ teacher, setTeacher }) {
         <h3>Account Info</h3>
         <div className="settings-item">
           <label>Full Name:</label>
-          <input type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} />
+          <input
+            type="text"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+          />
         </div>
         <div className="settings-item">
           <label>Email:</label>
-          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
         </div>
         <button className="save-btn" onClick={handleSave} disabled={loading}>
           {loading ? "Saving..." : "Save Changes"}
@@ -124,13 +125,25 @@ export default function Settings({ teacher, setTeacher }) {
         <h3>Change Password</h3>
         <div className="settings-item">
           <label>Old Password:</label>
-          <input type="password" value={oldPassword} onChange={(e) => setOldPassword(e.target.value)} />
+          <input
+            type="password"
+            value={oldPassword}
+            onChange={(e) => setOldPassword(e.target.value)}
+          />
         </div>
         <div className="settings-item">
           <label>New Password:</label>
-          <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
+          <input
+            type="password"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+          />
         </div>
-        <button className="save-btn" onClick={handleChangePassword} disabled={loading}>
+        <button
+          className="save-btn"
+          onClick={handleChangePassword}
+          disabled={loading}
+        >
           {loading ? "Updating..." : "Change Password"}
         </button>
       </section>
@@ -140,17 +153,22 @@ export default function Settings({ teacher, setTeacher }) {
         <h3>Preferences</h3>
         <div className="settings-item">
           <label>
-            <input type="checkbox" checked={darkMode} onChange={() => setDarkMode(!darkMode)} />
+            <input
+              type="checkbox"
+              checked={darkMode}
+              onChange={() => setDarkMode(!darkMode)}
+            />
             Enable Dark Mode
           </label>
         </div>
       </section>
 
       {/* Security */}
-      <section className="settings-sectiondanger-zone">
+      <section className="settings-section danger-zone">
         <h3>Security</h3>
-        <button className="logout-btn" onClick={handleLogout}>🚪 Logout</button>
-        <button className="delete-btn" onClick={handleDelete}>🗑 Delete Account</button>
+        <button className="logout-btn" onClick={handleLogout}>
+          🚪 Logout
+        </button>
       </section>
 
       {message && <p className="status-message">{message}</p>}

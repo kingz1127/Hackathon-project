@@ -866,7 +866,7 @@ label {
   border-radius: 8px;
   border: 1px solid #ccc;
 }
-.save-btn, .logout-btn .delete-btn {
+.save-btn, .logout-btn {
   background: #23144b;
   color: white;
   padding: 0.8rem 1.2rem;
@@ -876,7 +876,7 @@ label {
   margin-top: 1rem;
   transition: background 0.2s;
 }
-.save-btn:hover, .logout-btn:hover, .delete-btn:hover {
+.save-btn:hover, .logout-btn:hover {
   background: #f15f11;
 }
 .status-message {
@@ -1031,7 +1031,7 @@ label {
   border-radius: 6px;
 }
 
-.logout-btn, .delete-btn {
+.logout-btn {
   background: #e63946;
   color: #fff;
   padding: 10px 16px;
@@ -1041,7 +1041,7 @@ label {
   font-weight: bold;
 }
 
-.logout-btn:hover, .delete-btn:hover {
+.logout-btn:hover{
   background: #b71c1c;
 }
 
