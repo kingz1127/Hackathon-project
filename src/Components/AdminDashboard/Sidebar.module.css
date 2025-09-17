@@ -1,4 +1,329 @@
-.sidebarAdmin {
+:root {
+  --primary-dark: #2c3e50;
+  --primary: #1a5276;
+  --secondary: #27ae60;
+  --accent: #f1c40f;
+  --light: #ecf0f1;
+  --white: #fdfefe;
+  --dark: #34495e;
+  --purple: #8e44ad;
+  --teal: #16a085;
+  --blue: #3498db;
+  
+  --sidebar-width: 280px;
+  --border-radius: 8px;
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar {
+  width: var(--sidebar-width);
+  min-height: 100vh;
+  height: 100%;
+  background: linear-gradient(180deg, var(--primary) 0%, var(--primary-dark) 100%);
+  color: var(--white);
   display: flex;
   flex-direction: column;
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 2px 0 15px rgba(0, 0, 0, 0.15);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  overflow: hidden;
 }
+
+.logo {
+  padding: 1.75rem 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.logoLink {
+  text-decoration: none;
+  display: block;
+}
+
+.logoText {
+  font-size: 1.8rem; /* Larger text */
+  font-weight: 800;
+  color: var(--white);
+  letter-spacing: -0.5px;
+  display: block;
+  line-height: 1.2;
+}
+
+.logoAccent {
+  font-size: 1.2rem; /* Larger text */
+  font-weight: 600;
+  color: var(--accent);
+  display: block;
+  margin-top: 0.25rem;
+}
+
+.navContainer {
+  flex: 1;
+  padding: 1.5rem 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem; /* Increased gap */
+}
+
+.navSection {
+  padding: 1rem 1.5rem 0.5rem; /* Increased padding */
+}
+
+.sectionLabel {
+  font-size: 0.85rem; /* Larger text */
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 700;
+}
+
+.navLink {
+  display: flex;
+  align-items: center;
+  padding: 1rem 1.5rem; /* Increased padding */
+  color: rgba(255, 255, 255, 0.9);
+  text-decoration: none;
+  transition: var(--transition);
+  position: relative;
+  margin: 0 0.75rem;
+  border-radius: var(--border-radius);
+  font-weight: 500;
+  font-size: 1.05rem; /* Larger text */
+}
+
+.navLink:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--white);
+  transform: translateX(4px);
+}
+
+.navLink.active {
+  background: linear-gradient(135deg, var(--secondary) 0%, var(--teal) 100%);
+  color: var(--white);
+  font-weight: 600;
+  box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
+  transform: translateX(6px);
+}
+
+.navLink.active::before {
+  content: '';
+  position: absolute;
+  left: -8px;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 70%;
+  width: 5px; /* Thicker indicator */
+  background: var(--accent);
+  border-radius: 0 3px 3px 0;
+}
+
+.navIcon {
+  width: 1.4rem; /* Larger icons */
+  height: 1.4rem;
+  margin-right: 1rem; /* More spacing */
+  flex-shrink: 0;
+  transition: var(--transition);
+}
+
+.navLink:hover .navIcon,
+.navLink.active .navIcon {
+  transform: scale(1.15);
+}
+
+.navText {
+  font-size: 1.1rem; /* Larger text */
+  font-weight: inherit;
+  flex: 1;
+}
+
+.userSection {
+  padding: 1.5rem 1.5rem; /* Increased padding */
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  margin-top: auto;
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem; /* More spacing */
+}
+
+.userAvatar {
+  width: 3rem; /* Larger avatar */
+  height: 3rem;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  flex-shrink: 0;
+}
+
+.avatarImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.userDetails {
+  flex: 1;
+  min-width: 0;
+}
+
+.userName {
+  font-size: 1.05rem; /* Larger text */
+  font-weight: 600;
+  margin: 0 0 0.25rem 0;
+  color: var(--white);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.userRole {
+  font-size: 0.9rem; /* Larger text */
+  margin: 0;
+  color: rgba(255, 255, 255, 0.8);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Scrollbar Styling */
+.navContainer::-webkit-scrollbar {
+  width: 5px; /* Thicker scrollbar */
+}
+
+.navContainer::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+.navContainer::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.35);
+  border-radius: 3px;
+}
+
+.navContainer::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .sidebar {
+    width: 80px;
+  }
+  
+  .logoText,
+  .logoAccent,
+  .navText,
+  .sectionLabel,
+  .userName,
+  .userRole {
+    display: none;
+  }
+  
+  .logo {
+    padding: 1.5rem 1rem;
+    text-align: center;
+  }
+  
+  .navLink {
+    justify-content: center;
+    padding: 1.25rem; /* Larger touch target */
+    margin: 0 0.5rem;
+  }
+
+  .navLink {
+    justify-content: center;
+    padding: 1.25rem; /* Larger touch target */
+    margin: 0 0.5rem;
+  }
+  
+  .navIcon {
+    margin-right: 0;
+    width: 1.5rem; /* Larger icons in mobile */
+    height: 1.5rem;
+  }
+  
+  .userInfo {
+    justify-content: center;
+  }
+  
+  .userAvatar {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+  
+  .sidebar:hover {
+    width: var(--sidebar-width);
+  }
+  
+  .sidebar:hover .logoText,
+  .sidebar:hover .logoAccent,
+  .sidebar:hover .navText,
+  .sidebar:hover .sectionLabel,
+  .sidebar:hover .userName,
+  .sidebar:hover .userRole {
+    display: block;
+  }
+  
+  .sidebar:hover .navLink {
+    justify-content: flex-start;
+    padding: 1rem 1.5rem;
+    margin: 0 0.75rem;
+  }
+  
+  .sidebar:hover .navIcon {
+    margin-right: 1rem;
+    width: 1.4rem;
+    height: 1.4rem;
+  }
+  
+  .sidebar:hover .userInfo {
+    justify-content: flex-start;
+  }
+  
+  .sidebar:hover .userAvatar {
+    width: 3rem;
+    height: 3rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%);
+    width: var(--sidebar-width);
+  }
+  
+  .sidebar.mobileOpen {
+    transform: translateX(0);
+    box-shadow: 2px 0 20px rgba(0, 0, 0, 0.25);
+  }
+}
+
+/* Animation for nav items */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.navLink {
+  animation: slideIn 0.3s ease-out;
+}
+
+.navLink:nth-child(1) { animation-delay: 0.1s; }
+.navLink:nth-child(2) { animation-delay: 0.2s; }
+.navLink:nth-child(3) { animation-delay: 0.3s; }
+.navLink:nth-child(4) { animation-delay: 0.4s; }
+.navLink:nth-child(5) { animation-delay: 0.5s; }
+.navLink:nth-child(6) { animation-delay: 0.6s; }

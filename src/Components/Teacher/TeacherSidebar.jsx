@@ -14,28 +14,28 @@ export default function TeacherSidebar() {
         <div className="profile-name">MR. Christopher</div>
         <div className="profile-role">React/Spring Boot Teacher</div>
       </div>
-        <NavLink to="/dashboard" className="nav-link">
+        <NavLink to="/teachdashboard" className="nav-link">
           <FaTachometerAlt /> Dashboard
         </NavLink>
-        <NavLink to="/profile" className="nav-link">
+        <NavLink to="/teachprofile" className="nav-link">
             <FaUsers /> Profile
             </NavLink>
-         <NavLink to="/classes" className="nav-link">
+         <NavLink to="/teachclasses" className="nav-link">
           <FaBook /> My Classes
         </NavLink>
-         <NavLink to="/attendance" className="nav-link">
+         <NavLink to="/teachattendance" className="nav-link">
           <FaClipboardCheck /> Attendance
         </NavLink>
-            <NavLink to="/student" className="nav-link">
+            <NavLink to="/teachstudent" className="nav-link">
             <FaUsers /> Students
             </NavLink>
-        <NavLink to="/announcements" className="nav-link">
+        <NavLink to="/teachannouncements" className="nav-link">
           <FaEnvelope /> Announcements
         </NavLink>
-         <NavLink to="/resources" className="nav-link">
+         <NavLink to="/teachresources" className="nav-link">
           <FaBook /> Resources
         </NavLink>
-         <NavLink to="/settings" className="nav-link">
+         <NavLink to="/teachsettings" className="nav-link">
           <FaCog /> Settings
         </NavLink>
     </div>

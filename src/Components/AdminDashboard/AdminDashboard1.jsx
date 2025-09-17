@@ -1,28 +1,31 @@
 import { useState, useEffect } from "react";
 import { RiDeleteBin5Line } from "react-icons/ri";
-import { FaEdit, FaSearch, FaMoneyCheckAlt, FaUserGraduate } from "react-icons/fa";
+import { FaEdit, FaSearch, FaMoneyCheckAlt, FaUserGraduate, FaChalkboardTeacher, FaCog, FaPlus } from "react-icons/fa";
 import { IoMdNotifications } from "react-icons/io";
-import { MdPayment } from "react-icons/md";
+import { MdPayment, MdDashboard, MdAnalytics, MdGroup } from "react-icons/md";
+import Select from "react-select";
+import countryList from "react-select-country-list";
 import styles from './AdminDashboard1.module.css';
 
-export default function AdminDashboard1() {
-  const [activeTab, setActiveTab] = useState("students");
+export default function AdminDashboard() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [students, setStudents] = useState([]);
+  const [teachers, setTeachers] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [showNotifications, setShowNotifications] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [emailStatus, setEmailStatus] = useState("");
+  const [recentActivities, setRecentActivities] = useState([]);
+  const [activeTab, setActiveTab] = useState("students"); // New state for tab management
 
-  // Form state for adding/editing students
+  // Form state for adding/editing students and teachers
   const [form, setForm] = useState({
     Email: "",
     FullName: "",
     DOfB: "",
     Course: "",
     DateJoined: "",
-    StudentIMG: null,
+    Image: null,
     Country: "",
     StudentID: "",
     GradeLevel: "",
@@ -35,9 +38,12 @@ export default function AdminDashboard1() {
     preview: "",
   });
 
-  // Fetch students from backend on component load
+  const countryOptions = countryList().getData();
+
+  // Fetch students and teachers from backend on component load
   useEffect(() => {
     fetchStudents();
+    fetchTeachers();
   }, []);
 
   const fetchStudents = async () => {
@@ -54,12 +60,32 @@ export default function AdminDashboard1() {
     }
   };
 
-  // Handle form input changes
+  const fetchTeachers = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/admin/teachers");
+      const data = await response.json();
+      if (response.ok) {
+        setTeachers(data);
+      } else {
+        console.error("Failed to fetch teachers:", data.message);
+      }
+    } catch (error) {
+      console.error("Error fetching teachers:", error);
+    }
+  };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setForm((prev) => ({
       ...prev,
       [name]: value,
+    }));
+  };
+
+  const handleCountryChange = (selected) => {
+    setForm((prev) => ({
+      ...prev,
+      Country: selected.label,
     }));
   };
 
@@ -69,14 +95,37 @@ export default function AdminDashboard1() {
       const previewURL = URL.createObjectURL(file);
       setForm((prev) => ({
         ...prev,
-        StudentIMG: file,
+        Image: file,
         preview: previewURL,
       }));
     }
   };
 
+  // Reset form when switching between student and teacher forms
+  const resetForm = () => {
+    setForm({
+      Email: "",
+      FullName: "",
+      DOfB: "",
+      Course: "",
+      DateJoined: "",
+      Image: null,
+      Country: "",
+      StudentID: "",
+      GradeLevel: "",
+      Guardian: "",
+      PhoneNumber: "",
+      GuardianPhoneNumber: "",
+      StateOfOrigin: "",
+      Address: "",
+      Gender: "",
+      preview: "",
+    });
+    setEditingId(null);
+  };
+
   // Save student (add or edit)
-  const handleSave = async (e) => {
+  const handleSaveStudent = async (e) => {
     e.preventDefault();
 
     if (
@@ -113,8 +162,8 @@ export default function AdminDashboard1() {
       formData.append("Guardian", form.Guardian);
       formData.append("DateJoined", form.DateJoined);
       formData.append("Country", form.Country);
-      if (form.StudentIMG) {
-        formData.append("StudentIMG", form.StudentIMG);
+      if (form.Image) {
+        formData.append("StudentIMG", form.Image);
       }
       formData.append("PhoneNumber", form.PhoneNumber);
       formData.append("GuardianPhoneNumber", form.GuardianPhoneNumber);
@@ -123,18 +172,19 @@ export default function AdminDashboard1() {
       formData.append("Gender", form.Gender);
       
       let response;
+      let url;
+      
       if (editingId) {
         // UPDATE student
-        response = await fetch(
-          `http://localhost:5000/admin/students/${editingId}`,
-          {
-            method: "PUT",
-            body: formData,
-          }
-        );
+        url = `http://localhost:5000/admin/students/${editingId}`;
+        response = await fetch(url, {
+          method: "PUT",
+          body: formData,
+        });
       } else {
         // ADD student
-        response = await fetch("http://localhost:5000/admin/add-student", {
+        url = "http://localhost:5000/admin/add-student";
+        response = await fetch(url, {
           method: "POST",
           body: formData,
         });
@@ -146,36 +196,23 @@ export default function AdminDashboard1() {
         setEmailStatus(
           editingId
             ? "✅ Student updated successfully!"
-            : `✅ Student registered successfully! ${
-                data.emailSent
-                  ? `Welcome email sent to ${form.Email}`
-                  : "Email not sent (check configuration)"
-              }`
+            : `✅ Student registered successfully!`
         );
+
+        // Add to recent activities
+        if (!editingId) {
+          setRecentActivities(prev => [{
+            type: "student_added",
+            message: `New student registered: ${form.FullName}`,
+            timestamp: new Date().toISOString()
+          }, ...prev]);
+        }
 
         // Refresh students list
         await fetchStudents();
 
         // Reset form
-        setForm({
-          Email: "",
-          FullName: "",
-          DOfB: "",
-          Course: "",
-          DateJoined: "",
-          StudentIMG: null,
-          Country: "",
-          StudentID: "",
-          GradeLevel: "",
-          Guardian: "",
-          PhoneNumber: "",
-          GuardianPhoneNumber: "",
-          StateOfOrigin: "",
-          Address: "",
-          Gender: "",
-          preview: "",
-        });
-        setEditingId(null);
+        resetForm();
 
         // Close form after 3 seconds
         setTimeout(() => {
@@ -193,8 +230,100 @@ export default function AdminDashboard1() {
     }
   };
 
+  // Save teacher (add or edit)
+  const handleSaveTeacher = async (e) => {
+    e.preventDefault();
+
+    if (
+      !form.Email ||
+      !form.FullName ||
+      !form.DOfB ||
+      !form.Course ||
+      !form.DateJoined ||
+      !form.Country
+    ) {
+      setEmailStatus("Please fill in all required fields");
+      return;
+    }
+
+    setIsLoading(true);
+    setEmailStatus(
+      editingId ? "Updating teacher..." : "Processing teacher registration..."
+    );
+
+    try {
+      const formData = new FormData();
+      formData.append("Email", form.Email);
+      formData.append("FullName", form.FullName);
+      formData.append("DOfB", form.DOfB);
+      formData.append("Course", form.Course);
+      formData.append("DateJoined", form.DateJoined);
+      formData.append("Country", form.Country);
+      if (form.Image) {
+        formData.append("TeacherIMG", form.Image);
+      }
+      
+      let response;
+      let url;
+      
+      if (editingId) {
+        // UPDATE teacher
+        url = `http://localhost:5000/admin/update-teacher/${editingId}`;
+        response = await fetch(url, {
+          method: "PUT",
+          body: formData,
+        });
+      } else {
+        // ADD teacher
+        url = "http://localhost:5000/admin/add-teacher";
+        response = await fetch(url, {
+          method: "POST",
+          body: formData,
+        });
+      }
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setEmailStatus(
+          editingId
+            ? "✅ Teacher updated successfully!"
+            : `✅ Teacher registered successfully! Password sent to email.`
+        );
+
+        // Add to recent activities
+        if (!editingId) {
+          setRecentActivities(prev => [{
+            type: "teacher_added",
+            message: `New teacher registered: ${form.FullName}`,
+            timestamp: new Date().toISOString()
+          }, ...prev]);
+        }
+
+        // Refresh teachers list
+        await fetchTeachers();
+
+        // Reset form
+        resetForm();
+
+        // Close form after 3 seconds
+        setTimeout(() => {
+          setIsFormOpen(false);
+          setEmailStatus("");
+        }, 3000);
+      } else {
+        throw new Error(data.message || "Failed to save teacher");
+      }
+    } catch (error) {
+      console.error("Save error:", error);
+      setEmailStatus(`❌ Error: ${error.message}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Edit student
-  const handleEdit = (student) => {
+  const handleEditStudent = (student) => {
     setForm({
       Email: student.Email,
       FullName: student.FullName,
@@ -204,7 +333,7 @@ export default function AdminDashboard1() {
       Guardian: student.Guardian,
       DateJoined: student.DateJoined,
       Country: student.Country,
-      StudentIMG: student.StudentIMG,
+      Image: student.StudentIMG,
       preview: student.StudentIMG,
       StudentID: student.studentId,
       PhoneNumber: student.PhoneNumber,
@@ -214,11 +343,29 @@ export default function AdminDashboard1() {
       Gender: student.Gender,
     });
     setEditingId(student.studentId);
+    setActiveTab("students");
+    setIsFormOpen(true);
+  };
+
+  // Edit teacher
+  const handleEditTeacher = (teacher) => {
+    setForm({
+      Email: teacher.Email,
+      FullName: teacher.FullName,
+      DOfB: teacher.DOfB,
+      Course: teacher.Course,
+      DateJoined: teacher.DateJoined,
+      Country: teacher.Country,
+      Image: teacher.TeacherIMG,
+      preview: teacher.TeacherIMG,
+    });
+    setEditingId(teacher.teacherId);
+    setActiveTab("teachers");
     setIsFormOpen(true);
   };
 
   // Delete student
-  const handleDelete = async (studentId) => {
+  const handleDeleteStudent = async (studentId) => {
     if (window.confirm("Are you sure you want to delete this student?")) {
       try {
         const response = await fetch(
@@ -229,9 +376,16 @@ export default function AdminDashboard1() {
         );
 
         if (response.ok) {
-          // Remove from local state immediately
           setStudents(students.filter(student => student.studentId !== studentId));
           setEmailStatus("✅ Student deleted successfully");
+          
+          // Add to recent activities
+          setRecentActivities(prev => [{
+            type: "student_deleted",
+            message: "Student record deleted",
+            timestamp: new Date().toISOString()
+          }, ...prev]);
+          
           setTimeout(() => setEmailStatus(""), 3000);
         } else {
           const data = await response.json();
@@ -245,15 +399,78 @@ export default function AdminDashboard1() {
     }
   };
 
+  // Delete teacher
+  const handleDeleteTeacher = async (teacher) => {
+    if (!window.confirm(`Are you sure you want to delete ${teacher.FullName}?`)) return;
+
+    try {
+      const res = await fetch(
+        `http://localhost:5000/admin/teachers/${teacher.teacherId}`,
+        { method: "DELETE" }
+      );
+
+      if (res.ok) {
+        setTeachers(teachers.filter(t => t.teacherId !== teacher.teacherId));
+        setEmailStatus("✅ Teacher deleted successfully");
+        
+        // Add to recent activities
+        setRecentActivities(prev => [{
+          type: "teacher_deleted",
+          message: `Teacher deleted: ${teacher.FullName}`,
+          timestamp: new Date().toISOString()
+        }, ...prev]);
+        
+        setTimeout(() => setEmailStatus(""), 3000);
+      } else {
+        throw new Error("Failed to delete teacher");
+      }
+    } catch (err) {
+      console.error(err);
+      setEmailStatus("❌ Error deleting teacher");
+      setTimeout(() => setEmailStatus(""), 3000);
+    }
+  };
+
   // Handle payment status change
-  const handlePayment = (studentId) => {
+  const handlePayment = async (studentId) => {
     if (window.confirm("Mark this student as paid?")) {
-      setStudents(students.map(student => 
-        student.studentId === studentId 
-          ? { ...student, paymentStatus: "Paid" } 
-          : student
-      ));
-      alert("Payment status updated!");
+      try {
+        const response = await fetch(
+          `http://localhost:5000/admin/students/${studentId}/payment`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ paymentStatus: "Paid" }),
+          }
+        );
+
+        if (response.ok) {
+          setStudents(students.map(student => 
+            student.studentId === studentId 
+              ? { ...student, paymentStatus: "Paid" } 
+              : student
+          ));
+          
+          // Add to recent activities
+          const paidStudent = students.find(s => s.studentId === studentId);
+          if (paidStudent) {
+            setRecentActivities(prev => [{
+              type: "payment_received",
+              message: `Payment received from ${paidStudent.FullName}`,
+              timestamp: new Date().toISOString()
+            }, ...prev]);
+          }
+          
+          alert("Payment status updated!");
+        } else {
+          throw new Error("Failed to update payment status");
+        }
+      } catch (error) {
+        console.error("Payment error:", error);
+        alert("Error updating payment status");
+      }
     }
   };
 
@@ -264,46 +481,71 @@ export default function AdminDashboard1() {
     student.Email?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // Filter teachers based on search term
+  const filteredTeachers = teachers.filter(teacher => 
+    teacher.FullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    teacher.Course?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    teacher.Email?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   // Calculate payment statistics
   const paidStudents = students.filter(student => student.paymentStatus === "Paid").length;
   const pendingPayments = students.filter(student => student.paymentStatus === "Pending").length;
   const totalStudents = students.length;
+  const totalTeachers = teachers.length;
 
-  // Calculate angles for pie chart
+  // Calculate percentages for pie chart
   const paidPercentage = totalStudents > 0 ? (paidStudents / totalStudents) * 100 : 0;
   const pendingPercentage = totalStudents > 0 ? (pendingPayments / totalStudents) * 100 : 0;
+
+  // Format activity timestamp
+  const formatActivityTime = (timestamp) => {
+    const now = new Date();
+    const activityTime = new Date(timestamp);
+    const diffInHours = Math.floor((now - activityTime) / (1000 * 60 * 60));
+    
+    if (diffInHours < 1) return "Just now";
+    if (diffInHours < 24) return `${diffInHours} hours ago`;
+    return `${Math.floor(diffInHours / 24)} days ago`;
+  };
 
   return (
     <div className={styles.adminDashboard}>
       <header className={styles.header}>
-        <h1>EduAdmin Dashboard</h1>
+        <div className={styles.headerLeft}>
+          <h1>Admin Dashboard</h1>
+          <p>Welcome back, Administrator</p>
+        </div>
         <div className={styles.headerActions}>
           <div className={styles.searchBox}>
             <FaSearch />
             <input 
               type="text" 
-              placeholder="Search students..." 
+              placeholder={`Search ${activeTab}...`} 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <div className={styles.notificationContainer}>
-            <button 
-              className={styles.notificationBtn}
-              onClick={() => setShowNotifications(!showNotifications)}
-            >
-              <IoMdNotifications />
-            </button>
-            {showNotifications && (
-              <div className={styles.notificationDropdown}>
-                <p>No new notifications</p>
-              </div>
-            )}
+          
+          <div className={styles.userProfile}>
+            
+            <div className={styles.userInfo}>
+              <p>Admin User</p>
+              <span>Administrator</span>
+            </div>
           </div>
         </div>
       </header>
 
-      <div className={styles.dashboardGrid}>
+      <div className={styles.dashboardContent}>
+        {/* Welcome Section */}
+        <div className={styles.welcomeSection}>
+          <h2>Dashboard Overview</h2>
+          <p>Manage your institution's operations and monitor key metrics</p>
+        </div>
+
+
+
         {/* Statistics Cards */}
         <div className={styles.statsContainer}>
           <div className={styles.statCard}>
@@ -335,108 +577,387 @@ export default function AdminDashboard1() {
               <p>Pending Payments</p>
             </div>
           </div>
-        </div>
 
-        {/* Payment Overview Chart */}
-        <div className={styles.chartContainer}>
-          <h2>Payment Overview</h2>
-          <div className={styles.pieChart}>
-            <div className={styles.pieChartVisual}>
-              <div 
-                className={styles.pieSegmentPaid} 
-                style={{
-                  transform: `rotate(0deg)`,
-                  clipPath: `polygon(50% 50%, 50% 0%, ${50 + 50 * Math.sin(2 * Math.PI * paidPercentage / 100)}% ${50 - 50 * Math.cos(2 * Math.PI * paidPercentage / 100)}%, 50% 50%)`
-                }}
-              ></div>
-              <div 
-                className={styles.pieSegmentPending} 
-                style={{
-                  transform: `rotate(${paidPercentage * 3.6}deg)`,
-                  clipPath: `polygon(50% 50%, 50% 0%, ${50 + 50 * Math.sin(2 * Math.PI * pendingPercentage / 100)}% ${50 - 50 * Math.cos(2 * Math.PI * pendingPercentage / 100)}%, 50% 50%)`
-                }}
-              ></div>
-              <div className={styles.pieChartCenter}>
-                <span>{totalStudents}</span>
-                <small>Total</small>
-              </div>
+          <div className={styles.statCard}>
+            <div className={styles.statIcon} style={{backgroundColor: 'var(--sky)'}}>
+              <MdGroup />
             </div>
-            <div className={styles.chartLegend}>
-              <div className={styles.legendItem}>
-                <div className={styles.legendColor} style={{backgroundColor: 'var(--emerald)'}}></div>
-                <span>Paid: {paidStudents} ({Math.round(paidPercentage)}%)</span>
-              </div>
-              <div className={styles.legendItem}>
-                <div className={styles.legendColor} style={{backgroundColor: 'var(--ruby)'}}></div>
-                <span>Pending: {pendingPayments} ({Math.round(pendingPercentage)}%)</span>
-              </div>
+            <div className={styles.statInfo}>
+              <h3>{totalTeachers}</h3>
+              <p>Total Teachers</p>
             </div>
           </div>
         </div>
 
-        {/* Student Management Section */}
-        <div className={styles.tabContainer}>
-          <div className={styles.contentHeader}>
-            <h2>Student Management</h2>
-            <button 
-              className={styles.addBtn}
-              onClick={() => {
-                setEditingId(null);
-                setIsFormOpen(true);
-              }}
-            >
-              + Add Student
-            </button>
+        {/* Charts Row */}
+        <div className={styles.chartsRow}>
+          {/* Payment Overview Chart */}
+          <div className={styles.chartContainer}>
+            <div className={styles.chartHeader}>
+              <h3>Payment Overview</h3>
+            </div>
+            <div className={styles.pieChart}>
+              <div className={styles.pieChartVisual}>
+                <div 
+                  className={styles.pieSegmentPaid} 
+                  style={{
+                    transform: `rotate(0deg)`,
+                    clipPath: paidPercentage > 0 ? 
+                      `polygon(50% 50%, 50% 0%, 100% 0%, 100% 100%, 50% 100%)` :
+                      'none'
+                  }}
+                ></div>
+                <div 
+                  className={styles.pieSegmentPending} 
+                  style={{
+                    transform: `rotate(${paidPercentage * 3.6}deg)`,
+                    clipPath: pendingPercentage > 0 ? 
+                      `polygon(50% 50%, 50% 0%, 0% 0%, 0% 100%, 50% 100%)` :
+                      'none'
+                  }}
+                ></div>
+                <div className={styles.pieChartCenter}>
+                  <span>{totalStudents}</span>
+                  <small>Total</small>
+                </div>
+              </div>
+              <div className={styles.chartLegend}>
+                <div className={styles.legendItem}>
+                  <div className={styles.legendColor} style={{backgroundColor: 'var(--emerald)'}}></div>
+                  <span>Paid: {paidStudents} ({Math.round(paidPercentage)}%)</span>
+                </div>
+                <div className={styles.legendItem}>
+                  <div className={styles.legendColor} style={{backgroundColor: 'var(--ruby)'}}></div>
+                  <span>Pending: {pendingPayments} ({Math.round(pendingPercentage)}%)</span>
+                </div>
+              </div>
+            </div>
           </div>
 
-          {emailStatus && (
-            <div className={emailStatus.includes("✅") ? styles.successMessage : styles.errorMessage}>
-              {emailStatus}
-            </div>
-          )}
-
-          {/* Add/Edit Student Form Modal */}
-          {isFormOpen && (
-            <div className={styles.formModal}>
-              <div className={styles.formContainer}>
-                <h3>{editingId ? "Edit Student" : "Add New Student"}</h3>
-                <form onSubmit={handleSave}>
-                  <div className={styles.formRow}>
-                    <div className={styles.formGroup}>
-                      <label>Email *</label>
-                      <input
-                        type="email"
-                        name="Email"
-                        placeholder="Email"
-                        value={form.Email}
-                        onChange={handleInputChange}
-                        required
-                      />
+          {/* Recent Activity - Only show when there are activities */}
+          {recentActivities.length > 0 && (
+            <div className={styles.activityContainer}>
+              <div className={styles.activityHeader}>
+                <h3>Recent Activity</h3>
+                <button onClick={() => setRecentActivities([])}>Clear All</button>
+              </div>
+              <div className={styles.activityList}>
+                {recentActivities.slice(0, 4).map((activity, index) => (
+                  <div key={index} className={styles.activityItem}>
+                    <div className={styles.activityIcon}>
+                      {activity.type === "student_added" && <FaUserGraduate />}
+                      {activity.type === "student_deleted" && <RiDeleteBin5Line />}
+                      {activity.type === "payment_received" && <MdPayment />}
+                      {activity.type === "teacher_added" && <FaChalkboardTeacher />}
+                      {activity.type === "teacher_deleted" && <RiDeleteBin5Line />}
                     </div>
-                    <div className={styles.formGroup}>
-                      <label>Full Name *</label>
-                      <input
-                        type="text"
-                        name="FullName"
-                        placeholder="Full Name"
-                        value={form.FullName}
-                        onChange={handleInputChange}
-                        required
-                      />
+                    <div className={styles.activityContent}>
+                      <p>{activity.message}</p>
+                      <span>{formatActivityTime(activity.timestamp)}</span>
                     </div>
                   </div>
-                  
-                  <div className={styles.formRow}>
-                    <div className={styles.formGroup}>
-                      <label>Date of Birth *</label>
-                      <input
-                        type="date"
-                        name="DOfB"
-                        value={form.DOfB}
-                        onChange={handleInputChange}
-                        required
-                      />
-                    </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Quick Actions & Management Table */}
+        <div className={styles.mainContentRow}>
+          {/* Quick Actions */}
+          {/* <div className={styles.quickActions}>
+            <h3>Quick Actions</h3>
+            <div className={styles.actionGrid}>
+              <button 
+                className={styles.quickActionBtn}
+                onClick={() => {
+                  resetForm();
+                  setActiveTab("students");
+                  setIsFormOpen(true);
+                }}
+              >
+                <FaPlus />
+                <span>Add New Student</span>
+              </button>
+              <button 
+                className={styles.quickActionBtn}
+                onClick={() => {
+                  resetForm();
+                  setActiveTab("teachers");
+                  setIsFormOpen(true);
+                }}
+              >
+                <FaChalkboardTeacher />
+                <span>Add New Teacher</span>
+              </button>
+              <button className={styles.quickActionBtn}>
+                <MdPayment />
+                <span>Process Payments</span>
+              </button>
+              <button className={styles.quickActionBtn}>
+                <MdAnalytics />
+                <span>Generate Reports</span>
+              </button>
+              <button className={styles.quickActionBtn}>
+                <FaCog />
+                <span>System Settings</span>
+              </button>
+            </div>
+          </div> */}
+
+          {/* Management Table Section */}
+          <div className={styles.tableSection}>
+            <div className={styles.tabContainer}>
+              <button 
+                className={activeTab === "students" ? styles.activeTab : styles.tab}
+                onClick={() => setActiveTab("students")}
+              >
+                Student Management
+              </button>
+              <button 
+                className={activeTab === "teachers" ? styles.activeTab : styles.tab}
+                onClick={() => setActiveTab("teachers")}
+              >
+                Teacher Management
+              </button>
+            </div>
+
+            <div className={styles.tableHeader}>
+              <h3>{activeTab === "students" ? "Student Management" : "Teacher Management"}</h3>
+              <button 
+                className={styles.addBtn}
+                onClick={() => {
+                  resetForm();
+                  setIsFormOpen(true);
+                }}
+              >
+                <FaPlus /> Add {activeTab === "students" ? "Student" : "Teacher"}
+              </button>
+            </div>
+
+            {emailStatus && (
+              <div className={emailStatus.includes("✅") ? styles.successMessage : styles.errorMessage}>
+                {emailStatus}
+              </div>
+            )}
+
+            <div className={styles.tableContainer}>
+              {/* Students Table */}
+              {activeTab === "students" && (
+                <table className={styles.dataTable}>
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Student</th>
+                      <th>Email</th>
+                      <th>Course</th>
+                      <th>Grade</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredStudents.length === 0 ? (
+                      <tr>
+                        <td colSpan="7" className={styles.noData}>
+                          No students found. Click "Add Student" to get started.
+                        </td>
+                      </tr>
+                    ) : (
+                      filteredStudents.map((student) => (
+                        <tr key={student.studentId}>
+                          <td>{student.studentId}</td>
+                          <td className={styles.studentCell}>
+                            {student.StudentIMG ? (
+                              <img
+                                src={student.StudentIMG}
+                                alt={student.FullName}
+                                className={styles.studentAvatar}
+                              />
+                            ) : (
+                              <div className={styles.studentAvatar}>No Photo</div>
+                            )}
+                            <div className={styles.studentInfo}>
+                              <span className={styles.studentName}>{student.FullName}</span>
+                              <span className={styles.studentDetail}>{student.Gender}</span>
+                            </div>
+                          </td>
+                          <td>{student.Email}</td>
+                          <td>{student.Course}</td>
+                          <td>{student.GradeLevel}</td>
+                          <td>
+                            <span className={
+                              student.paymentStatus === "Paid" 
+                                ? styles.statusPaid 
+                                : styles.statusPending
+                            }>
+                              {student.paymentStatus || "Pending"}
+                            </span>
+                          </td>
+                          <td>
+                            <div className={styles.actionButtons}>
+                              <button 
+                                className={styles.editBtn}
+                                onClick={() => handleEditStudent(student)}
+                                title="Edit Student"
+                              >
+                                <FaEdit />
+                              </button>
+                              <button 
+                                className={styles.paymentBtn}
+                                onClick={() => handlePayment(student.studentId)}
+                                disabled={student.paymentStatus === "Paid"}
+                                title={student.paymentStatus === "Paid" ? "Already Paid" : "Mark as Paid"}
+                              >
+                                <FaMoneyCheckAlt />
+                              </button>
+                              <button 
+                                className={styles.deleteBtn}
+                                onClick={() => handleDeleteStudent(student.studentId)}
+                                title="Delete Student"
+                              >
+                                <RiDeleteBin5Line />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              )}
+
+              {/* Teachers Table */}
+              {activeTab === "teachers" && (
+                <table className={styles.dataTable}>
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Teacher</th>
+                      <th>Email</th>
+                      <th>Course</th>
+                      <th>Date Joined</th>
+                      <th>Country</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredTeachers.length === 0 ? (
+                      <tr>
+                        <td colSpan="7" className={styles.noData}>
+                          No teachers found. Click "Add Teacher" to get started.
+                        </td>
+                      </tr>
+                    ) : (
+                      filteredTeachers.map((teacher) => (
+                        <tr key={teacher.teacherId}>
+                          <td>{teacher.teacherId}</td>
+                          <td className={styles.studentCell}>
+                            {teacher.TeacherIMG ? (
+                              <img
+                                src={teacher.TeacherIMG}
+                                alt={teacher.FullName}
+                                className={styles.studentAvatar}
+                              />
+                            ) : (
+                              <div className={styles.studentAvatar}>No Photo</div>
+                            )}
+                            <div className={styles.studentInfo}>
+                              <span className={styles.studentName}>{teacher.FullName}</span>
+                            </div>
+                          </td>
+                          <td>{teacher.Email}</td>
+                          <td>{teacher.Course}</td>
+                          <td>{teacher.DateJoined}</td>
+                          <td>{teacher.Country}</td>
+                          <td>
+                            <div className={styles.actionButtons}>
+                              <button 
+                                className={styles.editBtn}
+                                onClick={() => handleEditTeacher(teacher)}
+                                title="Edit Teacher"
+                              >
+                                <FaEdit />
+                              </button>
+                              <button 
+                                className={styles.deleteBtn}
+                                onClick={() => handleDeleteTeacher(teacher)}
+                                title="Delete Teacher"
+                              >
+                                <RiDeleteBin5Line />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Add/Edit Student/Teacher Form Modal */}
+      {isFormOpen && (
+        <div className={styles.formModal}>
+          <div className={styles.formContainer}>
+            <div className={styles.formHeader}>
+              <h3>{editingId ? `Edit ${activeTab === "students" ? "Student" : "Teacher"}` : `Add New ${activeTab === "students" ? "Student" : "Teacher"}`}</h3>
+              <button 
+                className={styles.closeButton}
+                onClick={() => {
+                  setIsFormOpen(false);
+                  setEmailStatus("");
+                  resetForm();
+                }}
+              >
+                ×
+              </button>
+            </div>
+            
+            <form onSubmit={activeTab === "students" ? handleSaveStudent : handleSaveTeacher} className={styles.studentForm}>
+              {/* Personal Information Section */}
+              <div className={styles.formSection}>
+                <h4>Personal Information</h4>
+                <div className={styles.formRow}>
+                  <div className={styles.formGroup}>
+                    <label>Full Name *</label>
+                    <input
+                      type="text"
+                      name="FullName"
+                      placeholder="Full Name"
+                      value={form.FullName}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </div>
+                  <div className={styles.formGroup}>
+                    <label>Email *</label>
+                    <input
+                      type="email"
+                      name="Email"
+                      placeholder="Email"
+                      value={form.Email}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </div>
+                </div>
+                
+                <div className={styles.formRow}>
+                  <div className={styles.formGroup}>
+                    <label>Date of Birth *</label>
+                    <input
+                      type="date"
+                      name="DOfB"
+                      value={form.DOfB}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </div>
+                  {activeTab === "students" && (
                     <div className={styles.formGroup}>
                       <label>Phone Number *</label>
                       <input
@@ -448,33 +969,10 @@ export default function AdminDashboard1() {
                         required
                       />
                     </div>
-                  </div>
-                  
-                  <div className={styles.formRow}>
-                    <div className={styles.formGroup}>
-                      <label>Course *</label>
-                      <input
-                        type="text"
-                        name="Course"
-                        placeholder="Course"
-                        value={form.Course}
-                        onChange={handleInputChange}
-                        required
-                      />
-                    </div>
-                    <div className={styles.formGroup}>
-                      <label>Grade Level *</label>
-                      <input
-                        type="text"
-                        name="GradeLevel"
-                        placeholder="Grade Level"
-                        value={form.GradeLevel}
-                        onChange={handleInputChange}
-                        required
-                      />
-                    </div>
-                  </div>
-                  
+                  )}
+                </div>
+                
+                {activeTab === "students" && (
                   <div className={styles.formRow}>
                     <div className={styles.formGroup}>
                       <label>Gender *</label>
@@ -487,208 +985,179 @@ export default function AdminDashboard1() {
                         <option value="">Select Gender</option>
                         <option value="Male">Male</option>
                         <option value="Female">Female</option>
+                        <option value="Other">Other</option>
                       </select>
                     </div>
-                    <div className={styles.formGroup}>
-                      <label>Guardian Name *</label>
-                      <input
-                        type="text"
-                        name="Guardian"
-                        placeholder="Guardian/Parent Name"
-                        value={form.Guardian}
-                        onChange={handleInputChange}
-                        required
-                      />
-                    </div>
                   </div>
-                  
-                  <div className={styles.formRow}>
-                    <div className={styles.formGroup}>
-                      <label>Guardian Phone *</label>
-                      <input
-                        type="tel"
-                        name="GuardianPhoneNumber"
-                        placeholder="Guardian Phone Number"
-                        value={form.GuardianPhoneNumber}
-                        onChange={handleInputChange}
-                        required
-                      />
-                    </div>
-                    <div className={styles.formGroup}>
-                      <label>Date Enrolled *</label>
-                      <input
-                        type="datetime-local"
-                        name="DateJoined"
-                        value={form.DateJoined}
-                        onChange={handleInputChange}
-                        required
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className={styles.formRow}>
-                    <div className={styles.formGroup}>
-                      <label>Address *</label>
-                      <input
-                        type="text"
-                        name="Address"
-                        placeholder="Address"
-                        value={form.Address}
-                        onChange={handleInputChange}
-                        required
-                      />
-                    </div>
-                    <div className={styles.formGroup}>
-                      <label>State of Origin *</label>
-                      <input
-                        type="text"
-                        name="StateOfOrigin"
-                        placeholder="State Of Origin"
-                        value={form.StateOfOrigin}
-                        onChange={handleInputChange}
-                        required
-                      />
-                    </div>
-                  </div>
-                  
-                  <div className={styles.formRow}>
-                    <div className={styles.formGroup}>
-                      <label>Country *</label>
-                      <input
-                        type="text"
-                        name="Country"
-                        placeholder="Country"
-                        value={form.Country}
-                        onChange={handleInputChange}
-                        required
-                      />
-                    </div>
-                    <div className={styles.formGroup}>
-                      <label>Student Photo</label>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        name="StudentIMG"
-                        onChange={handleImageChange}
-                        required={!editingId}
-                      />
-                      {form.preview && (
-                        <img
-                          className={styles.previewImage}
-                          src={form.preview}
-                          alt="Preview"
-                        />
-                      )}
-                    </div>
-                  </div>
-
-                  <div className={styles.formActions}>
-                    <button type="submit" className={styles.btnPrimary} disabled={isLoading}>
-                      {isLoading ? "Processing..." : editingId ? "Update" : "Save"}
-                    </button>
-                    <button 
-                      type="button" 
-                      className={styles.btnSecondary}
-                      onClick={() => {
-                        setIsFormOpen(false);
-                        setEmailStatus("");
-                        setEditingId(null);
-                      }}
-                      disabled={isLoading}
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          )}
-
-          {/* Students Table */}
-          <div className={styles.tableContainer}>
-            <table className={styles.dataTable}>
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Student</th>
-                  <th>Email</th>
-                  <th>Course</th>
-                  <th>Grade</th>
-                  <th>Gender</th>
-                  <th>Guardian</th>
-                  <th>Payment Status</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredStudents.length === 0 ? (
-                  <tr>
-                    <td colSpan="9" className={styles.noData}>
-                      No students found. Click "Add Student" to get started.
-                    </td>
-                  </tr>
-                ) : (
-                  filteredStudents.map((student) => (
-                    <tr key={student.studentId}>
-                      <td>{student.studentId}</td>
-                      <td className={styles.studentCell}>
-                        {student.StudentIMG ? (
-                          <img
-                            src={student.StudentIMG}
-                            alt={student.FullName}
-                            className={styles.studentAvatar}
-                          />
-                        ) : (
-                          <div className={styles.studentAvatar}>No Photo</div>
-                        )}
-                        <span>{student.FullName}</span>
-                      </td>
-                      <td>{student.Email}</td>
-                      <td>{student.Course}</td>
-                      <td>{student.GradeLevel}</td>
-                      <td>{student.Gender}</td>
-                      <td>{student.Guardian}</td>
-                      <td>
-                        <span className={
-                          student.paymentStatus === "Paid" 
-                            ? styles.statusPaid 
-                            : styles.statusPending
-                        }>
-                          {student.paymentStatus || "Pending"}
-                        </span>
-                      </td>
-                      <td>
-                        <div className={styles.actionButtons}>
-                          <button 
-                            className={styles.editBtn}
-                            onClick={() => handleEdit(student)}
-                          >
-                            <FaEdit />
-                          </button>
-                          <button 
-                            className={styles.paymentBtn}
-                            onClick={() => handlePayment(student.studentId)}
-                            disabled={student.paymentStatus === "Paid"}
-                          >
-                            <FaMoneyCheckAlt />
-                            {student.paymentStatus === "Paid" ? "Paid" : "Mark Paid"}
-                          </button>
-                          <button 
-                            className={styles.deleteBtn}
-                            onClick={() => handleDelete(student.studentId)}
-                          >
-                            <RiDeleteBin5Line />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
                 )}
-              </tbody>
-            </table>
+                
+                <div className={styles.formRow}>
+                  <div className={styles.formGroup}>
+                    <label>{activeTab === "students" ? "Student" : "Teacher"} Photo</label>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      name="Image"
+                      onChange={handleImageChange}
+                      required={!editingId && activeTab === "students"}
+                    />
+                    {form.preview && (
+                      <img
+                        className={styles.previewImage}
+                        src={form.preview}
+                        alt="Preview"
+                      />
+                    )}
+                  </div>
+                  <div className={styles.formGroup}>
+                    <label>Country *</label>
+                    <Select
+                      options={countryOptions}
+                      onChange={handleCountryChange}
+                      placeholder="Select Country"
+                      value={countryOptions.find((opt) => opt.label === form.Country) || null}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Academic Information Section */}
+              <div className={styles.formSection}>
+                <h4>{activeTab === "students" ? "Academic" : "Professional"} Information</h4>
+                <div className={styles.formRow}>
+                  <div className={styles.formGroup}>
+                    <label>Course *</label>
+                    <select
+                      name="Course"
+                      value={form.Course}
+                      onChange={handleInputChange}
+                      required
+                    >
+                      <option value="">Select Course</option>
+                      <option value="Mathematics">Mathematics</option>
+                      <option value="Physics">Physics</option>
+                      <option value="Chemistry">Chemistry</option>
+                      <option value="Biology">Biology</option>
+                      <option value="Computer Science">Computer Science</option>
+                      <option value="English">English</option>
+                      <option value="History">History</option>
+                    </select>
+                  </div>
+                  {activeTab === "students" && (
+                    <div className={styles.formGroup}>
+                      <label>Grade Level *</label>
+                      <select
+                        name="GradeLevel"
+                        value={form.GradeLevel}
+                        onChange={handleInputChange}
+                        required
+                      >
+                        <option value="">Select Grade Level</option>
+                        <option value="9th Grade">9th Grade</option>
+                        <option value="10th Grade">10th Grade</option>
+                        <option value="11th Grade">11th Grade</option>
+                        <option value="12th Grade">12th Grade</option>
+                      </select>
+                    </div>
+                  )}
+                </div>
+                
+                <div className={styles.formRow}>
+                  <div className={styles.formGroup}>
+                    <label>Date {activeTab === "students" ? "Enrolled" : "Joined"} *</label>
+                    <input
+                      type="date"
+                      name="DateJoined"
+                      value={form.DateJoined}
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Additional Sections for Students Only */}
+              {activeTab === "students" && (
+                <>
+                  <div className={styles.formSection}>
+                    <h4>Guardian Information</h4>
+                    <div className={styles.formRow}>
+                      <div className={styles.formGroup}>
+                        <label>Guardian Name *</label>
+                        <input
+                          type="text"
+                          name="Guardian"
+                          placeholder="Guardian/Parent Name"
+                          value={form.Guardian}
+                          onChange={handleInputChange}
+                          required
+                        />
+                      </div>
+                      <div className={styles.formGroup}>
+                        <label>Guardian Phone *</label>
+                        <input
+                          type="tel"
+                          name="GuardianPhoneNumber"
+                          placeholder="Guardian Phone Number"
+                          value={form.GuardianPhoneNumber}
+                          onChange={handleInputChange}
+                          required
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className={styles.formSection}>
+                    <h4>Address Information</h4>
+                    <div className={styles.formRow}>
+                      <div className={styles.formGroup}>
+                        <label>Address *</label>
+                        <input
+                          type="text"
+                          name="Address"
+                          placeholder="Full Address"
+                          value={form.Address}
+                          onChange={handleInputChange}
+                          required
+                        />
+                      </div>
+                      <div className={styles.formGroup}>
+                        <label>State/Province *</label>
+                        <input
+                          type="text"
+                          name="StateOfOrigin"
+                          placeholder="State or Province"
+                          value={form.StateOfOrigin}
+                          onChange={handleInputChange}
+                          required
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              <div className={styles.formActions}>
+                <button type="submit" className={styles.btnPrimary} disabled={isLoading}>
+                  {isLoading ? "Processing..." : editingId ? `Update ${activeTab === "students" ? "Student" : "Teacher"}` : `Add ${activeTab === "students" ? "Student" : "Teacher"}`}
+                </button>
+                <button 
+                  type="button" 
+                  className={styles.btnSecondary}
+                  onClick={() => {
+                    setIsFormOpen(false);
+                    setEmailStatus("");
+                    resetForm();
+                  }}
+                  disabled={isLoading}
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

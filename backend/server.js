@@ -1,17 +1,18 @@
-import mongoose from "mongoose";
-import express from "express";
-import dotenv from "dotenv";
 import bcrypt from "bcryptjs";
-import Admin from "./models/Admin.js";
-import Teacher from "./models/Teacher.js"; // Import Teacher model
 import cors from "cors";
-import teacherRoutes from "./router.js";
-import path from "path";
-import { fileURLToPath } from "url";
+import dotenv from "dotenv";
+import express from "express";
 import fs from "fs";
-import Student from "./models/Student.js";
-import studentRoutes from "./studentRoutes.js";
+import mongoose from "mongoose";
+import path from "path";
+import process from "process";
+import { fileURLToPath } from "url";
+import Admin from "./models/Admin.js";
 import registerRoutes from "./models/registerRoutes.js";
+import Student from "./models/Student.js";
+import Teacher from "./models/Teacher.js"; // Import Teacher model
+import teacherRoutes from "./router.js";
+import studentRoutes from "./studentRoutes.js";
 
 dotenv.config();
 
@@ -19,7 +20,7 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI;
 const __filename = fileURLToPath(import.meta.url);
-const _dirname = path.dirname(_filename);
+const __dirname = path.dirname(__filename);
 
 console.log("Mongo URI:", MONGO_URI);
 

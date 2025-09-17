@@ -1,4 +1,6 @@
 .back {
   display: flex;
-  column-gap: 5rem;
+  column-gap: 28rem;
+  background-color: rgb(245, 245, 245);
 }
+
