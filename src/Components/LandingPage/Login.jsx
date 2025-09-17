@@ -40,9 +40,9 @@ export default function Login() {
           localStorage.setItem("userRole", "admin");
           localStorage.setItem("adminId", data.admin.id);
           navigate("/admindashboard");
-        } else if (data.teacher) {
+         } else if (data.teacher) {
           localStorage.setItem("userRole", "teacher");
-          localStorage.setItem("teacherId", data.teacherId);
+          localStorage.setItem("teacherId", data.teacher.id); // correct key
           navigate("/teachdashboard");
         } else if (data.student) {
           localStorage.setItem("userRole", "student");

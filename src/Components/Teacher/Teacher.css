@@ -649,216 +649,78 @@ body {
 
 /* ===== Attendance Page Styling ===== */
 .attendance-page {
-  padding: 20px;
-  background: #ffffff;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
 }
 
-.attendance-page h2 {
-  font-size: 24px;
-  margin-bottom: 15px;
-  color: #2c3e50;
-  border-bottom: 2px solid #f0f0f0;
-  padding-bottom: 8px;
-}
-
-/* Controls (date picker, labels) */
-.attendance-controls {
-  margin-bottom: 20px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.attendance-controls label {
-  font-weight: 600;
-  color: #333;
-}
-
-.attendance-controls input[type="date"] {
-  padding: 6px 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 14px;
-}
-
-/* Table styling */
 .attendance-table {
-  width: 100%;
+  width: 200%;
   border-collapse: collapse;
-  margin-bottom: 20px;
+  margin-top: 2rem;
 }
 
 .attendance-table th,
 .attendance-table td {
-  padding: 12px 15px;
-  text-align: left;
-  border-bottom: 1px solid #e0e0e0;
+  border: 0.1rem solid #ccc;
+  padding: 1rem;
+  text-align: center;
 }
 
 .attendance-table th {
-  background-color: #f8f9fa;
-  font-weight: 600;
-  color: #2c3e50;
+  background: #f4f4f4;
 }
 
-.attendance-table tr:hover {
-  background-color: #f5f5f5;
+label {
+  display: block;
+  font-size: 0.8rem;
 }
 
-/* Checkbox + status */
-.attendance-table input[type="checkbox"] {
-  margin-right: 8px;
-  transform: scale(1.2);
-  cursor: pointer;
+.settings-container {
+  max-width: 600px;
+  margin: auto;
+  padding: 2rem;
+  background: #f9f9f9;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
 }
-
-/* Save button */
-.save-btn {
-  padding: 10px 18px;
-  background-color: #2d89ef;
-  border: none;
-  border-radius: 6px;
-  font-size: 15px;
-  color: #fff;
-  cursor: pointer;
-  transition: background 0.2s ease-in-out;
-}
-
-.save-btn:hover {
-  background-color: #1b5fbb;
-}
-
-
-/* ===== Students Page Styling ===== */
-.students-page {
-  padding: 20px;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-}
-
-.students-page h2 {
-  font-size: 24px;
-  margin-bottom: 15px;
-  color: #2c3e50;
-  border-bottom: 2px solid #f0f0f0;
-  padding-bottom: 8px;
-}
-
-/* Controls */
-.student-controls {
-  display: flex;
-  gap: 12px;
-  margin-bottom: 20px;
-}
-
-.student-controls input[type="text"],
-.student-controls select {
-  padding: 8px 12px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 14px;
-  flex: 1;
-}
-
-/* Table */
-.student-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.student-table th,
-.student-table td {
-  padding: 12px 15px;
-  border-bottom: 1px solid #eee;
-  text-align: left;
-}
-
-.student-table th {
-  background-color: #f8f9fa;
-  font-weight: 600;
-  color: #2c3e50;
-}
-
-.student-table tr:hover {
-  background: #f5f5f5;
-}
-
-/* Buttons */
-.view-btn,
-.message-btn {
-  padding: 6px 12px;
-  margin-right: 6px;
-  border: none;
-  border-radius: 6px;
-  font-size: 13px;
-  cursor: pointer;
-  transition: 0.2s ease-in-out;
-}
-
-.view-btn {
-  background-color: #2d89ef;
+.settings-container.dark {
+  background: #1c1c1c;
   color: #fff;
 }
-
-.view-btn:hover {
-  background-color: #1b5fbb;
-}
-
-.message-btn {
-  background-color: #27ae60;
-  color: #fff;
-}
-
-.message-btn:hover {
-  background-color: #1e874b;
-}
-
-
-/* === Announcements === */
-.announcement-form {
-  display: flex;
-  flex-direction: column;
-  gap: 0.8rem;
+.settings-section {
   margin-bottom: 2rem;
 }
-
-.announcement-form input,
-.announcement-form textarea {
-  padding: 0.6rem;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-}
-
-.announcement-list {
+.settings-item {
+  margin: 1rem 0;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
 }
-
-.announcement-card {
-  background: #fff;
-  border-radius: 10px;
-  padding: 1rem;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-}
-
-.announcement-card h4 {
-  margin: 0 0 0.5rem 0;
-  color: #23144b;
-}
-
-.announcement-meta {
-  font-size: 0.85rem;
-  color: #888;
+.settings-item label {
+  font-weight: bold;
   margin-bottom: 0.5rem;
 }
-
-.announcement-card p {
-  margin: 0.5rem 0;
+.settings-item input {
+  padding: 0.6rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
 }
+.save-btn, .logout-btn {
+  background: #23144b;
+  color: white;
+  padding: 0.8rem 1.2rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 1rem;
+  transition: background 0.2s;
+}
+.save-btn:hover, .logout-btn:hover {
+  background: #f15f11;
+}
+.status-message {
+  margin-top: 1rem;
+  font-weight: bold;
+}
+
 
 
 /* ===================== */

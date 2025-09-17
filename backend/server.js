@@ -149,6 +149,7 @@ app.post("/admin/login", async (req, res) => {
           .json({ message: "Invalid username or password" });
       }
 
+      
       // Update last login time if teacher is from Teacher collection
       if (teacher._id) {
         await Teacher.findByIdAndUpdate(teacher._id, {
