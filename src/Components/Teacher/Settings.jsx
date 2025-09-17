@@ -147,7 +147,7 @@ export default function Settings({ teacher, setTeacher }) {
       </section>
 
       {/* Security */}
-      <section className="settings-section danger-zone">
+      <section className="settings-sectiondanger-zone">
         <h3>Security</h3>
         <button className="logout-btn" onClick={handleLogout}>🚪 Logout</button>
         <button className="delete-btn" onClick={handleDelete}>🗑 Delete Account</button>

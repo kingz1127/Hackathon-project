@@ -91,12 +91,12 @@ body {
 }
 
 .profile-name {
-  font-size: 1.1rem;
+  font-size: 2rem;
   margin-bottom: 5px;
 }
 
 .profile-role {
-  font-size: 0.8rem;
+  font-size: 1.1rem;
   opacity: 0.8;
   text-align: center;
 }
@@ -133,7 +133,7 @@ body {
 }
 
 .page-title {
-  font-size: 1.8rem;
+  font-size: 2rem;
   color: var(--primary-dark);
 }
 
@@ -156,7 +156,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.7rem;
+  font-size: 1rem;
 }
 
 .dashboard-cards {
@@ -186,7 +186,7 @@ body {
 }
 
 .card-title {
-  font-size: 1rem;
+  font-size: 1.5rem;
   font-weight: 600;
   color: var(--primary-dark);
 }
@@ -202,13 +202,13 @@ body {
 }
 
 .card-value {
-  font-size: 1.8rem;
+  font-size: 2rem;
   font-weight: 700;
   margin-bottom: 5px;
 }
 
 .card-description {
-  font-size: 0.85rem;
+  font-size: 1rem;
   color: var(--dark);
   opacity: 0.8;
 }
@@ -217,7 +217,7 @@ body {
    CLASSES SECTION (Grid, Stats, Actions)
 ========================================================= */
 .section-title {
-  font-size: 1.3rem;
+  font-size: 1.5rem;
   margin-bottom: 20px;
   color: var(--primary-dark);
   display: flex;
@@ -245,7 +245,7 @@ body {
 }
 
 .class-title {
-  font-size: 1.1rem;
+  font-size: 1.5rem;
   font-weight: 600;
   margin-bottom: 5px;
   color: var(--primary-dark);
@@ -253,7 +253,7 @@ body {
 
 .class-meta {
   display: flex;
-  font-size: 0.85rem;
+  font-size: 1rem;
   color: var(--dark);
   opacity: 0.8;
 }
@@ -279,13 +279,13 @@ body {
 }
 
 .stat-value {
-  font-size: 1.2rem;
+  font-size: 1.5rem;
   font-weight: 600;
   color: var(--primary-dark);
 }
 
 .stat-label {
-  font-size: 0.75rem;
+  font-size: 1rem;
   color: var(--dark);
   opacity: 0.8;
   text-transform: uppercase;
@@ -301,7 +301,7 @@ body {
   padding: 8px 12px;
   border: none;
   border-radius: 5px;
-  font-size: 0.85rem;
+  font-size: 1rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -373,14 +373,14 @@ body {
 
 .class-name,
 .due-date {
-  font-size: 0.9rem;
+  font-size: 1rem;
   color: var(--dark);
 }
 
 .status-badge {
   padding: 5px 10px;
   border-radius: 20px;
-  font-size: 0.75rem;
+  font-size: 1rem;
   font-weight: 500;
   text-align: center;
 }
@@ -866,7 +866,7 @@ label {
   border-radius: 8px;
   border: 1px solid #ccc;
 }
-.save-btn, .logout-btn {
+.save-btn, .logout-btn .delete-btn {
   background: #23144b;
   color: white;
   padding: 0.8rem 1.2rem;
@@ -876,7 +876,7 @@ label {
   margin-top: 1rem;
   transition: background 0.2s;
 }
-.save-btn:hover, .logout-btn:hover {
+.save-btn:hover, .logout-btn:hover, .delete-btn:hover {
   background: #f15f11;
 }
 .status-message {
@@ -1001,7 +1001,8 @@ label {
 .settings-section {
   margin-bottom: 20px;
   background: #fff;
-  padding: 15px;
+  gap: 2rem;
+  padding: 1.5rem;
   border-radius: 8px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
@@ -1030,7 +1031,7 @@ label {
   border-radius: 6px;
 }
 
-.logout-btn {
+.logout-btn, .delete-btn {
   background: #e63946;
   color: #fff;
   padding: 10px 16px;
@@ -1040,7 +1041,7 @@ label {
   font-weight: bold;
 }
 
-.logout-btn:hover {
+.logout-btn:hover, .delete-btn:hover {
   background: #b71c1c;
 }
 
