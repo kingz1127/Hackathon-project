@@ -19,11 +19,12 @@ import Resources from "./Components/Teacher/Resources";
 import Settings from "./Components/Teacher/Settings";
 import Student from "./Components/Teacher/Student";
 import TeacherDashboard from "./Components/Teacher/TeacherDashboard";
-<<<<<<< HEAD
-import Student from "./Components/Student/StudentDashboard";
-=======
+
+
+import StudentDashboard from "./Components/Student/StudentDashboard";
+
 import TeacherDashboardLayout from "./Components/Teacher/TeacherDashboardLayout";
->>>>>>> 379e5e8abd3980c17b90b52ecebd0e6f777b42d0
+
 
 export default function App() {
   return (
@@ -63,7 +64,7 @@ export default function App() {
       </Route>
 
         {/* Student page routes */}
-        <Route path="/student" element={<Student />} />
+        <Route path="/student" element={<StudentDashboard />} />
       </Routes>
     </BrowserRouter>
   );
