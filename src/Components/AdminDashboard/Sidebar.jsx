@@ -13,7 +13,7 @@ export default function Sidebar() {
     console.log("Logging out...");
     
     // Redirect to the learner page
-    navigate("/");
+    navigate("/login");
   };
 
   return (
