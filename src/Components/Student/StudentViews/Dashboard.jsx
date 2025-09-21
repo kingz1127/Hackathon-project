@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 // Navigation Button Component with hover effects
 function NavButton({ icon, title, onClick }) {
@@ -17,25 +17,45 @@ function NavButton({ icon, title, onClick }) {
       <div style={styles.navButtonIcon}>{icon}</div>
       <div style={styles.navButtonTitle}>{title}</div>
     </button>
-  );
+  ); 
 }
 
 // Profile Icon Component
-function ProfileIcon({ studentName, course = "Full Stack Development", semester = "Semester 3", notifications = [], setActive }) {
-  const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
-  const [showNotifications, setShowNotifications] = React.useState(false);
-  
+function ProfileIcon({ course = "Full Stack Development", semester = "Semester 3", notifications = [], setActive }) {
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [studentName, setStudentName] = useState("Loading...");
+  const [studentImg, setStudentImg] = useState(null);
+
+  useEffect(() => {
+    const studentId = localStorage.getItem("studentId"); // get saved studentId from login
+    if (!studentId) return;
+
+    fetch(`http://localhost:5000/api/students/${studentId}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setStudentName(data.fullName || "Unknown Student");
+        setStudentImg(data.studentImg || null);
+      })
+      .catch((err) => {
+        console.error("Error fetching student:", err);
+        setStudentName("Error loading student");
+      });
+  }, []);
+
   const getInitials = (name) => {
-    return name.split(' ').map(n => n[0]).join('').toUpperCase();
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase();
   };
 
   const handleSignOut = () => {
-    if (window.confirm('Are you sure you want to sign out?')) {
-      // Clear any stored data
-      // In a real app, you would clear tokens, session data, etc.
-      alert('You have been signed out successfully!');
-      // Navigate to landing page after successful sign out
-      setActive("Landing"); // or whatever your landing page component is called
+    if (window.confirm("Are you sure you want to sign out?")) {
+      localStorage.clear();
+      alert("You have been signed out successfully!");
+      setActive("Landing");
     }
   };
 
@@ -45,48 +65,67 @@ function ProfileIcon({ studentName, course = "Full Stack Development", semester 
   };
 
   const handleSettings = () => {
-    setActive("Settings"); // Navigate to Settings page
+    setActive("Settings");
     setIsDropdownOpen(false);
   };
 
   const markAsRead = (id) => {
-    // In real app, this would update the notification status in backend
     console.log(`Marking notification ${id} as read`);
   };
 
-  const unreadCount = notifications.filter(n => !n.isRead).length;
+  const unreadCount = notifications.filter((n) => !n.isRead).length;
 
   return (
     <div style={styles.profileContainer}>
+      {/* Welcome Message */}
+      {/* <div style={styles.welcome}>
+        Welcome back, {studentName}
+      </div> */}
+
+      {/* Profile Info */}
       <div style={styles.profileInfo}>
-        <span style={styles.gradeClass}>{course} - {semester}</span>
+        <span style={styles.gradeClass}>
+          {course} - {semester}
+        </span>
       </div>
-      <div 
+
+      {/* Profile Avatar / Dropdown */}
+      <div
         style={styles.profileIcon}
         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
       >
         <div style={styles.profileAvatar}>
-          {getInitials(studentName)}
+          {studentImg ? (
+            <img
+              src={studentImg}
+              alt="profile"
+              style={{
+                width: "100%",
+                height: "100%",
+                borderRadius: "50%",
+                objectFit: "cover",
+              }}
+            />
+          ) : (
+            getInitials(studentName)
+          )}
         </div>
         {unreadCount > 0 && (
           <div style={styles.notificationBadge}>{unreadCount}</div>
         )}
         {isDropdownOpen && (
           <div style={styles.dropdown}>
-            <div 
-              style={styles.dropdownItem}
-              onClick={handleNotifications}
-            >
-              Notifications {unreadCount > 0 && <span style={styles.badgeInline}>({unreadCount})</span>}
+            <div style={styles.dropdownItem} onClick={handleNotifications}>
+              Notifications{" "}
+              {unreadCount > 0 && (
+                <span style={styles.badgeInline}>({unreadCount})</span>
+              )}
             </div>
-            <div 
-              style={styles.dropdownItem}
-              onClick={handleSettings}
-            >
+            <div style={styles.dropdownItem} onClick={handleSettings}>
               Settings
             </div>
-            <div 
-              style={{...styles.dropdownItem, ...styles.signOutItem}}
+            <div
+              style={{ ...styles.dropdownItem, ...styles.signOutItem }}
               onClick={handleSignOut}
             >
               Sign Out
@@ -94,12 +133,13 @@ function ProfileIcon({ studentName, course = "Full Stack Development", semester 
           </div>
         )}
       </div>
-      
+
+      {/* Notification Panel */}
       {showNotifications && (
         <div style={styles.notificationPanel}>
           <div style={styles.notificationHeader}>
             <h3 style={styles.notificationTitle}>Notifications</h3>
-            <button 
+            <button
               style={styles.closeBtn}
               onClick={() => setShowNotifications(false)}
             >
@@ -111,17 +151,17 @@ function ProfileIcon({ studentName, course = "Full Stack Development", semester 
               <div style={styles.noNotifications}>No new notifications</div>
             ) : (
               notifications.map((notification) => (
-                <div 
-                  key={notification.id} 
+                <div
+                  key={notification.id}
                   style={{
                     ...styles.notificationItem,
-                    ...(notification.isRead ? {} : styles.unreadNotification)
+                    ...(notification.isRead ? {} : styles.unreadNotification),
                   }}
                   onClick={() => markAsRead(notification.id)}
                 >
                   <div style={styles.notificationSender}>
                     <span style={styles.senderIcon}>
-                      {notification.type === 'admin' ? '👨‍💼' : '👨‍🏫'}
+                      {notification.type === "admin" ? "👨‍💼" : "👨‍🏫"}
                     </span>
                     <span style={styles.senderName}>
                       {notification.sender}
@@ -146,10 +186,34 @@ function ProfileIcon({ studentName, course = "Full Stack Development", semester 
   );
 }
 
-export default function Dashboard({ studentName, setActive }) {
+// export default ProfileIcon;
+
+
+export default function Dashboard({ setActive }) {
   const [isClassesExpanded, setIsClassesExpanded] = React.useState(false);
   const [isScheduleExpanded, setIsScheduleExpanded] = React.useState(false);
   const [isAssignmentsExpanded, setIsAssignmentsExpanded] = React.useState(false);
+
+  // New states for student
+  const [studentName, setStudentName] = React.useState("Loading...");
+  const [studentImg, setStudentImg] = React.useState(null);
+
+  // Fetch student info (same logic as Sidebar)
+  React.useEffect(() => {
+    const studentId = localStorage.getItem("studentId");
+    if (!studentId) return;
+
+    fetch(`http://localhost:5000/admin/students/${studentId}`)
+  .then((res) => res.json())
+  .then((data) => {
+    setStudentName(data.fullName || "Unknown Student");
+    setStudentImg(data.studentImg || null);
+  })
+  .catch((err) => {
+    console.error("Error fetching student:", err);
+    setStudentName("Error loading student");
+  });
+  }, []);
   
   // Sample notifications - in real app, this would come from API
   const [notifications] = React.useState([
@@ -293,27 +357,18 @@ export default function Dashboard({ studentName, setActive }) {
         <div style={styles.header}>
           <div>
             <h1 style={styles.title}>Student Dashboard</h1>
+            {/* ✅ Now fetching from DB instead of prop */}
             <div style={styles.welcome}>Welcome back, {studentName}</div>
           </div>
           <ProfileIcon 
-            studentName={studentName || "Student"} 
+            course="Full Stack Development"
+            semester="Semester 3"
+            studentName={studentName}
+            studentImg={studentImg}
             notifications={notifications}
             setActive={setActive}
           />
         </div>
-
-        {/* Stats Cards */}
-        <div style={styles.statsGrid}>
-          {statsCards.map((card, index) => (
-            <div key={index} style={{...styles.statCard, borderLeftColor: card.color}}>
-              <h3 style={styles.statTitle}>{card.title}</h3>
-              <div style={styles.statValue}>{card.value}</div>
-              <div style={{...styles.statChange, color: card.color}}>
-                {card.change}
-              </div>
-            </div>
-          ))}
-        </div>           
         
 
         {/* Main Content */}
@@ -710,7 +765,7 @@ const styles = {
     left: '8px',
     width: '8px',
     height: '8px',
-    backgroundColor: '#3b82f6',
+    backgroundColor: '#22262cff',
     borderRadius: '50%'
   },
   statsGrid: {

@@ -371,6 +371,30 @@ router.put(
   }
 );
 
+// GET one student by studentId
+router.get("/admin/students/:studentId", async (req, res) => {
+  try {
+    const student = await Student.findOne({ studentId: req.params.studentId });
+
+    if (!student) {
+      return res.status(404).json({ message: "Student not found" });
+    }
+
+    res.json({
+      studentId: student.studentId,
+      fullName: student.fullName,
+      email: student.email,
+      studentImg: student.studentImg
+        ? `http://localhost:5000/uploads/students/${path.basename(student.studentImg)}`
+        : null,
+    });
+  } catch (err) {
+    console.error("Error fetching student:", err);
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+});
+
+
 // DELETE student
 router.delete("/admin/students/:studentId", async (req, res) => {
   try {
