@@ -518,7 +518,7 @@ export default function AdminDashboard() {
         </div>
         <div className={styles.headerActions}>
           <div className={styles.searchBox}>
-            <FaSearch />
+            <FaSearch className={styles.faSearch} />
             <input 
               type="text" 
               placeholder={`Search ${activeTab}...`} 
@@ -672,7 +672,7 @@ export default function AdminDashboard() {
               {activeTab === "students" && (
                 <table className={styles.dataTable}>
                   <thead>
-                    <tr>
+                    <tr> 
                       <th>ID</th>
                       <th>Student</th>
                       <th>Email</th>

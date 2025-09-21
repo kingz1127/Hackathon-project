@@ -87,7 +87,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   font-weight: 500;
-  font-size: 1.1rem;
+  font-size: 1.8rem;
 }
 
 .activeIndicator {
@@ -96,9 +96,9 @@
   top: 50%;
   transform: translateY(-50%);
   width: 5px;
-  height: 65%;
+  height: 100%;
   background-color: #ffeb3b;
-  border-radius: 0 2px 2px 0;
+  border-radius: 3px 0 0 3px ;
   opacity: 0;
   transition: opacity 0.25s ease;
 }
