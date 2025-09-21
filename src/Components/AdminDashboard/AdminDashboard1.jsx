@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { RiDeleteBin5Line } from "react-icons/ri";
-import { FaEdit, FaSearch, FaMoneyCheckAlt, FaUserGraduate, FaChalkboardTeacher, FaCog, FaPlus } from "react-icons/fa";
+import { FaEdit, FaSearch, FaMoneyCheckAlt, FaUserGraduate, FaChalkboardTeacher, FaCog, FaPlus, FaExpand, FaCompress } from "react-icons/fa";
 import { IoMdNotifications } from "react-icons/io";
 import { MdPayment, MdDashboard, MdAnalytics, MdGroup } from "react-icons/md";
 import Select from "react-select";
@@ -16,7 +16,10 @@ export default function AdminDashboard() {
   const [isLoading, setIsLoading] = useState(false);
   const [emailStatus, setEmailStatus] = useState("");
   const [recentActivities, setRecentActivities] = useState([]);
-  const [activeTab, setActiveTab] = useState("students"); // New state for tab management
+  const [activeTab, setActiveTab] = useState("students");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(3);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   // Form state for adding/editing students and teachers
   const [form, setForm] = useState({
@@ -27,13 +30,8 @@ export default function AdminDashboard() {
     DateJoined: "",
     Image: null,
     Country: "",
-    StudentID: "",
     GradeLevel: "",
-    Guardian: "",
     PhoneNumber: "",
-    GuardianPhoneNumber: "",
-    StateOfOrigin: "",
-    Address: "",
     Gender: "",
     preview: "",
   });
@@ -111,13 +109,8 @@ export default function AdminDashboard() {
       DateJoined: "",
       Image: null,
       Country: "",
-      StudentID: "",
       GradeLevel: "",
-      Guardian: "",
       PhoneNumber: "",
-      GuardianPhoneNumber: "",
-      StateOfOrigin: "",
-      Address: "",
       Gender: "",
       preview: "",
     });
@@ -134,13 +127,9 @@ export default function AdminDashboard() {
       !form.DOfB ||
       !form.Course ||
       !form.GradeLevel ||
-      !form.Guardian ||
       !form.DateJoined ||
       !form.Country ||
       !form.PhoneNumber ||
-      !form.GuardianPhoneNumber ||
-      !form.StateOfOrigin ||
-      !form.Address ||
       !form.Gender
     ) {
       setEmailStatus("Please fill in all required fields");
@@ -159,17 +148,14 @@ export default function AdminDashboard() {
       formData.append("DOfB", form.DOfB);
       formData.append("Course", form.Course);
       formData.append("GradeLevel", form.GradeLevel);
-      formData.append("Guardian", form.Guardian);
       formData.append("DateJoined", form.DateJoined);
       formData.append("Country", form.Country);
+      formData.append("PhoneNumber", form.PhoneNumber);
+      formData.append("Gender", form.Gender);
+      
       if (form.Image) {
         formData.append("StudentIMG", form.Image);
       }
-      formData.append("PhoneNumber", form.PhoneNumber);
-      formData.append("GuardianPhoneNumber", form.GuardianPhoneNumber);
-      formData.append("StateOfOrigin", form.StateOfOrigin);
-      formData.append("Address", form.Address);
-      formData.append("Gender", form.Gender);
       
       let response;
       let url;
@@ -259,6 +245,7 @@ export default function AdminDashboard() {
       formData.append("Course", form.Course);
       formData.append("DateJoined", form.DateJoined);
       formData.append("Country", form.Country);
+      
       if (form.Image) {
         formData.append("TeacherIMG", form.Image);
       }
@@ -330,16 +317,11 @@ export default function AdminDashboard() {
       DOfB: student.DOfB,
       Course: student.Course,
       GradeLevel: student.GradeLevel,
-      Guardian: student.Guardian,
       DateJoined: student.DateJoined,
       Country: student.Country,
       Image: student.StudentIMG,
       preview: student.StudentIMG,
-      StudentID: student.studentId,
       PhoneNumber: student.PhoneNumber,
-      GuardianPhoneNumber: student.GuardianPhoneNumber,
-      StateOfOrigin: student.StateOfOrigin,
-      Address: student.Address,
       Gender: student.Gender,
     });
     setEditingId(student.studentId);
@@ -488,15 +470,33 @@ export default function AdminDashboard() {
     teacher.Email?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // Pagination logic
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentStudents = filteredStudents.slice(indexOfFirstItem, indexOfLastItem);
+  const currentTeachers = filteredTeachers.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPagesStudents = Math.ceil(filteredStudents.length / itemsPerPage);
+  const totalPagesTeachers = Math.ceil(filteredTeachers.length / itemsPerPage);
+  const totalPages = activeTab === "students" ? totalPagesStudents : totalPagesTeachers;
+
+  // Change page
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  // Toggle fullscreen mode
+  const toggleFullscreen = () => {
+    setIsFullscreen(!isFullscreen);
+    if (!isFullscreen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+  };
+
   // Calculate payment statistics
   const paidStudents = students.filter(student => student.paymentStatus === "Paid").length;
   const pendingPayments = students.filter(student => student.paymentStatus === "Pending").length;
   const totalStudents = students.length;
   const totalTeachers = teachers.length;
-
-  // Calculate percentages for pie chart
-  const paidPercentage = totalStudents > 0 ? (paidStudents / totalStudents) * 100 : 0;
-  const pendingPercentage = totalStudents > 0 ? (pendingPayments / totalStudents) * 100 : 0;
 
   // Format activity timestamp
   const formatActivityTime = (timestamp) => {
@@ -544,8 +544,6 @@ export default function AdminDashboard() {
           <p>Manage your institution's operations and monitor key metrics</p>
         </div>
 
-
-
         {/* Statistics Cards */}
         <div className={styles.statsContainer}>
           <div className={styles.statCard}>
@@ -589,134 +587,53 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* Charts Row */}
-        <div className={styles.chartsRow}>
-          {/* Payment Overview Chart */}
-          <div className={styles.chartContainer}>
-            <div className={styles.chartHeader}>
-              <h3>Payment Overview</h3>
+        {/* Recent Activity - Only show when there are activities */}
+        {recentActivities.length > 0 && (
+          <div className={styles.activityContainer}>
+            <div className={styles.activityHeader}>
+              <h3>Recent Activity</h3>
+              <button onClick={() => setRecentActivities([])}>Clear All</button>
             </div>
-            <div className={styles.pieChart}>
-              <div className={styles.pieChartVisual}>
-                <div 
-                  className={styles.pieSegmentPaid} 
-                  style={{
-                    transform: `rotate(0deg)`,
-                    clipPath: paidPercentage > 0 ? 
-                      `polygon(50% 50%, 50% 0%, 100% 0%, 100% 100%, 50% 100%)` :
-                      'none'
-                  }}
-                ></div>
-                <div 
-                  className={styles.pieSegmentPending} 
-                  style={{
-                    transform: `rotate(${paidPercentage * 3.6}deg)`,
-                    clipPath: pendingPercentage > 0 ? 
-                      `polygon(50% 50%, 50% 0%, 0% 0%, 0% 100%, 50% 100%)` :
-                      'none'
-                  }}
-                ></div>
-                <div className={styles.pieChartCenter}>
-                  <span>{totalStudents}</span>
-                  <small>Total</small>
+            <div className={styles.activityList}>
+              {recentActivities.slice(0, 4).map((activity, index) => (
+                <div key={index} className={styles.activityItem}>
+                  <div className={styles.activityIcon}>
+                    {activity.type === "student_added" && <FaUserGraduate />}
+                    {activity.type === "student_deleted" && <RiDeleteBin5Line />}
+                    {activity.type === "payment_received" && <MdPayment />}
+                    {activity.type === "teacher_added" && <FaChalkboardTeacher />}
+                    {activity.type === "teacher_deleted" && <RiDeleteBin5Line />}
+                  </div>
+                  <div className={styles.activityContent}>
+                    <p>{activity.message}</p>
+                    <span>{formatActivityTime(activity.timestamp)}</span>
+                  </div>
                 </div>
-              </div>
-              <div className={styles.chartLegend}>
-                <div className={styles.legendItem}>
-                  <div className={styles.legendColor} style={{backgroundColor: 'var(--emerald)'}}></div>
-                  <span>Paid: {paidStudents} ({Math.round(paidPercentage)}%)</span>
-                </div>
-                <div className={styles.legendItem}>
-                  <div className={styles.legendColor} style={{backgroundColor: 'var(--ruby)'}}></div>
-                  <span>Pending: {pendingPayments} ({Math.round(pendingPercentage)}%)</span>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
-
-          {/* Recent Activity - Only show when there are activities */}
-          {recentActivities.length > 0 && (
-            <div className={styles.activityContainer}>
-              <div className={styles.activityHeader}>
-                <h3>Recent Activity</h3>
-                <button onClick={() => setRecentActivities([])}>Clear All</button>
-              </div>
-              <div className={styles.activityList}>
-                {recentActivities.slice(0, 4).map((activity, index) => (
-                  <div key={index} className={styles.activityItem}>
-                    <div className={styles.activityIcon}>
-                      {activity.type === "student_added" && <FaUserGraduate />}
-                      {activity.type === "student_deleted" && <RiDeleteBin5Line />}
-                      {activity.type === "payment_received" && <MdPayment />}
-                      {activity.type === "teacher_added" && <FaChalkboardTeacher />}
-                      {activity.type === "teacher_deleted" && <RiDeleteBin5Line />}
-                    </div>
-                    <div className={styles.activityContent}>
-                      <p>{activity.message}</p>
-                      <span>{formatActivityTime(activity.timestamp)}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
+        )}                                   
 
         {/* Quick Actions & Management Table */}
-        <div className={styles.mainContentRow}>
-          {/* Quick Actions */}
-          {/* <div className={styles.quickActions}>
-            <h3>Quick Actions</h3>
-            <div className={styles.actionGrid}>
-              <button 
-                className={styles.quickActionBtn}
-                onClick={() => {
-                  resetForm();
-                  setActiveTab("students");
-                  setIsFormOpen(true);
-                }}
-              >
-                <FaPlus />
-                <span>Add New Student</span>
-              </button>
-              <button 
-                className={styles.quickActionBtn}
-                onClick={() => {
-                  resetForm();
-                  setActiveTab("teachers");
-                  setIsFormOpen(true);
-                }}
-              >
-                <FaChalkboardTeacher />
-                <span>Add New Teacher</span>
-              </button>
-              <button className={styles.quickActionBtn}>
-                <MdPayment />
-                <span>Process Payments</span>
-              </button>
-              <button className={styles.quickActionBtn}>
-                <MdAnalytics />
-                <span>Generate Reports</span>
-              </button>
-              <button className={styles.quickActionBtn}>
-                <FaCog />
-                <span>System Settings</span>
-              </button>
-            </div>
-          </div> */}
-
+        <div className={`${styles.mainContentRow} ${isFullscreen ? styles.fullscreenMode : ''}`}>
           {/* Management Table Section */}
           <div className={styles.tableSection}>
             <div className={styles.tabContainer}>
               <button 
                 className={activeTab === "students" ? styles.activeTab : styles.tab}
-                onClick={() => setActiveTab("students")}
+                onClick={() => {
+                  setActiveTab("students");
+                  setCurrentPage(1);
+                }}
               >
                 Student Management
               </button>
               <button 
                 className={activeTab === "teachers" ? styles.activeTab : styles.tab}
-                onClick={() => setActiveTab("teachers")}
+                onClick={() => {
+                  setActiveTab("teachers");
+                  setCurrentPage(1);
+                }}
               >
                 Teacher Management
               </button>
@@ -724,15 +641,24 @@ export default function AdminDashboard() {
 
             <div className={styles.tableHeader}>
               <h3>{activeTab === "students" ? "Student Management" : "Teacher Management"}</h3>
-              <button 
-                className={styles.addBtn}
-                onClick={() => {
-                  resetForm();
-                  setIsFormOpen(true);
-                }}
-              >
-                <FaPlus /> Add {activeTab === "students" ? "Student" : "Teacher"}
-              </button>
+              <div className={styles.tableActions}>
+                <button 
+                  className={styles.addBtn}
+                  onClick={() => {
+                    resetForm();
+                    setIsFormOpen(true);
+                  }}
+                >
+                  <FaPlus /> Add {activeTab === "students" ? "Student" : "Teacher"}
+                </button>
+                <button 
+                  className={styles.fullscreenBtn}
+                  onClick={toggleFullscreen}
+                  title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
+                >
+                  {isFullscreen ? <FaCompress /> : <FaExpand />}
+                </button>
+              </div>
             </div>
 
             {emailStatus && (
@@ -757,14 +683,14 @@ export default function AdminDashboard() {
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredStudents.length === 0 ? (
+                    {currentStudents.length === 0 ? (
                       <tr>
                         <td colSpan="7" className={styles.noData}>
                           No students found. Click "Add Student" to get started.
                         </td>
                       </tr>
                     ) : (
-                      filteredStudents.map((student) => (
+                      currentStudents.map((student) => (
                         <tr key={student.studentId}>
                           <td>{student.studentId}</td>
                           <td className={styles.studentCell}>
@@ -842,14 +768,14 @@ export default function AdminDashboard() {
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredTeachers.length === 0 ? (
+                    {currentTeachers.length === 0 ? (
                       <tr>
                         <td colSpan="7" className={styles.noData}>
                           No teachers found. Click "Add Teacher" to get started.
                         </td>
                       </tr>
                     ) : (
-                      filteredTeachers.map((teacher) => (
+                      currentTeachers.map((teacher) => (
                         <tr key={teacher.teacherId}>
                           <td>{teacher.teacherId}</td>
                           <td className={styles.studentCell}>
@@ -895,6 +821,37 @@ export default function AdminDashboard() {
                 </table>
               )}
             </div>
+
+            {/* Pagination Controls */}
+            {(totalPages > 1) && (
+              <div className={styles.pagination}>
+                <button 
+                  onClick={() => paginate(currentPage - 1)} 
+                  disabled={currentPage === 1}
+                  className={styles.paginationBtn}
+                >
+                  Previous
+                </button>
+                
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((number) => (
+                  <button
+                    key={number}
+                    onClick={() => paginate(number)}
+                    className={currentPage === number ? styles.activePage : styles.paginationBtn}
+                  >
+                    {number}
+                  </button>
+                ))}
+                
+                <button 
+                  onClick={() => paginate(currentPage + 1)} 
+                  disabled={currentPage === totalPages}
+                  className={styles.paginationBtn}
+                >
+                  Next
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -931,6 +888,7 @@ export default function AdminDashboard() {
                       value={form.FullName}
                       onChange={handleInputChange}
                       required
+                      className={styles.largeInput}
                     />
                   </div>
                   <div className={styles.formGroup}>
@@ -942,6 +900,7 @@ export default function AdminDashboard() {
                       value={form.Email}
                       onChange={handleInputChange}
                       required
+                      className={styles.largeInput}
                     />
                   </div>
                 </div>
@@ -955,6 +914,7 @@ export default function AdminDashboard() {
                       value={form.DOfB}
                       onChange={handleInputChange}
                       required
+                      className={styles.largeInput}
                     />
                   </div>
                   {activeTab === "students" && (
@@ -967,6 +927,7 @@ export default function AdminDashboard() {
                         value={form.PhoneNumber}
                         onChange={handleInputChange}
                         required
+                        className={styles.largeInput}
                       />
                     </div>
                   )}
@@ -981,11 +942,11 @@ export default function AdminDashboard() {
                         value={form.Gender}
                         onChange={handleInputChange}
                         required
+                        className={styles.largeInput}
                       >
                         <option value="">Select Gender</option>
                         <option value="Male">Male</option>
                         <option value="Female">Female</option>
-                        <option value="Other">Other</option>
                       </select>
                     </div>
                   </div>
@@ -999,7 +960,7 @@ export default function AdminDashboard() {
                       accept="image/*"
                       name="Image"
                       onChange={handleImageChange}
-                      required={!editingId && activeTab === "students"}
+                      className={styles.largeInput}
                     />
                     {form.preview && (
                       <img
@@ -1016,6 +977,7 @@ export default function AdminDashboard() {
                       onChange={handleCountryChange}
                       placeholder="Select Country"
                       value={countryOptions.find((opt) => opt.label === form.Country) || null}
+                      className={styles.largeInput}
                     />
                   </div>
                 </div>
@@ -1032,6 +994,7 @@ export default function AdminDashboard() {
                       value={form.Course}
                       onChange={handleInputChange}
                       required
+                      className={styles.largeInput}
                     >
                       <option value="">Select Course</option>
                       <option value="Mathematics">Mathematics</option>
@@ -1051,6 +1014,7 @@ export default function AdminDashboard() {
                         value={form.GradeLevel}
                         onChange={handleInputChange}
                         required
+                        className={styles.largeInput}
                       >
                         <option value="">Select Grade Level</option>
                         <option value="9th Grade">9th Grade</option>
@@ -1071,71 +1035,11 @@ export default function AdminDashboard() {
                       value={form.DateJoined}
                       onChange={handleInputChange}
                       required
+                      className={styles.largeInput}
                     />
                   </div>
                 </div>
               </div>
-
-              {/* Additional Sections for Students Only */}
-              {activeTab === "students" && (
-                <>
-                  <div className={styles.formSection}>
-                    <h4>Guardian Information</h4>
-                    <div className={styles.formRow}>
-                      <div className={styles.formGroup}>
-                        <label>Guardian Name *</label>
-                        <input
-                          type="text"
-                          name="Guardian"
-                          placeholder="Guardian/Parent Name"
-                          value={form.Guardian}
-                          onChange={handleInputChange}
-                          required
-                        />
-                      </div>
-                      <div className={styles.formGroup}>
-                        <label>Guardian Phone *</label>
-                        <input
-                          type="tel"
-                          name="GuardianPhoneNumber"
-                          placeholder="Guardian Phone Number"
-                          value={form.GuardianPhoneNumber}
-                          onChange={handleInputChange}
-                          required
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className={styles.formSection}>
-                    <h4>Address Information</h4>
-                    <div className={styles.formRow}>
-                      <div className={styles.formGroup}>
-                        <label>Address *</label>
-                        <input
-                          type="text"
-                          name="Address"
-                          placeholder="Full Address"
-                          value={form.Address}
-                          onChange={handleInputChange}
-                          required
-                        />
-                      </div>
-                      <div className={styles.formGroup}>
-                        <label>State/Province *</label>
-                        <input
-                          type="text"
-                          name="StateOfOrigin"
-                          placeholder="State or Province"
-                          value={form.StateOfOrigin}
-                          onChange={handleInputChange}
-                          required
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </>
-              )}
 
               <div className={styles.formActions}>
                 <button type="submit" className={styles.btnPrimary} disabled={isLoading}>

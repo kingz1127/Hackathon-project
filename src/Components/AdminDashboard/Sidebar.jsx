@@ -1,15 +1,19 @@
-import { FaBook, FaClipboardCheck, FaCog, FaEnvelope, FaTachometerAlt, FaUsers } from "react-icons/fa";
-import { NavLink, useLocation } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { FaBook, FaCog, FaEnvelope, FaTachometerAlt, FaUsers, FaSignOutAlt } from "react-icons/fa";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import styles from "./Sidebar.module.css";
 
 export default function Sidebar() {
   const location = useLocation();
+  const navigate = useNavigate();
   
-  // Check if a link is active
-  const isActive = (path) => {
-    const currentPath = location.pathname.replace(/\/$/, "");
-    const comparePath = path.replace(/\/$/, "");
-    return currentPath === comparePath || currentPath.startsWith(comparePath + "/");
+  // Handle logout
+  const handleLogout = () => {
+    // In a real app, you might clear authentication tokens or user data here
+    console.log("Logging out...");
+    
+    // Redirect to the learner page
+    navigate("/");
   };
 
   return (
@@ -18,74 +22,90 @@ export default function Sidebar() {
       <div className={styles.logo}>
         <a href="/" className={styles.logoLink}>
           <span className={styles.logoText}>Learner</span>
-          
         </a>
       </div>
 
       {/* Navigation Links */}
       <nav className={styles.navContainer}>
-        <div className={styles.navSection}>
-          <span className={styles.sectionLabel}>MAIN NAVIGATION</span>
-        </div>
-        
         <NavLink 
           to="admindashboard1" 
-          className={isActive("/admindashboard1") ? `${styles.navLink} ${styles.active}` : styles.navLink}
+          className={({ isActive }) => 
+            isActive ? `${styles.navLink} ${styles.active}` : styles.navLink
+          }
         >
-          <FaTachometerAlt className={styles.navIcon} />
-          <span className={styles.navText}>Dashboard</span>
+          <div className={styles.navContent}>
+            <FaTachometerAlt className={styles.navIcon} />
+            <span className={styles.navText}>Dashboard</span>
+          </div>
+          <div className={styles.activeIndicator}></div>
         </NavLink>
         
         <NavLink 
           to="adminteacher" 
-          className={isActive("/adminteacher") ? `${styles.navLink} ${styles.active}` : styles.navLink}
+          className={({ isActive }) => 
+            isActive ? `${styles.navLink} ${styles.active}` : styles.navLink
+          }
         >
-          <FaUsers className={styles.navIcon} />
-          <span className={styles.navText}>Teachers</span>
+          <div className={styles.navContent}>
+            <FaUsers className={styles.navIcon} />
+            <span className={styles.navText}>Teachers</span>
+          </div>
+          <div className={styles.activeIndicator}></div>
         </NavLink>
+
+
+         
         
         <NavLink 
           to="adminstudent" 
-          className={isActive("/adminstudent") ? `${styles.navLink} ${styles.active}` : styles.navLink}
+          className={({ isActive }) => 
+            isActive ? `${styles.navLink} ${styles.active}` : styles.navLink
+          }
         >
-          <FaBook className={styles.navIcon} />
-          <span className={styles.navText}>Students</span>
+          <div className={styles.navContent}>
+            <FaBook className={styles.navIcon} />
+            <span className={styles.navText}>Students</span>
+          </div>
+          <div className={styles.activeIndicator}></div>
         </NavLink>
 
-      
-        
         <NavLink 
-          to="/adminmessages" 
-          className={isActive("/adminmessages") ? `${styles.navLink} ${styles.active}` : styles.navLink}
+          to="adminmessages" 
+          className={({ isActive }) => 
+            isActive ? `${styles.navLink} ${styles.active}` : styles.navLink
+          }
         >
-          <FaEnvelope className={styles.navIcon} />
-          <span className={styles.navText}>Event</span>
+          <div className={styles.navContent}>
+            <FaEnvelope className={styles.navIcon} />
+            <span className={styles.navText}>Event</span>
+          </div>
+          <div className={styles.activeIndicator}></div>
         </NavLink>
+
+        
         
         <NavLink 
-          to="/adminsettings" 
-          className={isActive("/adminsettings") ? `${styles.navLink} ${styles.active}` : styles.navLink}
+          to="adminsettings" 
+          className={({ isActive }) => 
+            isActive ? `${styles.navLink} ${styles.active}` : styles.navLink
+          }
         >
-          <FaCog className={styles.navIcon} />
-          <span className={styles.navText}>Settings</span>
+          <div className={styles.navContent}>
+            <FaCog className={styles.navIcon} />
+            <span className={styles.navText}>Settings</span>
+          </div>
+          <div className={styles.activeIndicator}></div>
         </NavLink>
       </nav>
 
-      {/* User Profile Section */}
-      <div className={styles.userSection}>
-        <div className={styles.userInfo}>
-          <div className={styles.userAvatar}>
-            <img 
-              src="https://via.placeholder.com/40" 
-              alt="Admin User" 
-              className={styles.avatarImage}
-            />
-          </div>
-          <div className={styles.userDetails}>
-            <p className={styles.userName}>Admin User</p>
-            <p className={styles.userRole}>Administrator</p>
-          </div>
-        </div>
+      
+
+      {/* Logout Button */}
+      <div className={styles.logoutSection}>
+        <button className={styles.logoutButton} onClick={handleLogout}>
+          <FaSignOutAlt className={styles.logoutIcon} />
+          <span className={styles.logoutText}>Log Out</span>
+        </button>
       </div>
     </div>
   );
