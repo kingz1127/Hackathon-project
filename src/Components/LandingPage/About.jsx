@@ -3,9 +3,12 @@ import { BiLockAlt } from "react-icons/bi";
 import { HiMail } from "react-icons/hi";
 import { IoMdCall, IoMdPerson } from "react-icons/io";
 import { Link, useNavigate } from "react-router-dom";
-import styles from "./About.module.css";
 import { useEffect, useState } from "react";
+<<<<<<< HEAD
 import Register from "./Register";
+=======
+import styles from "./About.module.css";
+>>>>>>> 9a857a6 (update 11:52pm)
 
 export default function About() {
   const navigate = useNavigate();
@@ -26,6 +29,7 @@ export default function About() {
 
   return (
     <>
+      {/* ---------- HEADER / NAVBAR ---------- */}
       <div className={styles.regHeader}>
         <div className={styles.div0}>
           <div className={styles.div1}>
@@ -62,6 +66,36 @@ export default function About() {
           <button onClick={() => navigate("/register")}>ENROLL NOW</button>
         </div>
       </div>
+
+      {/* ---------- BECOME AN INSTRUCTOR SECTION ---------- */}
+      <section className={styles.instructorContainer}>
+        {/* Left Content */}
+        <div className={styles.instructorContent}>
+          <h2 className={styles.instructorTitle}>Become an Instructor</h2>
+          <p className={styles.instructorDescription}>
+            Far far away, behind the word mountains, far from the countries
+            Vokalia and Consonantia, there live the blind texts. Separated they
+            live.
+          </p>
+
+          <ul className={styles.instructorList}>
+            <li>✔ Behind the word Mountains.</li>
+            <li>✔ Far far away Mountains.</li>
+            <li>✔ Large language Ocean.</li>
+          </ul>
+
+          <button className={styles.instructorButton}>Get Started</button>
+        </div>
+
+        {/* Right Image */}
+        <div className={styles.instructorImageWrapper}>
+          <img
+            src="https://images.unsplash.com/photo-1595152772835-219674b2a8a6?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+            alt="Instructor"
+            className={styles.instructorImage}
+          />
+        </div>
+      </section>
     </>
   );
 }
