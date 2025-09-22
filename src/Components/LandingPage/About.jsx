@@ -4,11 +4,11 @@ import { HiMail } from "react-icons/hi";
 import { IoMdCall, IoMdPerson } from "react-icons/io";
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-<<<<<<< HEAD
+// <<<<<<< HEAD
 import Register from "./Register";
-=======
+// =======
 import styles from "./About.module.css";
->>>>>>> 9a857a6 (update 11:52pm)
+// >>>>>>> 9a857a6 (update 11:52pm)
 
 export default function About() {
   const navigate = useNavigate();
