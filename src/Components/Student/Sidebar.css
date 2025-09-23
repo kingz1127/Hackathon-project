@@ -6,12 +6,12 @@
   height: 100vh;     
   width: 23rem; 
   background-color: #0a174e;
-  padding: 5rem;
+  /* padding: 5rem; */
   color: white;
   display: flex;
   flex-direction: column;
   padding-top: 20px;
-  overflow: hidden;  /* prevent scrolling inside sidebar */
+  overflow: hidden;  
 }
 
 
@@ -20,7 +20,7 @@
   color: white;
   font-size: 2.5rem;
   font-weight: bold;
-  margin-bottom: 30px;
+  /* margin-bottom: 30px; */
 }
 
 .sidebar ul {
@@ -29,7 +29,7 @@
 }
 
 .sidebar li {
-  margin: 18px 0;
+  margin: 1rem;
 }
 
 .sidebar a {
@@ -42,7 +42,7 @@
   font-size: 1.1rem;
   font-weight: 700;
   letter-spacing: 0.5px;
-  position: relative;
+  /* position: relative; */
 }
 
 .sidebar a:hover {
@@ -82,16 +82,16 @@
   font-size: 1.5rem;
   font-weight: 700;
   letter-spacing: 0.5px;
-  text-align: center;
+  /* text-align: center; */
   color: white;
-  width: 100%;
-  padding: 14px;
+  width: 18rem;
+  padding: 1.5rem;
   border-radius: 8px;
   background: none;
   border: none;
   cursor: pointer;
   transition: 0.3s;
-  display: block;
+  /* display: block; */
 }
 
 .sidebar-btn:hover {
@@ -127,3 +127,9 @@
   border-radius: 8px 0 0 8px;
 }
 
+.student-profile{
+  flex-direction: column;
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+}
