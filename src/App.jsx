@@ -23,6 +23,9 @@ import TeacherDashboard from "./Components/Teacher/TeacherDashboard";
 
 import StudentDashboard from "./Components/Student/StudentDashboard";
 
+import Assignments from "./Components/Student/Assignments";
+import Courses from "./Components/Student/Courses";
+import Grades from "./Components/Student/Grades";
 import TeacherDashboardLayout from "./Components/Teacher/TeacherDashboardLayout";
 
 
@@ -59,12 +62,19 @@ export default function App() {
         <Route path= "teachattendance" element={<Attendance/>}/>
         <Route path= "teachstudent" element={<Student/>}/>
         <Route path= "teachannouncements" element={<Announcements/>}/>
-        <Route path= "teachresources" element={<Resources/>}/>
+        <Route path= "teachresources" element={<Resources/>}/>  ,
         <Route path= "teachsettings" element={<Settings/>}/>
       </Route>
 
-        {/* Student page routes */}
-        <Route path="/student" element={<StudentDashboard />} />
+        {/* Student page routesstudentassignments */}
+        <Route path="/student" element={<StudentDashboard />} >
+        <Route path= "studentcourses" element={<Courses/>}/>
+        <Route path= "studentattendance" element={<Attendance/>}/>
+        <Route path= "studentgrades" element={<Grades/>}/>
+        <Route path= "studentassignments" element={<Assignments/>}/>
+        <Route path= "studentresources" element={<Resources/>}/>
+        <Route path= "studentsettings" element={<Settings/>}/>
+      </Route>
       </Routes>
     </BrowserRouter>
   );

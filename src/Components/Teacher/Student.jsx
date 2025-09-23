@@ -7,6 +7,9 @@ export default function Student() {
   const [search, setSearch] = useState("");
   const [gradeFilter, setGradeFilter] = useState("");
   const [selectedStudent, setSelectedStudent] = useState(null); // ✅ for modal
+  const [message, setMessage] = useState("");
+  const [status, setStatus] = useState("");
+  const [showForm, setShowForm] = useState(false);
 
   const teacherId = localStorage.getItem("teacherId"); // stored at login
 
@@ -29,6 +32,28 @@ export default function Student() {
     const matchesGrade = gradeFilter ? student.gradeLevel === gradeFilter : true;
     return matchesSearch && matchesGrade;
   });
+
+  const handleSendMessage = async () => {
+    if (!message.trim()) return setStatus("Message cannot be empty");
+
+    const senderId = localStorage.getItem("teacherId");
+
+    try {
+      const res = await fetch("http://localhost:5000/messages/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ senderId, receiverId: student._id, content: message })
+      });
+
+      if (!res.ok) throw new Error("Failed to send message");
+      setMessage("");
+      setStatus("Message sent ✅");
+      setShowForm(false); // hide form after sending
+    } catch (err) {
+      console.error(err);
+      setStatus("Error sending message ❌");
+    }
+  };
 
   return (
     <div className="students-page">
@@ -55,6 +80,7 @@ export default function Student() {
       <table className="student-table">
         <thead>
           <tr>
+            <th>ID</th>
             <th>Name</th>
             <th>Class</th>
             <th>Grade</th>
@@ -64,6 +90,7 @@ export default function Student() {
         <tbody>
           {filteredStudents.map((student) => (
             <tr key={student._id}>
+              <td>{student.studentId}</td>
               <td>{student.fullName}</td>
               <td>{student.className}</td>
               <td>{student.gradeLevel}</td>
@@ -71,7 +98,9 @@ export default function Student() {
                 <button className="view-btn" onClick={() => setSelectedStudent(student)}>
                   View
                 </button>
-                <button className="message-btn">Message</button>
+                <button className="message-btn" onClick={() => setShowForm(!showForm)}>
+                  Message
+                </button>
               </td>
             </tr>
           ))}

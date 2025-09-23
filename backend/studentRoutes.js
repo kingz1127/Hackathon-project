@@ -147,6 +147,36 @@ router.get("/by-teacher/:teacherId", async (req, res) => {
   }
 });
 
+// GET total students for logged-in teacher
+router.get("/count", async (req, res) => {
+  try {
+    const teacher = await Teacher.findById(req.user.id); // from auth middleware
+
+    if (!teacher) {
+      return res.status(404).json({ error: "Teacher not found" });
+    }
+
+    // Count all students in this teacher's course
+    const count = await Student.countDocuments({ course: teacher.course });
+
+    res.json({ studentCount: count });
+  } catch (err) {
+    console.error("Error counting students:", err);
+    res.status(500).json({ error: "Failed to count students" });
+  }
+});
+
+
+// router.get("/:id/count", async (req, res) => {
+//   try {
+//     const { id } = req.params; // teacherId from URL
+//     const count = await Student.countDocuments({ teacherId: id });
+//     res.json({ count });
+//   } catch {
+//     res.status(500).json({ error: "Failed to count students" });
+//   }
+// });
+
 
 // ADD student
 router.post(

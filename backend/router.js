@@ -5,6 +5,7 @@ import multer from "multer";
 import nodemailer from "nodemailer";
 import path from "path";
 import { fileURLToPath } from "url";
+
 import Admin from "./models/Admin.js";
 import Teacher from "./models/Teacher.js"; // Import the new Teacher model
 
@@ -212,6 +213,53 @@ router.post(
         });
       }
 
+     // GET all messages for a specific student
+router.get("/messages/student/:studentId", async (req, res) => {
+  try {
+    const messages = await Message.find({ receiverId: req.params.studentId }).sort({ createdAt: -1 });
+    res.json(messages);
+  } catch (err) {
+    console.error("Error fetching messages:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET messages for a student
+router.get("/messages/student/:studentId", async (req, res) => {
+  try {
+    const messages = await Message.find({ receiverId: req.params.studentId }).sort({ createdAt: -1 });
+    res.json(messages);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET messages for a teacher
+router.get("/messages/teacher/:teacherId", async (req, res) => {
+  try {
+    const messages = await Message.find({ receiverId: req.params.teacherId }).sort({ createdAt: -1 });
+    res.json(messages);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// SEND message
+router.post("/messages/send", async (req, res) => {
+  try {
+    const { senderId, receiverId, content } = req.body;
+    if (!senderId || !receiverId || !content) return res.status(400).json({ message: "All fields required" });
+
+    const newMessage = new Message({ senderId, receiverId, content });
+    await newMessage.save();
+
+    res.status(201).json({ message: "Message sent successfully", data: newMessage });
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+});
+
+
       // Generate password and teacherId
       const teacherPassword = randomPassword();
       const hashedPassword = await bcrypt.hash(teacherPassword, 10);
@@ -231,22 +279,30 @@ router.post(
         password: hashedPassword,
       };
 
-      // Update teacher password
-router.put("/admin/teachers/:id/password", async (req, res) => {
+      //update password
+      router.put("/admin/teachers/:id/change-password", async (req, res) => {
   try {
-    const { password } = req.body;
-    const teacher = await Teacher.findOne({ teacherId: req.params.id });
+    const { oldPassword, newPassword } = req.body;
 
+    const teacher = await Teacher.findOne({ teacherId: req.params.id });
     if (!teacher) return res.status(404).json({ message: "Teacher not found" });
 
-    teacher.password = password; // ⚠️ make sure to hash before saving if using bcrypt
+    // Verify old password
+    const isMatch = await bcrypt.compare(oldPassword, teacher.password);
+    if (!isMatch) return res.status(400).json({ message: "Old password is incorrect" });
+
+    // Hash and update new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    teacher.password = hashedPassword;
     await teacher.save();
 
     res.json({ message: "Password updated successfully" });
   } catch (err) {
-    res.status(500).json({ error: "Failed to update password" });
+    console.error(err);
+    res.status(500).json({ message: "Failed to update password" });
   }
 });
+
 
 
       // 1. Create new teacher in Teacher collection

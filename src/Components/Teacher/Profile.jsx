@@ -62,7 +62,7 @@ export default function Profile() {
             ))}
           </ul>
         ) : (
-          <p>No courses assigned yet.</p>
+          <p>You are teaching {profile.Course || "Teacher"}</p>
         )}
       </div>
     </div>

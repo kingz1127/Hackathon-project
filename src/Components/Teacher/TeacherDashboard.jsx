@@ -1,8 +1,35 @@
 // src/pages/TeacherDashboard.jsx
+import { useEffect, useState } from "react";
 import { FaBell, FaChalkboard, FaChalkboardTeacher, FaEnvelope, FaTasks, FaUserGraduate } from "react-icons/fa";
 import "./Teacher.css";
 
 export default function TeacherDashboard() {
+   const [teacher, setTeacher] = useState(null);
+   const [studentCount, setStudentCount] = useState(null);
+      useEffect(() => {
+        // 🔑 Get teacherId from localStorage (set during login)
+        const teacherId = localStorage.getItem("teacherId");
+    
+        if (!teacherId) {
+          console.error("No teacherId found in localStorage. User not logged in?");
+          return;
+        }
+    
+        fetch(`http://localhost:5000/admin/teachers/${teacherId}`)
+          .then((res) => {
+            if (!res.ok) throw new Error("Failed to fetch teacher");
+            return res.json();
+          })
+          .then((data) => setTeacher(data))
+          .catch((err) => console.error("Error fetching teacher:", err));
+
+           // Fetch student count
+  fetch(`http://localhost:5000/admin/teachers/${teacherId}/count`)
+    .then((res) => res.json())
+      .then((data) => setStudentCount(data.count))
+    .catch((err) => console.error("Error fetching count:", err));
+}, []);
+      
   return (
       <div className="main-content">
         {/* Header */}
@@ -10,6 +37,9 @@ export default function TeacherDashboard() {
           <h1 className="page-title">Teacher Dashboard</h1>
           <div className="notification-bell">
             <FaBell />
+<div className="profile-name">
+          {teacher ? teacher.FullName : "Loading..."}
+        </div>
             <div className="notification-badge">3</div>
           </div>
         </div>
@@ -34,8 +64,11 @@ export default function TeacherDashboard() {
                 <FaUserGraduate />
               </div>
             </div>
-            <div className="card-value">142</div>
-            <div className="card-description">Total students</div>
+            {/* <div className="card-value">{studentCount}</div> */}
+          <div className="card-description">
+    Total students {studentCount !== null ? `: ${studentCount}` : ": Loading..."}
+  </div>
+
           </div>
 
           <div className="card">

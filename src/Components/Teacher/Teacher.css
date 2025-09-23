@@ -2,7 +2,7 @@
    GLOBAL VARIABLES & RESET
 ========================================================= */
 :root {
-  --primary-dark: #2c3e50;
+  /* --primary: #2c3e50; */
   --primary: #1a5276;
   --secondary: #27ae60;
   --accent: #f1c40f;
@@ -31,12 +31,16 @@ body {
 ========================================================= */
 .dashboard-container {
   display: flex;
-  min-height: 100vh;
+   min-height: 100vh;
+
 }
+
 
 .main-content {
   flex: 1;
+  margin-left: 12rem;
   padding: 25px;
+  min-width: 0;
   background: var(--light);
 }
 
@@ -45,7 +49,7 @@ body {
 ========================================================= */
 .sidebar {
   width: 220px;
-  background: linear-gradient(180deg, var(--primary) 0%, var(--primary-dark) 100%);
+  background: linear-gradient(180deg, var(--primary) 0%, var(--primary) 100%);
   color: white;
   display: flex;
   flex-direction: column;
@@ -86,7 +90,7 @@ body {
   justify-content: center;
   font-size: 1.8rem;
   font-weight: bold;
-  color: var(--primary-dark);
+  color: var(--primary);
   margin-bottom: 10px;
 }
 
@@ -104,10 +108,11 @@ body {
 .nav-link {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 2rem;
+  margin-bottom: 1rem;
   color: #ddd;
   text-decoration: none;
-  padding: 10px 12px;
+  padding: 3rem 1.5rem;
   border-radius: 8px;
   transition: background 0.3s;
 }
@@ -125,6 +130,7 @@ body {
 /* =========================================================
    DASHBOARD (Header, Cards, Assignments)
 ========================================================= */
+
 .header {
   display: flex;
   justify-content: space-between;
@@ -134,12 +140,12 @@ body {
 
 .page-title {
   font-size: 2rem;
-  color: var(--primary-dark);
+  color: var(--primary);
 }
 
 .notification-bell {
   position: relative;
-  font-size: 1.2rem;
+  font-size: 2rem;
   color: var(--dark);
   cursor: pointer;
 }
@@ -151,8 +157,8 @@ body {
   background-color: var(--secondary);
   color: var(--white);
   border-radius: 50%;
-  width: 18px;
-  height: 18px;
+  width: 15px;
+  height: 15px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -188,7 +194,7 @@ body {
 .card-title {
   font-size: 1.5rem;
   font-weight: 600;
-  color: var(--primary-dark);
+  color: var(--primary);
 }
 
 .card-icon {
@@ -219,7 +225,7 @@ body {
 .section-title {
   font-size: 1.5rem;
   margin-bottom: 20px;
-  color: var(--primary-dark);
+  color: var(--primary);
   display: flex;
   align-items: center;
   gap: 10px;
@@ -248,7 +254,7 @@ body {
   font-size: 1.5rem;
   font-weight: 600;
   margin-bottom: 5px;
-  color: var(--primary-dark);
+  color: var(--primary);
 }
 
 .class-meta {
@@ -281,7 +287,7 @@ body {
 .stat-value {
   font-size: 1.5rem;
   font-weight: 600;
-  color: var(--primary-dark);
+  color: var(--primary);
 }
 
 .stat-label {
@@ -320,12 +326,12 @@ body {
 }
 
 .btn-primary:hover {
-  background-color: var(--primary-dark);
+  background-color: var(--primary);
 }
 
 .btn-secondary {
   background-color: var(--light);
-  color: var(--primary-dark);
+  color: var(--primary);
 }
 
 .btn-secondary:hover {
@@ -353,7 +359,7 @@ body {
 }
 
 .table-header {
-  background-color: var(--primary-dark);
+  background-color: var(--primary);
   color: var(--white);
   font-weight: 500;
 }
@@ -368,7 +374,7 @@ body {
 
 .assignment-name {
   font-weight: 500;
-  color: var(--primary-dark);
+  color: var(--primary);
 }
 
 .class-name,
@@ -404,6 +410,7 @@ body {
    Students Page Styles
    ===================== */
 .students-page {
+   margin-left: 12rem;
   padding: 2rem;
   background: #f9f9f9;
   min-height: 100vh;
@@ -568,6 +575,7 @@ body {
    Classes Page Styles
    =========================== */
 .myclasses-container {
+  margin-left: 12rem;
   padding: 20px;
 }
 
@@ -679,6 +687,7 @@ body {
 
 .profile-page {
   padding: 20px;
+  margin-left: 12rem;
 }
 
 .profile-page h2 {
@@ -809,34 +818,111 @@ body {
   transform: translateY(-2px);
 }
 
-
-/* ===== Attendance Page Styling ===== */
-.attendance-page {
-  padding: 2rem;
+/* ===========================
+   Attendance Page Styles
+   =========================== */
+.attendance-container {
+  display: flex;
+  margin-left: 12rem;
+  gap: 20px;
+  padding: 20px;
 }
 
-.attendance-table {
-  width: 200%;
-  border-collapse: collapse;
-  margin-top: 2rem;
+/* Left side (filters + table) */
+.left-section {
+  flex: 3;
+
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
-.attendance-table th,
-.attendance-table td {
-  border: 0.1rem solid #ccc;
+/* Right side (calendar + totals) */
+.right-section {
+  flex: 1.2;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.filters-box, .table-box, .calendar-box, .totals-box {
+  background: #fff;
+  border-radius: 8px;
+  padding: 15px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.filters h3 {
+  margin-bottom: 10px;
+}
+
+.filters select, .filters button {
+  margin: 0.5rem;
+  border: none;
+  width: 20rem;
+  font-size: 1.5rem;
+  background-color: #b4b4b45e;
+  border-radius: 1rem;
   padding: 1rem;
+}
+
+.table-box table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table-box th, .table-box td {
+  padding: 10px;
+  border-bottom: 1px solid #eee;
   text-align: center;
 }
 
-.attendance-table th {
-  background: #f4f4f4;
+.pagination {
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
 }
 
-label {
-  display: block;
-  font-size: 0.8rem;
+.calendar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
 }
 
+.day {
+  width: 40px;
+  height: 40px;
+  background: #f5f5f5;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.day.active {
+  background: #2ecc71;
+  color: white;
+}
+
+.totals-box {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.total {
+  padding: 15px;
+  border-radius: 6px;
+  color: white;
+  font-weight: bold;
+}
+
+.total.yellow { background: #f1c40f; }
+.total.green { background: #2ecc71; }
+.total.red { background: #e74c3c; }
+
+/* ======================== */
 .settings-container {
   max-width: 600px;
   margin: auto;
@@ -889,11 +975,15 @@ label {
 /* ===================== */
 /* Resources Page Styles */
 /* ===================== */
-
+.resources-container {
+   margin-left: 12rem;
+  padding: 20px;
+}
 .resource-form {
   display: flex;
   flex-direction: column;
   gap: 12px;
+   /* margin-left: 12rem; */
   background: #fff;
   padding: 16px;
   border-radius: 8px;
@@ -995,6 +1085,7 @@ label {
 /* ===== Setting Page =====*/
 /* ========================*/ 
 .settings-container {
+   margin-left: 12rem;
   padding: 20px;
 }
 
