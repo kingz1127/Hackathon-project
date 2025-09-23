@@ -371,21 +371,36 @@ export default function AdminStudent() {
                 onChange={handleInputChange}
                 required
               />
+              <label className={styles.inputlabel}>Date of Birth: 
               <input
                 type="date"
                 name="DOfB"
                 value={form.DOfB}
+                placeholder="Date of birth"
                 onChange={handleInputChange}
                 required
               />
-              <input
-                type="text"
-                name="Course"
-                placeholder="Course"
-                value={form.Course}
-                onChange={handleInputChange}
-                required
-              />
+              </label>
+  
+               <select
+                            placeholder="Course"
+                            name="Course"
+                            value={form.Course}
+                            onChange={handleInputChange}
+                            // className={styles.formtext}
+                          >
+                            <option value="">Preferred Course</option>
+                            <option value="AI & Machine Learning">
+                              AI & Machine Learning
+                            </option>
+                            <option value="Cyber Security">Cyber Security</option>
+                            <option value="Data Analytics">Data Analytics</option>
+                            <option value="Networking">Networking</option>
+                            <option value="Python">Python</option>
+                            <option value="Software Engineering">
+                              Software Engineering / FullStack
+                            </option>
+                          </select>
               <input
                 type="text"
                 name="GradeLevel"
@@ -411,16 +426,17 @@ export default function AdminStudent() {
                 required
               />
               <input
-                type="text"
+                type="text" 
                 name="GuardianPhoneNumber"
                 placeholder="Guardian Phone Number"
                 value={form.GuardianPhoneNumber}
                 onChange={handleInputChange}
                 required
               />
-              <label>
-                Date Enrolled:
+              <label className={styles.inputlab}>
+                Date Enrolled: 
                 <input
+                
                   type="datetime-local"
                   name="DateJoined"
                   value={form.DateJoined}
@@ -459,7 +475,7 @@ export default function AdminStudent() {
                 <option value="">Select Gender</option>
                 <option value="Male">Male</option>
                 <option value="Female">Female</option>
-                <option value="Other">Other</option>
+                
               </select>
               <input
                 type="file"

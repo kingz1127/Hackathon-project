@@ -213,13 +213,32 @@ export default function AdminTeacher() {
               value={form.DOfB}
               onChange={handleInputChange}
             />
-            <input
+            {/* <input
               type="text"
               name="Course"
               placeholder="Course / Subject"
               value={form.Course}
               onChange={handleInputChange}
-            />
+            /> */}
+            <select
+                            placeholder="Course / Subject"
+                            name="Course"
+                            value={form.Course}
+                            onChange={handleInputChange}
+                            // className={styles.formtext}
+                          >
+                            <option value="">Preferred Course</option>
+                            <option value="AI & Machine Learning">
+                              AI & Machine Learning
+                            </option>
+                            <option value="Cyber Security">Cyber Security</option>
+                            <option value="Data Analytics">Data Analytics</option>
+                            <option value="Networking">Networking</option>
+                            <option value="Python">Python</option>
+                            <option value="Software Engineering">
+                              Software Engineering / FullStack
+                            </option>
+                          </select>
             <input
               type="datetime-local"
               name="DateJoined"

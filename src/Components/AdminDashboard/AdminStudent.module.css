@@ -173,7 +173,20 @@
   z-index: 60;
   padding: 20px;
 }
-
+.modalOverlay label{
+  font-size: 1.3rem;
+}
+.inputlab input{
+  margin-left: 1rem;
+  height: 3.7rem;
+  padding-left: 1rem;
+  width: 30rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgb(230, 222, 222);
+}
+.inputlabel{
+  display: flex;
+}
 .modal{
   width: 840px;
   max-width: calc(100% - 40px);
