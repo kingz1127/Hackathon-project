@@ -50,7 +50,7 @@
   color: #ffd700;
 }
 
-.sidebar a:hover::after {
+/* .sidebar a:hover::after {
   content: "";
   position: absolute;
   right: 0;
@@ -59,7 +59,7 @@
   width: 6px;
   background: #ffd700;
   border-radius: 0 8px 8px 0;
-}
+} */
 
 .sidebar a.active {
   background: #0a174e;
@@ -132,4 +132,9 @@
   display: flex;
   align-items: center;
   margin-bottom: 1rem;
+}
+.student-avatar{
+  border-radius: 50%;
+  width: 8rem;
+  height: 8rem;
 }

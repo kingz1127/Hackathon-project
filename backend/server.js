@@ -386,7 +386,7 @@ mongoose
     console.error("MongoDB connection error:", err);
   });
 
-<<<<<<< HEAD
+// <<<<<<< HEAD
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
 // app.use(express.json());
@@ -394,6 +394,6 @@ app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 // app.listen(5000, () => console.log("Server running on port 5000"));
 
 
-=======
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
->>>>>>> 6d33fb6325552021e62683185db0b9d24b47a150
+// =======
+// app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// >>>>>>> 6d33fb6325552021e62683185db0b9d24b47a150
