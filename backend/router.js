@@ -8,6 +8,7 @@ import { fileURLToPath } from "url";
 
 import Admin from "./models/Admin.js";
 import Teacher from "./models/Teacher.js"; // Import the new Teacher model
+import Student from "./models/Student.js"; 
 
 dotenv.config();
 
@@ -101,7 +102,18 @@ router.get("/admin/teachers", async (req, res) => {
       createdAt: -1,
     });
 
-    // Map teachers to match frontend format
+    // Count students per course
+    const studentCounts = await Student.aggregate([
+      { $group: { _id: "$course", count: { $sum: 1 } } },
+    ]);
+
+    // Convert aggregation result into a map { courseName: count }
+    const studentCountMap = {};
+    studentCounts.forEach((c) => {
+      studentCountMap[c._id] = c.count;
+    });
+
+    // Map teachers to match frontend format and include No_Students
     const teachersFormatted = teachers.map((teacher) => ({
       _id: teacher._id,
       teacherId: teacher.teacherId,
@@ -119,6 +131,7 @@ router.get("/admin/teachers", async (req, res) => {
       isActive: teacher.isActive,
       lastLogin: teacher.lastLogin,
       createdAt: teacher.createdAt,
+      No_Students: studentCountMap[teacher.course] || 0, // 👈 Add student count
     }));
 
     console.log("Found", teachersFormatted.length, "active teachers");

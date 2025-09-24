@@ -213,13 +213,6 @@ export default function AdminTeacher() {
               value={form.DOfB}
               onChange={handleInputChange}
             />
-            {/* <input
-              type="text"
-              name="Course"
-              placeholder="Course / Subject"
-              value={form.Course}
-              onChange={handleInputChange}
-            /> */}
             <select
                             placeholder="Course / Subject"
                             name="Course"

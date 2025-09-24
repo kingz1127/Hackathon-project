@@ -167,16 +167,6 @@ router.get("/count", async (req, res) => {
 });
 
 
-// router.get("/:id/count", async (req, res) => {
-//   try {
-//     const { id } = req.params; // teacherId from URL
-//     const count = await Student.countDocuments({ teacherId: id });
-//     res.json({ count });
-//   } catch {
-//     res.status(500).json({ error: "Failed to count students" });
-//   }
-// });
-
 
 // ADD student
 router.post(
@@ -417,6 +407,7 @@ router.get("/admin/students/:studentId", async (req, res) => {
       studentImg: student.studentImg
         ? `http://localhost:5000/uploads/students/${path.basename(student.studentImg)}`
         : null,
+        course: student.course || null,  
     });
   } catch (err) {
     console.error("Error fetching student:", err);

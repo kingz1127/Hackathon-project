@@ -26,16 +26,18 @@ function ProfileIcon({ course = "Full Stack Development", semester = "Semester 3
   const [showNotifications, setShowNotifications] = useState(false);
   const [studentName, setStudentName] = useState("Loading...");
   const [studentImg, setStudentImg] = useState(null);
+   const [studentCourse, setStudentCourse] = React.useState(null);
 
   useEffect(() => {
     const studentId = localStorage.getItem("studentId"); // get saved studentId from login
     if (!studentId) return;
 
-    fetch(`http://localhost:5000/api/students/${studentId}`)
+    fetch(`http://localhost:5000/admin/students/${studentId}`)
       .then((res) => res.json())
       .then((data) => {
         setStudentName(data.fullName || "Unknown Student");
         setStudentImg(data.studentImg || null);
+        setStudentCourse(data.course || "Unknown course");
       })
       .catch((err) => {
         console.error("Error fetching student:", err);
@@ -43,13 +45,11 @@ function ProfileIcon({ course = "Full Stack Development", semester = "Semester 3
       });
   }, []);
 
-  const getInitials = (name) => {
-    return name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase();
-  };
+  function getInitials(name) {
+  if (!name) return "";
+  const parts = name.split(" ");
+  return parts.map(p => p.charAt(0).toUpperCase()).join("");
+}
 
   const handleSignOut = () => {
     if (window.confirm("Are you sure you want to sign out?")) {
@@ -77,15 +77,11 @@ function ProfileIcon({ course = "Full Stack Development", semester = "Semester 3
 
   return (
     <div style={styles.profileContainer}>
-      {/* Welcome Message */}
-      {/* <div style={styles.welcome}>
-        Welcome back, {studentName}
-      </div> */}
-
+      
       {/* Profile Info */}
       <div style={styles.profileInfo}>
         <span style={styles.gradeClass}>
-          {course} - {semester}
+          {studentCourse} - {semester}
         </span>
       </div>
 
@@ -94,22 +90,12 @@ function ProfileIcon({ course = "Full Stack Development", semester = "Semester 3
         style={styles.profileIcon}
         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
       >
-        <div style={styles.profileAvatar}>
-          {studentImg ? (
-            <img
-              src={studentImg}
-              alt="profile"
-              style={{
-                width: "100%",
-                height: "100%",
-                borderRadius: "50%",
-                objectFit: "cover",
-              }}
-            />
-          ) : (
-            getInitials(studentName)
-          )}
-        </div>
+
+        {/* Getting Initials */}
+       <div style={styles.profileAvatar}>
+  {getInitials(studentName)}
+</div>
+
         {unreadCount > 0 && (
           <div style={styles.notificationBadge}>{unreadCount}</div>
         )}
@@ -197,6 +183,7 @@ export default function Dashboard({ setActive }) {
   // New states for student
   const [studentName, setStudentName] = React.useState("Loading...");
   const [studentImg, setStudentImg] = React.useState(null);
+  const [studentCourse, setStudentCourse] = React.useState("Loading...");
 
   // Fetch student info (same logic as Sidebar)
   React.useEffect(() => {
@@ -208,6 +195,7 @@ export default function Dashboard({ setActive }) {
   .then((data) => {
     setStudentName(data.fullName || "Unknown Student");
     setStudentImg(data.studentImg || null);
+    setStudentCourse(data.course || null);
   })
   .catch((err) => {
     console.error("Error fetching student:", err);
@@ -361,10 +349,10 @@ export default function Dashboard({ setActive }) {
             <div style={styles.welcome}>Welcome back, {studentName}</div>
           </div>
           <ProfileIcon 
-            course="Full Stack Development"
+           course={studentCourse}
             semester="Semester 3"
             studentName={studentName}
-            studentImg={studentImg}
+            // studentImg={studentImg}
             notifications={notifications}
             setActive={setActive}
           />
