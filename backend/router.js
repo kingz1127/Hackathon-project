@@ -531,4 +531,27 @@ router.get("/admin/teachers/:id", async (req, res) => {
   }
 });
 
+// POST /admin/teachers/:teacherId/message
+router.post("/teachers/:teacherId/message", async (req, res) => {
+  try {
+    const { senderId, senderName, content } = req.body;
+    const teacher = await Teacher.findById(req.params.teacherId);
+    if (!teacher) return res.status(404).json({ error: "Teacher not found" });
+
+    teacher.messages.push({
+      senderId,
+      senderName,
+      content,
+      timestamp: new Date(),
+      from: "student"
+    });
+
+    await teacher.save();
+    res.status(201).json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
 export default router;

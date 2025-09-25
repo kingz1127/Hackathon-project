@@ -21,17 +21,22 @@ function NavButton({ icon, title, onClick }) {
 }
 
 // Profile Icon Component
-function ProfileIcon({ course = "Full Stack Development", semester = "Semester 3", notifications = [], setActive }) {
+function ProfileIcon({ course = "Full Stack Development", semester = "Semester 3", setActive }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [studentName, setStudentName] = useState("Loading...");
   const [studentImg, setStudentImg] = useState(null);
-   const [studentCourse, setStudentCourse] = React.useState(null);
+  const [studentCourse, setStudentCourse] = React.useState(null);
+
+  // ✅ Enhanced state for notifications
+  const [notifications, setNotifications] = useState([]);
+  const [replyTexts, setReplyTexts] = useState({}); // Track reply text for each notification
 
   useEffect(() => {
-    const studentId = localStorage.getItem("studentId"); // get saved studentId from login
+    const studentId = localStorage.getItem("studentId");
     if (!studentId) return;
 
+    // Fetch student info
     fetch(`http://localhost:5000/admin/students/${studentId}`)
       .then((res) => res.json())
       .then((data) => {
@@ -43,13 +48,31 @@ function ProfileIcon({ course = "Full Stack Development", semester = "Semester 3
         console.error("Error fetching student:", err);
         setStudentName("Error loading student");
       });
+
+    // Fetch student notifications/messages
+    const fetchNotifications = () => {
+      fetch(`http://localhost:5000/messages/student/${studentId}`)
+        .then((res) => res.json())
+        .then((data) => {
+          const sortedData = data.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+          setNotifications(sortedData);
+        })
+        .catch((err) => console.error("Error fetching notifications:", err));
+    };
+
+    fetchNotifications();
+    
+    // Poll for new messages every 10 seconds
+    const interval = setInterval(fetchNotifications, 10000);
+    return () => clearInterval(interval);
+
   }, []);
 
   function getInitials(name) {
-  if (!name) return "";
-  const parts = name.split(" ");
-  return parts.map(p => p.charAt(0).toUpperCase()).join("");
-}
+    if (!name) return "";
+    const parts = name.split(" ");
+    return parts.map(p => p.charAt(0).toUpperCase()).join("");
+  }
 
   const handleSignOut = () => {
     if (window.confirm("Are you sure you want to sign out?")) {
@@ -69,11 +92,99 @@ function ProfileIcon({ course = "Full Stack Development", semester = "Semester 3
     setIsDropdownOpen(false);
   };
 
-  const markAsRead = (id) => {
-    console.log(`Marking notification ${id} as read`);
+  // ✅ Delete single notification
+  const deleteNotification = async (id) => {
+    try {
+      await fetch(`http://localhost:5000/messages/${id}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" }
+      });
+      
+      setNotifications((prev) => prev.filter(n => n._id !== id));
+    } catch (err) {
+      console.error("Error deleting notification:", err);
+      alert("Failed to delete notification");
+    }
+  };
+
+  // ✅ Clear all notifications
+  const clearAllNotifications = async () => {
+    if (!window.confirm("Are you sure you want to clear all notifications?")) {
+      return;
+    }
+
+    try {
+      const deletePromises = notifications.map(notification =>
+        fetch(`http://localhost:5000/messages/${notification._id}`, {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" }
+        })
+      );
+
+      await Promise.all(deletePromises);
+      setNotifications([]);
+      alert("All notifications cleared successfully!");
+    } catch (err) {
+      console.error("Error clearing all notifications:", err);
+      alert("Failed to clear all notifications");
+    }
+  };
+
+  // ✅ Mark notification as read
+  const markAsRead = async (id) => {
+    try {
+      await fetch(`http://localhost:5000/messages/read/${id}`, { 
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" }
+      });
+      
+      setNotifications((prev) =>
+        prev.map((n) => (n._id === id ? { ...n, isRead: true } : n))
+      );
+    } catch (err) {
+      console.error("Error marking as read:", err);
+    }
   };
 
   const unreadCount = notifications.filter((n) => !n.isRead).length;
+
+  // ✅ Handle message reply
+  const handleReply = async (teacherId, replyMessage, notifId) => {
+    if (!replyMessage || !replyMessage.trim()) {
+      alert("Please enter a reply message");
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://localhost:5000/messages/send`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          senderId: localStorage.getItem("studentId"),
+          senderName: studentName,
+          receiverId: teacherId,
+          content: replyMessage,
+        }),
+      });
+
+      if (!response.ok) throw new Error("Failed to send reply");
+
+      // Clear reply input and mark as read
+      setReplyTexts(prev => ({ ...prev, [notifId]: "" }));
+      await markAsRead(notifId);
+      
+      alert("Reply sent successfully!");
+      
+    } catch (err) {
+      console.error("Error replying:", err);
+      alert("Failed to send reply. Please try again.");
+    }
+  };
+
+  // ✅ Update reply text for specific notification
+  const updateReplyText = (notifId, text) => {
+    setReplyTexts(prev => ({ ...prev, [notifId]: text }));
+  };
 
   return (
     <div style={styles.profileContainer}>
@@ -90,15 +201,15 @@ function ProfileIcon({ course = "Full Stack Development", semester = "Semester 3
         style={styles.profileIcon}
         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
       >
-
         {/* Getting Initials */}
-       <div style={styles.profileAvatar}>
-  {getInitials(studentName)}
-</div>
+        <div style={styles.profileAvatar}>
+          {getInitials(studentName)}
+        </div>
 
         {unreadCount > 0 && (
           <div style={styles.notificationBadge}>{unreadCount}</div>
         )}
+        
         {isDropdownOpen && (
           <div style={styles.dropdown}>
             <div style={styles.dropdownItem} onClick={handleNotifications}>
@@ -125,12 +236,22 @@ function ProfileIcon({ course = "Full Stack Development", semester = "Semester 3
         <div style={styles.notificationPanel}>
           <div style={styles.notificationHeader}>
             <h3 style={styles.notificationTitle}>Notifications</h3>
-            <button
-              style={styles.closeBtn}
-              onClick={() => setShowNotifications(false)}
-            >
-              ×
-            </button>
+            <div style={styles.notificationHeaderActions}>
+              {notifications.length > 0 && (
+                <button
+                  style={styles.clearAllBtn}
+                  onClick={clearAllNotifications}
+                >
+                  Clear All
+                </button>
+              )}
+              <button
+                style={styles.closeBtn}
+                onClick={() => setShowNotifications(false)}
+              >
+                ×
+              </button>
+            </div>
           </div>
           <div style={styles.notificationsList}>
             {notifications.length === 0 ? (
@@ -138,36 +259,85 @@ function ProfileIcon({ course = "Full Stack Development", semester = "Semester 3
             ) : (
               notifications.map((notification) => (
                 <div
-                  key={notification.id}
+                  key={notification._id}
                   style={{
                     ...styles.notificationItem,
                     ...(notification.isRead ? {} : styles.unreadNotification),
                   }}
-                  onClick={() => markAsRead(notification.id)}
                 >
                   <div style={styles.notificationSender}>
-                    <span style={styles.senderIcon}>
-                      {notification.type === "admin" ? "👨‍💼" : "👨‍🏫"}
-                    </span>
-                    <span style={styles.senderName}>
-                      {notification.sender}
-                    </span>
+                    <span style={styles.senderIcon}> 👨‍🏫 </span>
+                    <span style={styles.senderName}>{notification.senderName}</span>
                     <span style={styles.notificationTime}>
-                      {notification.time}
+                      {new Date(notification.timestamp).toLocaleString()}
                     </span>
+                    <button
+                      style={styles.deleteBtn}
+                      onClick={() => deleteNotification(notification._id)}
+                      title="Delete notification"
+                    >
+                      🗑️
+                    </button>
                   </div>
+
                   <div style={styles.notificationMessage}>
-                    {notification.message}
+                    {notification.content}
                   </div>
-                  {!notification.isRead && (
-                    <div style={styles.unreadDot}></div>
-                  )}
+
+                  {/* ✅ Action buttons */}
+                  <div style={styles.actionButtons}>
+                    {!notification.isRead && (
+                      <button
+                        style={styles.markReadBtn}
+                        onClick={() => markAsRead(notification._id)}
+                      >
+                        Mark as Read
+                      </button>
+                    )}
+                  </div>
+
+                  {/* ✅ Reply box */}
+                  <div style={styles.replyBox}>
+                    <input
+                      type="text"
+                      placeholder="Reply to teacher..."
+                      value={replyTexts[notification._id] || ""}
+                      onChange={(e) =>
+                        updateReplyText(notification._id, e.target.value)
+                      }
+                      style={styles.replyInput}
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter') {
+                          handleReply(
+                            notification.senderId, 
+                            replyTexts[notification._id], 
+                            notification._id
+                          );
+                        }
+                      }}
+                    />
+                    <button
+                      style={styles.replyBtn}
+                      onClick={() =>
+                        handleReply(
+                          notification.senderId, 
+                          replyTexts[notification._id], 
+                          notification._id
+                        )
+                      }
+                    >
+                      Send
+                    </button>
+                  </div>
+
+                  {!notification.isRead && <div style={styles.unreadDot}></div>}
                 </div>
               ))
             )}
           </div>
         </div>
       )}
+
     </div>
   );
 }

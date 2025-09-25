@@ -41,7 +41,7 @@ export default function AdminStudent() {
   // Fetch students from backend on component load
   useEffect(() => {
     fetchStudents();
-  }, []);
+  }, []); 
 
   const fetchStudents = async () => {
     try {

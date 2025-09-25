@@ -902,7 +902,7 @@ export default function AdminDashboard() {
                       required
                       className={styles.largeInput}
                     />
-                  </div>
+                  </div> 
                 </div>
                 
                 <div className={styles.formRow}>
@@ -988,7 +988,7 @@ export default function AdminDashboard() {
                 <h4>{activeTab === "students" ? "Academic" : "Professional"} Information</h4>
                 <div className={styles.formRow}>
                   <div className={styles.formGroup}>
-                    <label>Course *</label>
+                    <label>Course: </label>
                     <select
                       name="Course"
                       value={form.Course}

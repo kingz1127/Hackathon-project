@@ -13,6 +13,7 @@ import Student from "./models/Student.js";
 import Teacher from "./models/Teacher.js"; // Import Teacher model
 import teacherRoutes from "./router.js";
 import studentRoutes from "./studentRoutes.js";
+import messageRoutes from "./message.js";
 
 dotenv.config();
 
@@ -385,6 +386,8 @@ mongoose
   .catch((err) => {
     console.error("MongoDB connection error:", err);
   });
+
+  app.use("/", messageRoutes);
 
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

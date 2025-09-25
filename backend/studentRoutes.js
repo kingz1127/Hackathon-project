@@ -7,7 +7,7 @@ import { fileURLToPath } from "url";
 import Admin from "./models/Admin.js";
 import Student from "./models/Student.js";
 import Teacher from "./models/Teacher.js";
-
+import Message from "./models/Message.js";
 
 const router = express.Router();
 const __filename = fileURLToPath(import.meta.url);
@@ -123,7 +123,7 @@ router.get("/admin/students", async (req, res) => {
   }
 });
 
-// Get all students under a teacher’s course & term level
+// Get all students under a teacher's course & term level
 router.get("/by-teacher/:teacherId", async (req, res) => {
   try {
     const { termLevel } = req.query; // e.g. /by-teacher/TEA123?termLevel=200
@@ -165,8 +165,6 @@ router.get("/count", async (req, res) => {
     res.status(500).json({ error: "Failed to count students" });
   }
 });
-
-
 
 // ADD student
 router.post(
@@ -328,7 +326,6 @@ router.post(
 );
 
 // UPDATE student
-// UPDATE student
 router.put(
   "/admin/students/:studentId",
   upload.single("StudentIMG"),
@@ -401,20 +398,20 @@ router.get("/admin/students/:studentId", async (req, res) => {
     }
 
     res.json({
+      _id: student._id, // ✅ Include _id for messaging
       studentId: student.studentId,
       fullName: student.fullName,
       email: student.email,
       studentImg: student.studentImg
         ? `http://localhost:5000/uploads/students/${path.basename(student.studentImg)}`
         : null,
-        course: student.course || null,  
+      course: student.course || null,  
     });
   } catch (err) {
     console.error("Error fetching student:", err);
     res.status(500).json({ message: "Server error", error: err.message });
   }
 });
-
 
 // DELETE student
 router.delete("/admin/students/:studentId", async (req, res) => {
@@ -434,5 +431,111 @@ router.delete("/admin/students/:studentId", async (req, res) => {
     res.status(500).json({ message: "Error deleting student" });
   }
 });
+
+// Send a message (teacher → student or student → teacher)
+router.post("/messages/send", async (req, res) => {
+  try {
+    const { senderId, senderName, receiverId, content } = req.body;
+
+    if (!senderId || !receiverId || !content) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    // Create and save message in Message collection
+    const message = new Message({ 
+      senderId, 
+      senderName, 
+      receiverId, 
+      content,
+      timestamp: new Date(),
+      isRead: false
+    });
+    
+    const savedMessage = await message.save();
+
+    // Return the saved message with all fields
+    res.status(201).json({
+      _id: savedMessage._id,
+      senderId: savedMessage.senderId,
+      senderName: savedMessage.senderName,
+      receiverId: savedMessage.receiverId,
+      content: savedMessage.content,
+      timestamp: savedMessage.timestamp,
+      isRead: savedMessage.isRead
+    });
+  } catch (err) {
+    console.error("Error sending message:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Get all messages between teacher & student (for chat history)
+router.get("/messages/chat/:teacherId/:studentId", async (req, res) => {
+  try {
+    const { teacherId, studentId } = req.params;
+
+    const messages = await Message.find({
+      $or: [
+        { senderId: teacherId, receiverId: studentId },
+        { senderId: studentId, receiverId: teacherId }
+      ]
+    }).sort({ timestamp: 1 });
+
+    res.json(messages);
+  } catch (err) {
+    console.error("Error fetching chat messages:", err);
+    res.status(500).json({ error: "Failed to fetch messages" });
+  }
+});
+
+// Get all messages received by a student (student notifications)
+router.get("/messages/student/:studentId", async (req, res) => {
+  try {
+    const messages = await Message.find({ receiverId: req.params.studentId })
+      .sort({ timestamp: -1 }); // latest first
+
+    res.json(messages);
+  } catch (err) {
+    console.error("Error fetching student messages:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Mark a message as read
+router.patch("/messages/read/:id", async (req, res) => {
+  try {
+    const updated = await Message.findByIdAndUpdate(
+      req.params.id,
+      { isRead: true },
+      { new: true }
+    );
+    
+    if (!updated) {
+      return res.status(404).json({ error: "Message not found" });
+    }
+    
+    res.json(updated);
+  } catch (err) {
+    console.error("Error marking message as read:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Delete a message
+router.delete("/messages/:id", async (req, res) => {
+  try {
+    const deleted = await Message.findByIdAndDelete(req.params.id);
+    
+    if (!deleted) {
+      return res.status(404).json({ error: "Message not found" });
+    }
+    
+    res.json({ message: "Message deleted successfully" });
+  } catch (err) {
+    console.error("Error deleting message:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 
 export default router;

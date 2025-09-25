@@ -43,6 +43,7 @@ export default function Login() {
          } else if (data.teacher) {
           localStorage.setItem("userRole", "teacher");
           localStorage.setItem("teacherId", data.teacher.id); // correct key
+          localStorage.setItem("teacherName", data.teacher.fullName);
           navigate("/teachdashboard");
         } else if (data.student) {
           localStorage.setItem("userRole", "student");
