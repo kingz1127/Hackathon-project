@@ -3,11 +3,12 @@ import { FaEdit } from "react-icons/fa";
 import { useState, useEffect, useMemo } from "react";
 import Select from "react-select";
 import countryList from "react-select-country-list";
+import styles from "./AdminTeacher.module.css"; // ✅ now used
 
 export default function AdminTeacher() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [teachers, setTeachers] = useState([]);
-  const [editingId, setEditingId] = useState(null); // 🔥 Track if editing or adding
+  const [editingId, setEditingId] = useState(null);
 
   const [form, setForm] = useState({
     Email: "",
@@ -44,7 +45,6 @@ export default function AdminTeacher() {
     setForm({ ...form, Country: selected.label });
   };
 
-  // ✅ Handle file upload & preview
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -53,7 +53,6 @@ export default function AdminTeacher() {
     }
   };
 
-  // ✅ Save (Add or Update teacher)
   const handleSave = async (e) => {
     e.preventDefault();
 
@@ -85,7 +84,6 @@ export default function AdminTeacher() {
       let method = "POST";
 
       if (editingId) {
-        // 🔥 Switch to update mode
         url = `http://localhost:5000/admin/update-teacher/${editingId}`;
         method = "PUT";
       }
@@ -95,7 +93,6 @@ export default function AdminTeacher() {
 
       if (response.ok) {
         if (editingId) {
-          // 🔥 Update local state
           setTeachers((prev) =>
             prev.map((t) =>
               t.teacherId === editingId
@@ -105,7 +102,6 @@ export default function AdminTeacher() {
           );
           alert("Teacher updated!");
         } else {
-          // 🔥 Add new teacher to list
           setTeachers((prev) => [
             ...prev,
             { ...form, teacherId: data.teacherId, TeacherIMG: form.preview },
@@ -115,7 +111,6 @@ export default function AdminTeacher() {
           );
         }
 
-        // Reset
         setForm({
           Email: "",
           FullName: "",
@@ -137,7 +132,6 @@ export default function AdminTeacher() {
     }
   };
 
-  // 🔥 Edit button handler
   const handleEdit = (teacher) => {
     setForm({
       Email: teacher.Email,
@@ -159,7 +153,7 @@ export default function AdminTeacher() {
 
     try {
       const res = await fetch(
-        `http://localhost:5000/admin/teachers/${teacher.teacherId}`, // 👈 use teacherId
+        `http://localhost:5000/admin/teachers/${teacher.teacherId}`,
         { method: "DELETE" }
       );
 
@@ -168,7 +162,6 @@ export default function AdminTeacher() {
       const data = await res.json();
       alert(data.message);
 
-      // Remove from UI
       setTeachers((prev) =>
         prev.filter((t) => t.teacherId !== teacher.teacherId)
       );
@@ -179,83 +172,90 @@ export default function AdminTeacher() {
   };
 
   return (
-    <>
-      <h1>Teachers</h1>
-      <h4
-        onClick={() => {
-          setEditingId(null);
-          setIsFormOpen(true);
-        }}
-      >
-        + Add Teacher
-      </h4>
+    <div className={styles.container}>
+      <div className={styles.header}>
+        <h1>Teachers</h1>
+        <button
+          className={styles.addButton}
+          onClick={() => {
+            setEditingId(null);
+            setIsFormOpen(true);
+          }}
+        >
+          + Add Teacher
+        </button>
+      </div>
 
       {isFormOpen && (
-        <div>
-          <form onSubmit={handleSave}>
-            <input
-              type="email"
-              name="Email"
-              placeholder="Email"
-              value={form.Email}
-              onChange={handleInputChange}
-            />
-            <input
-              type="text"
-              name="FullName"
-              placeholder="Full Name"
-              value={form.FullName}
-              onChange={handleInputChange}
-            />
-            <input
-              type="date"
-              name="DOfB"
-              value={form.DOfB}
-              onChange={handleInputChange}
-            />
-            <input
-              type="text"
-              name="Course"
-              placeholder="Course / Subject"
-              value={form.Course}
-              onChange={handleInputChange}
-            />
-            <input
-              type="datetime-local"
-              name="DateJoined"
-              value={form.DateJoined}
-              onChange={handleInputChange}
-            />
+        <div className={styles.modal}>
+          <div className={styles.modalContent}>
+            <form onSubmit={handleSave}>
+              <input
+                type="email"
+                name="Email"
+                placeholder="Email"
+                value={form.Email}
+                onChange={handleInputChange}
+              />
+              <input
+                type="text"
+                name="FullName"
+                placeholder="Full Name"
+                value={form.FullName}
+                onChange={handleInputChange}
+              />
+              <input
+                type="date"
+                name="DOfB"
+                value={form.DOfB}
+                onChange={handleInputChange}
+              />
+              <input
+                type="text"
+                name="Course"
+                placeholder="Course / Subject"
+                value={form.Course}
+                onChange={handleInputChange}
+              />
+              <input
+                type="datetime-local"
+                name="DateJoined"
+                value={form.DateJoined}
+                onChange={handleInputChange}
+              />
+              <input
+                type="file"
+                accept="image/*"
+                name="TeacherIMG"
+                onChange={handleImageChange}
+              />
 
-            <input
-              type="file"
-              accept="image/*"
-              name="TeacherIMG"
-              onChange={handleImageChange}
-            />
+              <Select
+                options={options}
+                onChange={handleCountryChange}
+                placeholder="Select Country"
+                value={options.find((opt) => opt.label === form.Country) || null}
+              />
 
-            <Select
-              options={options}
-              onChange={handleCountryChange}
-              placeholder="Select Country"
-              value={options.find((opt) => opt.label === form.Country) || null}
-            />
-
-            <button type="submit">{editingId ? "Update" : "Save"}</button>
-            <button
-              type="button"
-              onClick={() => {
-                setIsFormOpen(false);
-                setEditingId(null);
-              }}
-            >
-              Cancel
-            </button>
-          </form>
+              <button type="submit" className={styles.saveButton}>
+                {editingId ? "Update" : "Save"}
+              </button>
+              <button
+                type="button"
+                className={styles.cancelButton}
+                onClick={() => {
+                  setIsFormOpen(false);
+                  setEditingId(null);
+                }}
+              >
+                Cancel
+              </button>
+            </form>
+          </div>
         </div>
       )}
 
-      <table border="1" cellPadding="5">
+      <table className={styles.table}>
         <thead>
           <tr>
             <th>ID</th>
@@ -278,8 +278,9 @@ export default function AdminTeacher() {
                   <img
                     src={teacher.TeacherIMG}
                     alt={teacher.FullName}
-                    width="50"
-                    height="50"
+                    width="40"
+                    height="40"
+                    style={{ borderRadius: "50%", marginRight: "8px" }}
                   />
                 ) : (
                   "No Image"
@@ -293,10 +294,16 @@ export default function AdminTeacher() {
               <td>{teacher.Country}</td>
               <td>{teacher.No_Students || 0}</td>
               <td>
-                <button onClick={() => handleEdit(teacher)}>
+                <button
+                  className={styles.actionButton}
+                  onClick={() => handleEdit(teacher)}
+                >
                   <FaEdit />
                 </button>
-                <button onClick={() => handleDelete(teacher)}>
+                <button
+                  className={styles.actionButton}
+                  onClick={() => handleDelete(teacher)}
+                >
                   <RiDeleteBin5Line />
                 </button>
               </td>
@@ -304,6 +311,6 @@ export default function AdminTeacher() {
           ))}
         </tbody>
       </table>
-    </>
+    </div>
   );
 }
