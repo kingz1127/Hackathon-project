@@ -63,7 +63,8 @@ export default function AdminTeacher() {
       !form.DOfB ||
       !form.Course ||
       !form.DateJoined ||
-      !form.Country
+      !form.Country ||
+       (!editingId && !form.TeacherIMG) // ← ADD THIS
     ) {
       alert("Please fill all fields");
       return;
