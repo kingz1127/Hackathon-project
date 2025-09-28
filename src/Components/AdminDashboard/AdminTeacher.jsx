@@ -187,48 +187,48 @@ export default function AdminTeacher() {
       </div>
 
       {isFormOpen && (
-        <div className={styles.modal}>
-          <div className={styles.modalContent}>
-            <form onSubmit={handleSave}>
-              <input
-                type="email"
-                name="Email"
-                placeholder="Email"
-                value={form.Email}
-                onChange={handleInputChange}
-              />
-              <input
-                type="text"
-                name="FullName"
-                placeholder="Full Name"
-                value={form.FullName}
-                onChange={handleInputChange}
-              />
-              <input
-                type="date"
-                name="DOfB"
-                value={form.DOfB}
-                onChange={handleInputChange}
-              />
-              <input
-                type="text"
-                name="Course"
-                placeholder="Course / Subject"
-                value={form.Course}
-                onChange={handleInputChange}
-              />
-              <input
-                type="datetime-local"
-                name="DateJoined"
-                value={form.DateJoined}
-                onChange={handleInputChange}
-              />
-              <input
-                type="file"
-                accept="image/*"
-                name="TeacherIMG"
-                onChange={handleImageChange}
-              />
+        <div>
+          <form onSubmit={handleSave}>
+            <input
+              type="email"
+              name="Email"
+              placeholder="Email"
+              value={form.Email}
+              onChange={handleInputChange}
+            />
+            <input
+              type="text"
+              name="FullName"
+              placeholder="Full Name"
+              value={form.FullName}
+              onChange={handleInputChange}
+            />
+            <input
+              type="date"
+              name="DOfB"
+              value={form.DOfB}
+              onChange={handleInputChange}
+            />
+            <input
+              type="text"
+              name="Course"
+              placeholder="Course / Subject"
+              value={form.Course}
+              onChange={handleInputChange}
+            />
+            <input
+              type="datetime-local"
+              name="DateJoined"
+              value={form.DateJoined}
+              onChange={handleInputChange}
+            />
+
+            <input
+              type="file"
+              accept="image/*"
+              name="TeacherIMG"
+              onChange={handleImageChange}
+            />
 
               <Select
                 options={options}

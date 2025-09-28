@@ -51,17 +51,18 @@
   text-decoration: none;
   transition: all 0.25s ease;
   margin: 10px 15px;
-  border-radius: 8px;
-}
+  border-radius: 1rem;
+} 
 
 .navLink:hover {
-  background-color: rgba(255, 255, 255, 0.12);
+ background: #0a174e;
+ color: #ffd700;
   color: white;
 }
 
 .navLink.active {
-  background-color: rgba(255, 255, 255, 0.18);
-  color: white;
+  background: #0a174e;
+  color: #ffeb3b;
 }
 
 .navLink.active .navIcon {
@@ -87,7 +88,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   font-weight: 500;
-  font-size: 1.8rem;
+  font-size: 1.5rem;
 }
 
 .activeIndicator {
@@ -95,10 +96,10 @@
   left: 0;
   top: 50%;
   transform: translateY(-50%);
-  width: 5px;
+  width: 0.6rem;
   height: 100%;
   background-color: #ffeb3b;
-  border-radius: 3px 0 0 3px ;
+  border-radius: 1rem 0 0 1rem ;
   opacity: 0;
   transition: opacity 0.25s ease;
 }

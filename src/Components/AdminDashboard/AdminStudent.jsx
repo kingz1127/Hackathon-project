@@ -1,67 +1,74 @@
-import { useState } from "react";
-import { FiEdit, FiTrash2 } from "react-icons/fi";
+import React, { useMemo, useState, useEffect } from "react";
+import { FaEdit } from "react-icons/fa";
+import Select from "react-select";
+import countryList from "react-select-country-list";
 import styles from "./AdminStudent.module.css";
 import countries from "./countries";
 
 export default function AdminStudent() {
-  const [showModal, setShowModal] = useState(false);
-  const [editingId, setEditingId] = useState(null);
-  const [searchId, setSearchId] = useState("");
-  const [students, setStudents] = useState([
-    {
-      id: "STU001",
-      photo: "https://via.placeholder.com/40",
-      fullName: "John Doe",
-      email: "john@example.com",
-      dob: "2000-01-01",
-      course: "Computer Science",
-      grade: "A",
-      sex: "Male",
-      phone: "+2348012345678",
-      guardian: "Mr. Doe",
-      gphone: "+2348098765432",
-      sdate: "2022-09-01",
-      country: "Nigeria",
-      origin: "Lagos",
-      address: "12 Allen Avenue",
-    },
-  ]);
+  const [students, setStudents] = useState([]);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [emailStatus, setEmailStatus] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [editingId, setEditingId] = useState(null); // ✅ track editing
 
-  const [formData, setFormData] = useState(initialForm());
-  const [currentPage, setCurrentPage] = useState(1);
-  const studentsPerPage = 10;
+  const [form, setForm] = useState({
+    Email: "",
+    FullName: "",
+    DOfB: "",
+    Course: "",
+    DateJoined: "",
+    StudentIMG: null,
+    Country: "",
+    StudentID: "",
+    GradeLevel: "",
+    Guardian: "",
+    PhoneNumber: "",
+    GuardianPhoneNumber: "",
+    StateOfOrigin: "",
+    Address: "",
+    Gender: "",
+    preview: "",
+  });
 
-  function initialForm() {
-    return {
-      fullName: "",
-      email: "",
-      dob: "",
-      course: "",
-      grade: "",
-      guardian: "",
-      phone: "",
-      gphone: "",
-      gdob: "",
-      country: "",
-      origin: "",
-      address: "",
-      sex: "",
-      photo: null,
-      preview: null,
-    };
-  }
+  const options = useMemo(() => countryList().getData(), []);
 
-  const handleChange = (e) => {
-    const { name, value, files } = e.target;
-    if (name === "photo") {
-      const file = files[0];
-      setFormData({
-        ...formData,
-        photo: file,
-        preview: file ? URL.createObjectURL(file) : null,
-      });
-    } else {
-      setFormData({ ...formData, [name]: value });
+  // Fetch students from backend on component load
+  useEffect(() => {
+    fetchStudents();
+  }, []);
+
+  const fetchStudents = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/admin/students");
+      const data = await response.json();
+      if (response.ok) {
+        setStudents(data);
+      } else {
+        console.error("Failed to fetch students:", data.message);
+      }
+    } catch (error) {
+      console.error("Error fetching students:", error);
+    }
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const previewURL = URL.createObjectURL(file);
+      setForm((prev) => ({
+        ...prev,
+        StudentIMG: file,
+        preview: previewURL,
+      }));
     }
   };
 
@@ -73,81 +80,120 @@ export default function AdminStudent() {
       return;
     }
 
-    if (editingId) {
-      setStudents(
-        students.map((stu) =>
-          stu.id === editingId
-            ? {
-                ...stu,
-                fullName: formData.fullName,
-                email: formData.email,
-                dob: formData.dob,
-                course: formData.course,
-                grade: formData.grade,
-                sex: formData.sex,
-                phone: formData.phone,
-                guardian: formData.guardian,
-                gphone: formData.gphone,
-                country: formData.country,
-                origin: formData.origin,
-                address: formData.address,
-                photo: formData.preview || stu.photo,
-              }
-            : stu
-        )
-      );
-    } else {
-      const newStudent = {
-        id: `STU${String(students.length + 1).padStart(3, "0")}`,
-        photo: formData.preview || "https://via.placeholder.com/40",
-        fullName: formData.fullName,
-        email: formData.email,
-        dob: formData.dob,
-        course: formData.course,
-        grade: formData.grade,
-        sex: formData.sex,
-        phone: formData.phone,
-        guardian: formData.guardian,
-        gphone: formData.gphone,
-        sdate: new Date().toISOString().split("T")[0],
-        country: formData.country,
-        origin: formData.origin,
-        address: formData.address,
-      };
-      setStudents([...students, newStudent]);
-    }
+    setIsLoading(true);
+    setEmailStatus(
+      editingId ? "Updating student..." : "Processing student registration..."
+    );
 
-    setFormData(initialForm());
-    setEditingId(null);
-    setShowModal(false);
+    try {
+      const formData = new FormData();
+      formData.append("Email", form.Email);
+      formData.append("FullName", form.FullName);
+      formData.append("DOfB", form.DOfB);
+      formData.append("Course", form.Course);
+      formData.append("GradeLevel", form.GradeLevel);
+      formData.append("Guardian", form.Guardian);
+      formData.append("DateJoined", form.DateJoined);
+      formData.append("Country", form.Country);
+      formData.append("StudentIMG", form.StudentIMG);
+      formData.append("PhoneNumber", form.PhoneNumber);
+      formData.append("GuardianPhoneNumber", form.GuardianPhoneNumber);
+      formData.append("StateOfOrigin", form.StateOfOrigin);
+      formData.append("Address", form.Address);
+      formData.append("Gender", form.Gender);
+      let response;
+      if (editingId) {
+        // ✅ UPDATE student
+        response = await fetch(
+          `http://localhost:5000/admin/students/${editingId}`,
+          {
+            method: "PUT",
+            body: formData,
+          }
+        );
+      } else {
+        // ✅ ADD student
+        response = await fetch("http://localhost:5000/admin/add-student", {
+          method: "POST",
+          body: formData,
+        });
+      }
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setEmailStatus(
+          editingId
+            ? "✅ Student updated successfully!"
+            : `✅ Student registered successfully! ${
+                data.emailSent
+                  ? `Welcome email sent to ${form.Email}`
+                  : "Email not sent (check configuration)"
+              }`
+        );
+
+        // Refresh students list
+        await fetchStudents();
+
+        // Reset form
+        setForm({
+          Email: "",
+          FullName: "",
+          DOfB: "",
+          Course: "",
+          DateJoined: "",
+          StudentIMG: null,
+          Country: "",
+          StudentID: "",
+          GradeLevel: "",
+          Guardian: "",
+          PhoneNumber: "",
+          GuardianPhoneNumber: "",
+          StateOfOrigin: "",
+          Address: "",
+          Gender: "",
+          preview: "",
+        });
+        setEditingId(null);
+
+        // Close form after 3 seconds
+        setTimeout(() => {
+          setIsFormOpen(false);
+          setEmailStatus("");
+        }, 3000);
+      } else {
+        throw new Error(data.message || "Failed to save student");
+      }
+    } catch (error) {
+      console.error("Save error:", error);
+      setEmailStatus(`❌ Error: ${error.message}`);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleDelete = (id) => {
-    if (window.confirm("Are you sure you want to delete this student?")) {
-      setStudents(students.filter((stu) => stu.id !== id));
-    }
-  };
-
-  const handleEdit = (stu) => {
-    setEditingId(stu.id);
-    setFormData({
-      fullName: stu.fullName,
-      email: stu.email,
-      dob: stu.dob,
-      course: stu.course,
-      grade: stu.grade,
-      guardian: stu.guardian,
-      phone: stu.phone,
-      gphone: stu.gphone,
-      gdob: stu.gdob || "",
-      country: stu.country,
-      origin: stu.origin,
-      address: stu.address,
-      sex: stu.sex,
-      photo: null,
-      preview: stu.photo,
+  // 🔥 Edit button handler
+  const handleEdit = (student) => {
+    setForm({
+      Email: student.Email,
+      FullName: student.FullName,
+      DOfB: student.DOfB,
+      Course: student.Course,
+      GradeLevel: student.GradeLevel,
+      Guardian: student.Guardian,
+      DateJoined: student.DateJoined,
+      Country: student.Country,
+      StudentIMG: student.StudentIMG,
+      preview: student.StudentIMG,
+      StudentID: student.studentId,
+      PhoneNumber: student.PhoneNumber,
+      GuardianPhoneNumber: student.GuardianPhoneNumber,
+      StateOfOrigin: student.StateOfOrigin,
+      Address: student.Address,
+      Gender: student.Gender,
     });
-    setShowModal(true);
+    setEditingId(student.studentId); // ✅ track editing
+    setIsFormOpen(true);
   };
 
   const filteredStudents = students.filter((stu) =>
@@ -168,38 +214,266 @@ export default function AdminStudent() {
     }
   };
 
+  // Enhanced Search and Pagination logic - searches by ID, Name, Email, and Course
+  const filteredStudents = students.filter((student) => {
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      (student.studentId || "").toLowerCase().includes(searchLower) ||
+      (student.FullName || "").toLowerCase().includes(searchLower) ||
+      (student.Email || "").toLowerCase().includes(searchLower) ||
+      (student.Course || "").toLowerCase().includes(searchLower)
+    );
+  });
+
+  const totalPages = Math.ceil(filteredStudents.length / studentsPerPage);
+  const startIndex = (currentPage - 1) * studentsPerPage;
+  const paginatedStudents = filteredStudents.slice(
+    startIndex,
+    startIndex + studentsPerPage
+  );
+
+  const handlePageChange = (page) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
+
   return (
-    <div className={styles.container}>
-      {/* Header */}
-      <div className={styles.header}>
-        <h1>Students</h1>
-        <div className={styles.actions}>
-          <input
-            type="text"
-            placeholder="Search by Student ID..."
-            value={searchId}
-            onChange={(e) => {
-              setSearchId(e.target.value);
-              setCurrentPage(1); // reset to page 1 when searching
-            }}
-            className={styles.search}
-          />
-          <button
-            onClick={() => {
-              setFormData(initialForm());
-              setEditingId(null);
-              setShowModal(true);
-            }}
-            className={styles.addBtn}
-          >
-            + Add Student
-          </button>
-        </div>
+    <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
+      <div style={{ marginBottom: "20px" }}>
+        <h2 style={{ color: "#333", marginBottom: "10px" }}>Students</h2>
+        <h4 className={styles.add} onClick={() => setIsFormOpen(true)}>
+          + Add Student
+        </h4>
       </div>
 
-      {/* Table */}
-      <div className={styles.tableWrapper}>
-        <table className={styles.table}>
+      {emailStatus && (
+        <div
+          style={{
+            padding: "10px",
+            margin: "10px 0",
+            borderRadius: "4px",
+            background: emailStatus.includes("✅")
+              ? "#d4edda"
+              : emailStatus.includes("❌")
+              ? "#f8d7da"
+              : "#d1ecf1",
+            border: `1px solid ${
+              emailStatus.includes("✅")
+                ? "#c3e6cb"
+                : emailStatus.includes("❌")
+                ? "#f5c6cb"
+                : "#bee5eb"
+            }`,
+            color: emailStatus.includes("✅")
+              ? "#155724"
+              : emailStatus.includes("❌")
+              ? "#721c24"
+              : "#0c5460",
+            fontSize: "14px",
+          }}
+        >
+          {emailStatus}
+        </div>
+      )}
+
+      {isFormOpen && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            backgroundColor: "rgba(0,0,0,0.5)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 1000,
+          }}
+        >
+          <div className={styles.openModal}>
+            <div>
+              <div className={styles.openModal1}>
+                <input
+                  type="email"
+                  name="Email"
+                  placeholder="Email"
+                  value={form.Email}
+                  onChange={handleInputChange}
+                  required
+                />
+                <input
+                  type="text"
+                  name="FullName"
+                  placeholder="Full Name"
+                  value={form.FullName}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+              <div className={styles.openModal2}>
+                <label className={styles.openModal2v1}>
+                  D0B:{" "}
+                  <input
+                    type="date"
+                    name="DOfB"
+                    value={form.DOfB}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </label>
+
+                <input
+                  className={styles.openModal2v2}
+                  type="number"
+                  name="PhoneNumber"
+                  placeholder="Phone number"
+                  value={form.PhoneNumber}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+              <div className={styles.openModal1}>
+                <input
+                  type="text"
+                  name="Course"
+                  placeholder="Course"
+                  value={form.Course}
+                  onChange={handleInputChange}
+                  required
+                />
+                <input
+                  type="text"
+                  name="GradeLevel"
+                  placeholder="Grade Level"
+                  value={form.GradeLevel}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+              <div className={styles.genders}>
+                <label>Gender: </label>
+                <select
+                  name="Gender"
+                  value={form.Gender}
+                  onChange={handleInputChange}
+                  required
+                >
+                  <option value="">Select Gender</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                </select>
+              </div>
+              <div className={styles.openModal1}>
+                <input
+                  type="text"
+                  name="Guardian"
+                  placeholder="Guardian/Parent Name"
+                  value={form.Guardian}
+                  onChange={handleInputChange}
+                  required
+                />
+                <input
+                  type="number"
+                  name="GuardianPhoneNumber" // ✅ added
+                  placeholder="Guardian Phone Number"
+                  value={form.GuardianPhoneNumber}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+              <div className={styles.genders}>
+                <label>Date Enrolled: </label>
+                <input
+                  type="datetime-local"
+                  name="DateJoined"
+                  value={form.DateJoined}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+              <div className={styles.openModal1}>
+                <input
+                  type="text"
+                  name="Address"
+                  placeholder="Address"
+                  value={form.Address}
+                  onChange={handleInputChange}
+                  required
+                />
+                <input
+                  type="text"
+                  name="StateOfOrigin"
+                  placeholder="State Of Origin"
+                  value={form.StateOfOrigin}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+              <div className={styles.imgpre}>
+                <label>Student Photo:</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  name="StudentIMG"
+                  onChange={handleImageChange}
+                  required={!editingId} // photo only required when adding
+                />
+                {form.preview && (
+                  <img
+                    className={styles.previewimg}
+                    src={form.preview}
+                    alt="Preview"
+                    // style={{ width: "240px", height: "240" }}
+                  />
+                )}
+              </div>
+              <div>
+                <label>Country:</label>
+                <Select
+                  options={options}
+                  onChange={handleCountryChange}
+                  placeholder="Select Country"
+                  value={
+                    options.find((opt) => opt.label === form.Country) || null
+                  }
+                />
+              </div>
+              <div className={styles.buutons}>
+                <button
+                  type="button"
+                  onClick={handleSave}
+                  disabled={isLoading}
+                  className={styles.buutonsv1}
+                >
+                  {isLoading ? "Processing..." : editingId ? "Update" : "Save"}
+                </button>
+                <button
+                  className={styles.buutonsv2}
+                  type="button"
+                  onClick={() => {
+                    setIsFormOpen(false);
+                    setEmailStatus("");
+                    setEditingId(null);
+                  }}
+                  disabled={isLoading}
+                  style={{
+                    cursor: isLoading ? "not-allowed" : "pointer",
+
+                    opacity: isLoading ? 0.7 : 1,
+                  }}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div>
+        <table>
           <thead>
             <tr>
               <th>ID</th>
@@ -221,62 +495,67 @@ export default function AdminStudent() {
             </tr>
           </thead>
           <tbody>
-            {paginatedStudents.map((stu) => (
-              <tr key={stu.id}>
-                <td>{stu.id}</td>
-                <td>
-                  <img src={stu.photo} alt="student" className={styles.photo} />
-                </td>
-                <td>{stu.fullName}</td>
-                <td>{stu.email}</td>
-                <td>{stu.dob}</td>
-                <td>{stu.course}</td>
-                <td>{stu.grade}</td>
-                <td>{stu.sex}</td>
-                <td>{stu.phone}</td>
-                <td>{stu.guardian}</td>
-                <td>{stu.gphone}</td>
-                <td>{stu.sdate}</td>
-                <td>{stu.country}</td>
-                <td>{stu.origin}</td>
-                <td>{stu.address}</td>
-                <td className={styles.actionsCol}>
-                  <button
-                    className={styles.editBtn}
-                    onClick={() => handleEdit(stu)}
-                  >
-                    <FiEdit />
-                  </button>
-                  <button
-                    className={styles.deleteBtn}
-                    onClick={() => handleDelete(stu.id)}
-                  >
-                    <FiTrash2 />
-                  </button>
+            {students.length === 0 ? (
+              <tr>
+                <td colSpan="11">
+                  No students found. Click "Add Student" to get started.
                 </td>
               </tr>
-            ))}
+            ) : (
+              students.map((student, index) => (
+                <tr key={student._id || index}>
+                  <td>{student.studentId}</td>
+                  <td>
+                    {student.StudentIMG ? (
+                      <img
+                        src={student.StudentIMG}
+                        alt={student.FullName}
+                        style={{
+                          width: "50px",
+                          height: "5rem",
+                          borderRadius: "5rem",
+                          objectFit: "cover",
+                        }}
+                      />
+                    ) : (
+                      <div>No Photo</div>
+                    )}
+                    {student.FullName}
+                  </td>
+                  <td>{student.Email}</td>
+                  <td>{student.DOfB}</td>
+                  <td>{student.Course}</td>
+                  <td>{student.GradeLevel}</td>
+                  <td>{student.Gender}</td>
+                  <td>{student.PhoneNumber}</td>
+                  <td>{student.Guardian}</td>
+
+                  <td>{student.GuardianPhoneNumber}</td>
+                  <td>
+                    {student.DateJoined
+                      ? new Date(student.DateJoined).toLocaleDateString()
+                      : ""}
+                  </td>
+                  <td>{student.Country}</td>
+
+                  <td>{student.StateOfOrigin}</td>
+                  <td>{student.Address}</td>
+
+                  <td>
+                    <button onClick={() => handleEdit(student)}>
+                      <FaEdit />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(student.studentId, index)}
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
-
-        {/* Pagination Controls */}
-        <div className={styles.pagination}>
-          <button
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-          >
-            Previous
-          </button>
-          <span>
-            Page {currentPage} of {totalPages || 1}
-          </span>
-          <button
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages || totalPages === 0}
-          >
-            Next
-          </button>
-        </div>
       </div>
 
       {/* Modal */}

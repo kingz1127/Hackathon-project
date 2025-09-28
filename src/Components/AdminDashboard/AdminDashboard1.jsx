@@ -902,7 +902,7 @@ export default function AdminDashboard() {
                       required
                       className={styles.largeInput}
                     />
-                  </div>
+                  </div> 
                 </div>
                 
                 <div className={styles.formRow}>
@@ -988,7 +988,7 @@ export default function AdminDashboard() {
                 <h4>{activeTab === "students" ? "Academic" : "Professional"} Information</h4>
                 <div className={styles.formRow}>
                   <div className={styles.formGroup}>
-                    <label>Course *</label>
+                    <label>Course: </label>
                     <select
                       name="Course"
                       value={form.Course}
@@ -997,13 +997,16 @@ export default function AdminDashboard() {
                       className={styles.largeInput}
                     >
                       <option value="">Select Course</option>
-                      <option value="Mathematics">Mathematics</option>
-                      <option value="Physics">Physics</option>
-                      <option value="Chemistry">Chemistry</option>
-                      <option value="Biology">Biology</option>
-                      <option value="Computer Science">Computer Science</option>
-                      <option value="English">English</option>
-                      <option value="History">History</option>
+                       <option value="AI & Machine Learning">
+                              AI & Machine Learning
+                            </option>
+                            <option value="Cyber Security">Cyber Security</option>
+                            <option value="Data Analytics">Data Analytics</option>
+                            <option value="Networking">Networking</option>
+                            <option value="Python">Python</option>
+                            <option value="Software Engineering">
+                              Software Engineering / FullStack
+                            </option>
                     </select>
                   </div>
                   {activeTab === "students" && (

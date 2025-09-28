@@ -5,8 +5,10 @@ import multer from "multer";
 import nodemailer from "nodemailer";
 import path from "path";
 import { fileURLToPath } from "url";
+
 import Admin from "./models/Admin.js";
 import Teacher from "./models/Teacher.js"; // Import the new Teacher model
+import Student from "./models/Student.js"; 
 
 dotenv.config();
 
@@ -100,7 +102,18 @@ router.get("/admin/teachers", async (req, res) => {
       createdAt: -1,
     });
 
-    // Map teachers to match frontend format
+    // Count students per course
+    const studentCounts = await Student.aggregate([
+      { $group: { _id: "$course", count: { $sum: 1 } } },
+    ]);
+
+    // Convert aggregation result into a map { courseName: count }
+    const studentCountMap = {};
+    studentCounts.forEach((c) => {
+      studentCountMap[c._id] = c.count;
+    });
+
+    // Map teachers to match frontend format and include No_Students
     const teachersFormatted = teachers.map((teacher) => ({
       _id: teacher._id,
       teacherId: teacher.teacherId,
@@ -118,6 +131,7 @@ router.get("/admin/teachers", async (req, res) => {
       isActive: teacher.isActive,
       lastLogin: teacher.lastLogin,
       createdAt: teacher.createdAt,
+      No_Students: studentCountMap[teacher.course] || 0, // 👈 Add student count
     }));
 
     console.log("Found", teachersFormatted.length, "active teachers");
@@ -212,6 +226,53 @@ router.post(
         });
       }
 
+     // GET all messages for a specific student
+router.get("/messages/student/:studentId", async (req, res) => {
+  try {
+    const messages = await Message.find({ receiverId: req.params.studentId }).sort({ createdAt: -1 });
+    res.json(messages);
+  } catch (err) {
+    console.error("Error fetching messages:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET messages for a student
+router.get("/messages/student/:studentId", async (req, res) => {
+  try {
+    const messages = await Message.find({ receiverId: req.params.studentId }).sort({ createdAt: -1 });
+    res.json(messages);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET messages for a teacher
+router.get("/messages/teacher/:teacherId", async (req, res) => {
+  try {
+    const messages = await Message.find({ receiverId: req.params.teacherId }).sort({ createdAt: -1 });
+    res.json(messages);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// SEND message
+router.post("/messages/send", async (req, res) => {
+  try {
+    const { senderId, receiverId, content } = req.body;
+    if (!senderId || !receiverId || !content) return res.status(400).json({ message: "All fields required" });
+
+    const newMessage = new Message({ senderId, receiverId, content });
+    await newMessage.save();
+
+    res.status(201).json({ message: "Message sent successfully", data: newMessage });
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+});
+
+
       // Generate password and teacherId
       const teacherPassword = randomPassword();
       const hashedPassword = await bcrypt.hash(teacherPassword, 10);
@@ -231,22 +292,30 @@ router.post(
         password: hashedPassword,
       };
 
-      // Update teacher password
-router.put("/admin/teachers/:id/password", async (req, res) => {
+      //update password
+      router.put("/admin/teachers/:id/change-password", async (req, res) => {
   try {
-    const { password } = req.body;
-    const teacher = await Teacher.findOne({ teacherId: req.params.id });
+    const { oldPassword, newPassword } = req.body;
 
+    const teacher = await Teacher.findOne({ teacherId: req.params.id });
     if (!teacher) return res.status(404).json({ message: "Teacher not found" });
 
-    teacher.password = password; // ⚠️ make sure to hash before saving if using bcrypt
+    // Verify old password
+    const isMatch = await bcrypt.compare(oldPassword, teacher.password);
+    if (!isMatch) return res.status(400).json({ message: "Old password is incorrect" });
+
+    // Hash and update new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    teacher.password = hashedPassword;
     await teacher.save();
 
     res.json({ message: "Password updated successfully" });
   } catch (err) {
-    res.status(500).json({ error: "Failed to update password" });
+    console.error(err);
+    res.status(500).json({ message: "Failed to update password" });
   }
 });
+
 
 
       // 1. Create new teacher in Teacher collection
@@ -461,5 +530,28 @@ router.get("/admin/teachers/:id", async (req, res) => {
     res.status(500).json({ message: "Server error", error: err.message });
   }
 });
+
+// POST /admin/teachers/:teacherId/message
+router.post("/teachers/:teacherId/message", async (req, res) => {
+  try {
+    const { senderId, senderName, content } = req.body;
+    const teacher = await Teacher.findById(req.params.teacherId);
+    if (!teacher) return res.status(404).json({ error: "Teacher not found" });
+
+    teacher.messages.push({
+      senderId,
+      senderName,
+      content,
+      timestamp: new Date(),
+      from: "student"
+    });
+
+    await teacher.save();
+    res.status(201).json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 
 export default router;

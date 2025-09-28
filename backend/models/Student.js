@@ -84,6 +84,25 @@ const studentSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  notifications: [
+  {
+    id: String,
+    sender: String,
+    senderId: String,
+    message: String,
+    type: String,
+    isRead: Boolean,
+    time: String,
+  }
+],
+messages: [
+    {
+      sender: String,     // admin/teacher name
+      message: String,
+      timestamp: { type: Date, default: Date.now },
+      isRead: { type: Boolean, default: false },
+    },
+  ],
 });
 
 studentSchema.pre("save", function (next) {

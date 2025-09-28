@@ -48,7 +48,7 @@ export default function Resources() {
   };
 
   return (
-    <div>
+    <div className="resources-container">
       <h2>Resources</h2>
 
       {/* Form to add new resources */}

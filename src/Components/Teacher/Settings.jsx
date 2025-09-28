@@ -37,7 +37,7 @@ export default function Settings({ teacher, setTeacher }) {
     setMessage("");
     try {
       const res = await fetch(
-        `http://localhost:5000/api/admin/teachers/${teacherId}`,
+        `http://localhost:5000/admin/teachers/${teacherId}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },

@@ -13,7 +13,6 @@ import Student from "./models/Student.js";
 import Teacher from "./models/Teacher.js"; 
 import teacherRoutes from "./router.js";
 import studentRoutes from "./studentRoutes.js";
-import nodemailer from "nodemailer";  // ✅ Added for Gmail fix
 
 dotenv.config();
 
@@ -107,4 +106,4 @@ app.use("/", teacherRoutes);
 app.use("/", studentRoutes);
 app.use("/api", registerRoutes);
 
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
