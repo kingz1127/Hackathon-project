@@ -433,6 +433,8 @@ export default function AdminStudent() {
                 onChange={handleInputChange}
                 required
               />
+
+              
               <label className={styles.inputlab}>
                 Date Enrolled: 
                 <input
