@@ -224,12 +224,24 @@ export default function AdminTeacher() {
                 onChange={handleInputChange}
               />
               <input
-                type="file"
-                accept="image/*"
-                name="TeacherIMG"
-                onChange={handleImageChange}
+                type="text" 
+                name="GuardianPhoneNumber"
+                placeholder="Guardian Phone Number"
+                value={form.GuardianPhoneNumber}
+                onChange={handleInputChange}
+                required
               />
-
+              <label className={styles.inputlab}>
+                Date Enrolled: 
+                <input
+                
+                  type="datetime-local"
+                  name="DateJoined"
+                  value={form.DateJoined}
+                  onChange={handleInputChange}
+                  required
+                />
+              </label>
               <Select
                 options={options}
                 onChange={handleCountryChange}

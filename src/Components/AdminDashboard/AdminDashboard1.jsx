@@ -23,18 +23,24 @@ export default function AdminDashboard() {
 
   // Form state for adding/editing students and teachers
   const [form, setForm] = useState({
-    Email: "",
-    FullName: "",
-    DOfB: "",
-    Course: "",
-    DateJoined: "",
-    Image: null,
-    Country: "",
-    GradeLevel: "",
-    PhoneNumber: "",
-    Gender: "",
-    preview: "",
-  });
+      Email: "",
+      FullName: "",
+      DOfB: "",
+      Course: "",
+      DateJoined: "",
+      StudentIMG: null,
+       TeacherIMG: null, // ← ADD THIS LINE
+      Country: "",
+      StudentID: "",
+      GradeLevel: "",
+      Guardian: "",
+      PhoneNumber: "",
+      GuardianPhoneNumber: "",
+      StateOfOrigin: "",
+      Address: "",
+      Gender: "",
+      preview: "",
+    });
 
   const countryOptions = countryList().getData();
 
@@ -81,38 +87,43 @@ export default function AdminDashboard() {
   };
 
   const handleCountryChange = (selected) => {
-    setForm((prev) => ({
-      ...prev,
-      Country: selected.label,
-    }));
-  };
+  setForm({ ...form, Country: selected.label }); // ← Direct assignment
+};
 
   const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const previewURL = URL.createObjectURL(file);
-      setForm((prev) => ({
-        ...prev,
-        Image: file,
-        preview: previewURL,
-      }));
-    }
-  };
+  const file = e.target.files[0];
+  if (file) {
+    const previewURL = URL.createObjectURL(file);
+    const fieldName = e.target.name; // This will be "StudentIMG" or "TeacherIMG"
+    
+    setForm((prev) => ({
+      ...prev,
+      [fieldName]: file, // Use dynamic field name
+      preview: previewURL,
+    }));
+  }
+};
 
   // Reset form when switching between student and teacher forms
   const resetForm = () => {
     setForm({
-      Email: "",
-      FullName: "",
-      DOfB: "",
-      Course: "",
-      DateJoined: "",
-      Image: null,
-      Country: "",
-      GradeLevel: "",
-      PhoneNumber: "",
-      Gender: "",
-      preview: "",
+       Email: "",
+          FullName: "",
+          DOfB: "",
+          Course: "",
+          DateJoined: "",
+          StudentIMG: null,
+           TeacherIMG: null, // ← ADD THIS LINE
+          Country: "",
+          StudentID: "",
+          GradeLevel: "",
+          Guardian: "",
+          PhoneNumber: "",
+          GuardianPhoneNumber: "",
+          StateOfOrigin: "",
+          Address: "",
+          Gender: "",
+          preview: "",
     });
     setEditingId(null);
   };
@@ -127,9 +138,14 @@ export default function AdminDashboard() {
       !form.DOfB ||
       !form.Course ||
       !form.GradeLevel ||
+      !form.Guardian ||
       !form.DateJoined ||
       !form.Country ||
+      !form.StudentIMG ||
       !form.PhoneNumber ||
+      !form.GuardianPhoneNumber ||
+      !form.StateOfOrigin ||
+      !form.Address ||
       !form.Gender
     ) {
       setEmailStatus("Please fill in all required fields");
@@ -148,14 +164,19 @@ export default function AdminDashboard() {
       formData.append("DOfB", form.DOfB);
       formData.append("Course", form.Course);
       formData.append("GradeLevel", form.GradeLevel);
+      formData.append("Guardian", form.Guardian);
       formData.append("DateJoined", form.DateJoined);
       formData.append("Country", form.Country);
       formData.append("PhoneNumber", form.PhoneNumber);
+      formData.append("GuardianPhoneNumber", form.GuardianPhoneNumber);
+      formData.append("StateOfOrigin", form.StateOfOrigin);
+      formData.append("Address", form.Address);
       formData.append("Gender", form.Gender);
       
-      if (form.Image) {
-        formData.append("StudentIMG", form.Image);
-      }
+      
+     if (form.StudentIMG) {
+  formData.append("StudentIMG", form.StudentIMG);
+}
       
       let response;
       let url;
@@ -226,7 +247,8 @@ export default function AdminDashboard() {
       !form.DOfB ||
       !form.Course ||
       !form.DateJoined ||
-      !form.Country
+      !form.Country ||
+       (!editingId && !form.TeacherIMG) // ← ADD THIS LINE
     ) {
       setEmailStatus("Please fill in all required fields");
       return;
@@ -246,9 +268,9 @@ export default function AdminDashboard() {
       formData.append("DateJoined", form.DateJoined);
       formData.append("Country", form.Country);
       
-      if (form.Image) {
-        formData.append("TeacherIMG", form.Image);
-      }
+     if (form.TeacherIMG) { // ← CHANGE FROM form.Image TO form.TeacherIMG
+      formData.append("TeacherIMG", form.TeacherIMG);
+    }
       
       let response;
       let url;
@@ -312,16 +334,21 @@ export default function AdminDashboard() {
   // Edit student
   const handleEditStudent = (student) => {
     setForm({
-      Email: student.Email,
+     Email: student.Email,
       FullName: student.FullName,
       DOfB: student.DOfB,
       Course: student.Course,
       GradeLevel: student.GradeLevel,
+      Guardian: student.Guardian,
       DateJoined: student.DateJoined,
       Country: student.Country,
-      Image: student.StudentIMG,
+      StudentIMG: student.StudentIMG,
       preview: student.StudentIMG,
+      StudentID: student.studentId,
       PhoneNumber: student.PhoneNumber,
+      GuardianPhoneNumber: student.GuardianPhoneNumber,
+      StateOfOrigin: student.StateOfOrigin,
+      Address: student.Address,
       Gender: student.Gender,
     });
     setEditingId(student.studentId);
@@ -338,7 +365,7 @@ export default function AdminDashboard() {
       Course: teacher.Course,
       DateJoined: teacher.DateJoined,
       Country: teacher.Country,
-      Image: teacher.TeacherIMG,
+       TeacherIMG: teacher.TeacherIMG, // ← CHANGE FROM Image TO TeacherIMG
       preview: teacher.TeacherIMG,
     });
     setEditingId(teacher.teacherId);
@@ -856,215 +883,402 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* Add/Edit Student/Teacher Form Modal */}
-      {isFormOpen && (
-        <div className={styles.formModal}>
-          <div className={styles.formContainer}>
-            <div className={styles.formHeader}>
-              <h3>{editingId ? `Edit ${activeTab === "students" ? "Student" : "Teacher"}` : `Add New ${activeTab === "students" ? "Student" : "Teacher"}`}</h3>
-              <button 
-                className={styles.closeButton}
-                onClick={() => {
-                  setIsFormOpen(false);
-                  setEmailStatus("");
-                  resetForm();
-                }}
-              >
-                ×
-              </button>
+   {/* Add/Edit Student/Teacher Form Modal */}
+{isFormOpen && (
+  <div className={styles.formModal}>
+    <div className={styles.formContainer}>
+      <div className={styles.formHeader}>
+        <h3>{editingId ? `Edit ${activeTab === "students" ? "Student" : "Teacher"}` : `Add New ${activeTab === "students" ? "Student" : "Teacher"}`}</h3>
+        <button 
+          className={styles.closeButton}
+          onClick={() => {
+            setIsFormOpen(false);
+            setEmailStatus("");
+            resetForm();
+          }}
+        >
+          ×
+        </button>
+      </div>
+      
+      {/* STUDENT FORM */}
+      {activeTab === "students" && (
+        <form onSubmit={handleSaveStudent} className={styles.studentForm}>
+          {/* Personal Information Section */}
+          <div className={styles.formSection}>
+            <h4>Personal Information</h4>
+            
+            {/* Row 1 - Name & Email */}
+            <div className={styles.formRow}>
+              <div className={styles.formGroup}>
+                <label>Full Name *</label>
+                <input
+                  type="text"
+                  name="FullName"
+                  placeholder="Full Name"
+                  value={form.FullName}
+                  onChange={handleInputChange}
+                  required
+                  className={styles.largeInput}
+                />
+              </div>
+              <div className={styles.formGroup}>
+                <label>Email *</label>
+                <input
+                  type="email"
+                  name="Email"
+                  placeholder="Email"
+                  value={form.Email}
+                  onChange={handleInputChange}
+                  required
+                  className={styles.largeInput}
+                />
+              </div>
+            </div>
+
+            {/* Row 2 - DOB & Phone */}
+            <div className={styles.formRow}>
+              <div className={styles.formGroup}>
+                <label>Date of Birth *</label>
+                <input
+                  type="date"
+                  name="DOfB"
+                  value={form.DOfB}
+                  onChange={handleInputChange}
+                  required
+                  className={styles.largeInput}
+                />
+              </div>
+              <div className={styles.formGroup}>
+                <label>Phone Number *</label>
+                <input
+                  type="tel"
+                  name="PhoneNumber"
+                  placeholder="Phone number"
+                  value={form.PhoneNumber}
+                  onChange={handleInputChange}
+                  required
+                  className={styles.largeInput}
+                />
+              </div>
+            </div>
+
+            {/* Row 3 - Gender */}
+            <div className={styles.formRow}>
+              <div className={styles.formGroup}>
+                <label>Gender *</label>
+                <select
+                  name="Gender"
+                  value={form.Gender}
+                  onChange={handleInputChange}
+                  required
+                  className={styles.largeInput}
+                >
+                  <option value="">Select Gender</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Row 4 - Guardian Info */}
+            <div className={styles.formRow}>
+              <div className={styles.formGroup}>
+                <label>Guardian Name *</label>
+                <input
+                  type="text"
+                  name="Guardian"
+                  placeholder="Guardian Name"
+                  value={form.Guardian}
+                  onChange={handleInputChange}
+                  required
+                  className={styles.largeInput}
+                />
+              </div>
+              <div className={styles.formGroup}>
+                <label>Guardian Phone *</label>
+                <input
+                  type="text" 
+                  name="GuardianPhoneNumber"
+                  placeholder="Guardian Phone Number"
+                  value={form.GuardianPhoneNumber}
+                  onChange={handleInputChange}
+                  required
+                  className={styles.largeInput}
+                />
+              </div>
+            </div>
+
+            {/* Row 5 - Address Info */}
+            <div className={styles.formRow}>
+              <div className={styles.formGroup}>
+                <label>State of Origin *</label>
+                <input
+                  type="text"
+                  name="StateOfOrigin"
+                  placeholder="State of Origin"
+                  value={form.StateOfOrigin}
+                  onChange={handleInputChange}
+                  required
+                  className={styles.largeInput}
+                />
+              </div>
+              <div className={styles.formGroup}>
+                <label>Address *</label>
+                <input
+                  type="text"
+                  name="Address"
+                  placeholder="Address"
+                  value={form.Address}
+                  onChange={handleInputChange}
+                  required
+                  className={styles.largeInput}
+                />
+              </div>
+            </div>
+
+            {/* Row 6 - Photo & Country */}
+            <div className={styles.formRow}>
+              <div className={styles.formGroup}>
+                <label>Student Photo *</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  name="StudentIMG"
+                  onChange={handleImageChange}
+                  className={styles.largeInput}
+                  required={!editingId}
+                />
+                {form.preview && (
+                  <img className={styles.previewImage} src={form.preview} alt="Preview" />
+                )}
+              </div>
+              <div className={styles.formGroup}>
+                <label>Country *</label>
+                <Select
+                  options={countryOptions}
+                  onChange={handleCountryChange}
+                  placeholder="Select Country"
+                  value={countryOptions.find((opt) => opt.label === form.Country) || null}
+                  className={styles.largeInput}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Academic Information Section */}
+          <div className={styles.formSection}>
+            <h4>Academic Information</h4>
+            
+            <div className={styles.formRow}>
+              <div className={styles.formGroup}>
+                <label>Course *</label>
+                <select
+                  name="Course"
+                  value={form.Course}
+                  onChange={handleInputChange}
+                  required
+                  className={styles.largeInput}
+                >
+                  <option value="">Select Course</option>
+                  <option value="AI & Machine Learning">AI & Machine Learning</option>
+                  <option value="Cyber Security">Cyber Security</option>
+                  <option value="Data Analytics">Data Analytics</option>
+                  <option value="Networking">Networking</option>
+                  <option value="Python">Python</option>
+                  <option value="Software Engineering">Software Engineering / FullStack</option>
+                </select>
+              </div>
+              <div className={styles.formGroup}>
+                <label>Grade Level *</label>
+                <input
+                  type="text"
+                  name="GradeLevel"
+                  placeholder="Grade Level"
+                  value={form.GradeLevel}
+                  onChange={handleInputChange}
+                  required
+                  className={styles.largeInput}
+                />
+              </div>
             </div>
             
-            <form onSubmit={activeTab === "students" ? handleSaveStudent : handleSaveTeacher} className={styles.studentForm}>
-              {/* Personal Information Section */}
-              <div className={styles.formSection}>
-                <h4>Personal Information</h4>
-                <div className={styles.formRow}>
-                  <div className={styles.formGroup}>
-                    <label>Full Name *</label>
-                    <input
-                      type="text"
-                      name="FullName"
-                      placeholder="Full Name"
-                      value={form.FullName}
-                      onChange={handleInputChange}
-                      required
-                      className={styles.largeInput}
-                    />
-                  </div>
-                  <div className={styles.formGroup}>
-                    <label>Email *</label>
-                    <input
-                      type="email"
-                      name="Email"
-                      placeholder="Email"
-                      value={form.Email}
-                      onChange={handleInputChange}
-                      required
-                      className={styles.largeInput}
-                    />
-                  </div> 
-                </div>
-                
-                <div className={styles.formRow}>
-                  <div className={styles.formGroup}>
-                    <label>Date of Birth *</label>
-                    <input
-                      type="date"
-                      name="DOfB"
-                      value={form.DOfB}
-                      onChange={handleInputChange}
-                      required
-                      className={styles.largeInput}
-                    />
-                  </div>
-                  {activeTab === "students" && (
-                    <div className={styles.formGroup}>
-                      <label>Phone Number *</label>
-                      <input
-                        type="tel"
-                        name="PhoneNumber"
-                        placeholder="Phone number"
-                        value={form.PhoneNumber}
-                        onChange={handleInputChange}
-                        required
-                        className={styles.largeInput}
-                      />
-                    </div>
-                  )}
-                </div>
-                
-                {activeTab === "students" && (
-                  <div className={styles.formRow}>
-                    <div className={styles.formGroup}>
-                      <label>Gender *</label>
-                      <select
-                        name="Gender"
-                        value={form.Gender}
-                        onChange={handleInputChange}
-                        required
-                        className={styles.largeInput}
-                      >
-                        <option value="">Select Gender</option>
-                        <option value="Male">Male</option>
-                        <option value="Female">Female</option>
-                      </select>
-                    </div>
-                  </div>
-                )}
-                
-                <div className={styles.formRow}>
-                  <div className={styles.formGroup}>
-                    <label>{activeTab === "students" ? "Student" : "Teacher"} Photo</label>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      name="Image"
-                      onChange={handleImageChange}
-                      className={styles.largeInput}
-                    />
-                    {form.preview && (
-                      <img
-                        className={styles.previewImage}
-                        src={form.preview}
-                        alt="Preview"
-                      />
-                    )}
-                  </div>
-                  <div className={styles.formGroup}>
-                    <label>Country *</label>
-                    <Select
-                      options={countryOptions}
-                      onChange={handleCountryChange}
-                      placeholder="Select Country"
-                      value={countryOptions.find((opt) => opt.label === form.Country) || null}
-                      className={styles.largeInput}
-                    />
-                  </div>
-                </div>
+            <div className={styles.formRow}>
+              <div className={styles.formGroup}>
+                <label>Date Enrolled *</label>
+                <input
+                  type="datetime-local"
+                  name="DateJoined"
+                  value={form.DateJoined}
+                  onChange={handleInputChange}
+                  required
+                  className={styles.largeInput}
+                />
               </div>
-
-              {/* Academic Information Section */}
-              <div className={styles.formSection}>
-                <h4>{activeTab === "students" ? "Academic" : "Professional"} Information</h4>
-                <div className={styles.formRow}>
-                  <div className={styles.formGroup}>
-                    <label>Course: </label>
-                    <select
-                      name="Course"
-                      value={form.Course}
-                      onChange={handleInputChange}
-                      required
-                      className={styles.largeInput}
-                    >
-                      <option value="">Select Course</option>
-                       <option value="AI & Machine Learning">
-                              AI & Machine Learning
-                            </option>
-                            <option value="Cyber Security">Cyber Security</option>
-                            <option value="Data Analytics">Data Analytics</option>
-                            <option value="Networking">Networking</option>
-                            <option value="Python">Python</option>
-                            <option value="Software Engineering">
-                              Software Engineering / FullStack
-                            </option>
-                    </select>
-                  </div>
-                  {activeTab === "students" && (
-                    <div className={styles.formGroup}>
-                      <label>Grade Level *</label>
-                      <select
-                        name="GradeLevel"
-                        value={form.GradeLevel}
-                        onChange={handleInputChange}
-                        required
-                        className={styles.largeInput}
-                      >
-                        <option value="">Select Grade Level</option>
-                        <option value="9th Grade">9th Grade</option>
-                        <option value="10th Grade">10th Grade</option>
-                        <option value="11th Grade">11th Grade</option>
-                        <option value="12th Grade">12th Grade</option>
-                      </select>
-                    </div>
-                  )}
-                </div>
-                
-                <div className={styles.formRow}>
-                  <div className={styles.formGroup}>
-                    <label>Date {activeTab === "students" ? "Enrolled" : "Joined"} *</label>
-                    <input
-                      type="date"
-                      name="DateJoined"
-                      value={form.DateJoined}
-                      onChange={handleInputChange}
-                      required
-                      className={styles.largeInput}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className={styles.formActions}>
-                <button type="submit" className={styles.btnPrimary} disabled={isLoading}>
-                  {isLoading ? "Processing..." : editingId ? `Update ${activeTab === "students" ? "Student" : "Teacher"}` : `Add ${activeTab === "students" ? "Student" : "Teacher"}`}
-                </button>
-                <button 
-                  type="button" 
-                  className={styles.btnSecondary}
-                  onClick={() => {
-                    setIsFormOpen(false);
-                    setEmailStatus("");
-                    resetForm();
-                  }}
-                  disabled={isLoading}
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
+            </div>
           </div>
-        </div>
+
+          <div className={styles.formActions}>
+            <button type="submit" className={styles.btnPrimary} disabled={isLoading}>
+              {isLoading ? "Processing..." : editingId ? "Update Student" : "Add Student"}
+            </button>
+            <button 
+              type="button" 
+              className={styles.btnSecondary}
+              onClick={() => {
+                setIsFormOpen(false);
+                setEmailStatus("");
+                resetForm();
+              }}
+              disabled={isLoading}
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
       )}
+
+      {/* TEACHER FORM */}
+      {activeTab === "teachers" && (
+        <form onSubmit={handleSaveTeacher} className={styles.teacherForm}>
+          {/* Personal Information Section */}
+          <div className={styles.formSection}>
+            <h4>Personal Information</h4>
+            
+            {/* Row 1 - Name & Email */}
+            <div className={styles.formRow}>
+              <div className={styles.formGroup}>
+                <label>Full Name *</label>
+                <input
+                  type="text"
+                  name="FullName"
+                  placeholder="Full Name"
+                  value={form.FullName}
+                  onChange={handleInputChange}
+                  required
+                  className={styles.largeInput}
+                />
+              </div>
+              <div className={styles.formGroup}>
+                <label>Email *</label>
+                <input
+                  type="email"
+                  name="Email"
+                  placeholder="Email"
+                  value={form.Email}
+                  onChange={handleInputChange}
+                  required
+                  className={styles.largeInput}
+                />
+              </div>
+            </div>
+
+            {/* Row 2 - DOB */}
+            <div className={styles.formRow}>
+              <div className={styles.formGroup}>
+                <label>Date of Birth *</label>
+                <input
+                  type="date"
+                  name="DOfB"
+                  value={form.DOfB}
+                  onChange={handleInputChange}
+                  required
+                  className={styles.largeInput}
+                />
+              </div>
+              <div className={styles.formGroup}>
+                <label>Date Joined *</label>
+                <input
+                  type="datetime-local"
+                  name="DateJoined"
+                  value={form.DateJoined}
+                  onChange={handleInputChange}
+                  required
+                  className={styles.largeInput}
+                />
+              </div>
+            </div>
+
+            {/* Row 3 - Photo & Country */}
+            <div className={styles.formRow}>
+              <div className={styles.formGroup}>
+                <label>Teacher Photo *</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  name="TeacherIMG"
+                  onChange={handleImageChange}
+                  className={styles.largeInput}
+                  required={!editingId}
+                />
+                {form.preview && (
+                  <img className={styles.previewImage} src={form.preview} alt="Preview" />
+                )}
+              </div>
+              <div className={styles.formGroup}>
+                <label>Country *</label>
+                <Select
+                  options={countryOptions}
+                  onChange={handleCountryChange}
+                  placeholder="Select Country"
+                  value={countryOptions.find((opt) => opt.label === form.Country) || null}
+                  className={styles.largeInput}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Professional Information Section */}
+          <div className={styles.formSection}>
+            <h4>Professional Information</h4>
+            
+            <div className={styles.formRow}>
+              <div className={styles.formGroup}>
+                <label>Course *</label>
+                <select
+                  name="Course"
+                  value={form.Course}
+                  onChange={handleInputChange}
+                  required
+                  className={styles.largeInput}
+                >
+                  <option value="">Select Course</option>
+                  <option value="AI & Machine Learning">AI & Machine Learning</option>
+                  <option value="Cyber Security">Cyber Security</option>
+                  <option value="Data Analytics">Data Analytics</option>
+                  <option value="Networking">Networking</option>
+                  <option value="Python">Python</option>
+                  <option value="Software Engineering">Software Engineering / FullStack</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div className={styles.formActions}>
+            <button type="submit" className={styles.btnPrimary} disabled={isLoading}>
+              {isLoading ? "Processing..." : editingId ? "Update Teacher" : "Add Teacher"}
+            </button>
+            <button 
+              type="button" 
+              className={styles.btnSecondary}
+              onClick={() => {
+                setIsFormOpen(false);
+                setEmailStatus("");
+                resetForm();
+              }}
+              disabled={isLoading}
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      )}
+    </div>
+  </div>
+)}
+          {/* </div>
+        </div>
+      )} */}
     </div>
   );
 }

@@ -1,11 +1,11 @@
 // src/pages/TeacherDashboard.jsx
 import { useEffect, useState } from "react";
-import { FaBell, FaChalkboard, FaChalkboardTeacher, FaEnvelope, FaTasks, FaUserGraduate, FaTimes, FaTrash } from "react-icons/fa";
+import { FaBell, FaChalkboard, FaChalkboardTeacher, FaEnvelope, FaTasks, FaTimes, FaTrash, FaUserGraduate } from "react-icons/fa";
 import "./Teacher.css";
+
 
 export default function TeacherDashboard() {
   const [teacher, setTeacher] = useState(null);
-  const [studentCount, setStudentCount] = useState(null);
   const [notifications, setNotifications] = useState([]);
   const [showNotifications, setShowNotifications] = useState(false);
   const [teacherId, setTeacherId] = useState(null);
@@ -30,11 +30,7 @@ export default function TeacherDashboard() {
       .then((data) => setTeacher(data))
       .catch((err) => console.error("Error fetching teacher:", err));
 
-    // Fetch student count
-    fetch(`http://localhost:5000/admin/teachers/${storedTeacherId}/count`)
-      .then((res) => res.json())
-      .then((data) => setStudentCount(data.count))
-      .catch((err) => console.error("Error fetching count:", err));
+    
 
     // Fetch teacher notifications
     const fetchNotifications = () => {
@@ -292,7 +288,7 @@ export default function TeacherDashboard() {
             </div>
           </div>
           <div className="card-description">
-            Total students {studentCount !== null ? `: ${studentCount}` : ": Loading..."}
+            Total students
           </div>
         </div>
 
@@ -367,5 +363,7 @@ export default function TeacherDashboard() {
         </div>
       </div>
     </div>
+
+    
   );
 }

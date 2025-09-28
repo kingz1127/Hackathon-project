@@ -83,11 +83,18 @@ export default function Student() {
 
       // ✅ Update chat instantly only if we got valid data
       if (data && data._id) {
-        setChatMessages((prev) => [...prev, data]);
-        setMessage("");
-        setStatus("Message sent successfully!");
-        setTimeout(() => setStatus(""), 3000);
-      } else {
+  setMessage("");
+  setStatus("Message sent successfully!");
+  setTimeout(() => setStatus(""), 3000);
+
+  // refresh chat
+  const res = await fetch(
+    `http://localhost:5000/messages/chat/${teacherId}/${selectedStudent._id}`
+  );
+  const updatedMessages = await res.json();
+  if (res.ok) setChatMessages(updatedMessages);
+}
+ else {
         console.error("Invalid response data:", data);
         alert("Message may not have been saved properly");
       }
@@ -97,6 +104,27 @@ export default function Student() {
       alert("Failed to send message");
     }
   };
+
+  // messages 
+
+  useEffect(() => {
+  if (!chatOpen || !selectedStudent) return;
+
+  const interval = setInterval(async () => {
+    try {
+      const res = await fetch(
+        `http://localhost:5000/messages/chat/${teacherId}/${selectedStudent._id}`
+      );
+      const data = await res.json();
+      if (res.ok) setChatMessages(data);
+    } catch (err) {
+      console.error("Error fetching latest chat:", err);
+    }
+  }, 3000); // fetch every 3 seconds
+
+  return () => clearInterval(interval); // cleanup on modal close
+}, [chatOpen, selectedStudent, teacherId]);
+
 
   // ✅ Apply search + filter
   const filteredStudents = students.filter((student) => {

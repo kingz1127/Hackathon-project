@@ -237,22 +237,23 @@ router.post(
       const studentId = randomStudentId();
 
       const studentData = {
-        email: Email.toLowerCase(),
-        fullName: FullName,
-        dob: DOfB,
-        course: Course,
-        gradeLevel: GradeLevel,
-        guardian: Guardian,
-        guardianPhoneNumber: GuardianPhoneNumber,
-        phoneNumber: PhoneNumber,
-        stateOfOrigin: StateOfOrigin,
-        address: Address,
-        gender: Gender,
-        dateJoined: DateJoined,
-        studentImg: req.file.path,
-        nation: Country,
-        password: hashedPassword,
-      };
+  studentId, // ✅ include this!
+  email: Email.toLowerCase(),
+  fullName: FullName,
+  dob: DOfB,
+  course: Course,
+  gradeLevel: GradeLevel,
+  guardian: Guardian,
+  guardianPhoneNumber: GuardianPhoneNumber,
+  phoneNumber: PhoneNumber,
+  stateOfOrigin: StateOfOrigin,
+  address: Address,
+  gender: Gender,
+  dateJoined: DateJoined,
+  studentImg: req.file.path,
+  nation: Country,
+  password: hashedPassword,
+};
 
       const newStudent = new Student(studentData);
       await newStudent.save();

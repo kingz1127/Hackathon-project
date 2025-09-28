@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import TeacherChatBubble from "./TeacherChatBubbble";
 
 // Navigation Button Component with hover effects
 function NavButton({ icon, title, onClick }) {
@@ -350,6 +351,69 @@ export default function Dashboard({ setActive }) {
   const [isScheduleExpanded, setIsScheduleExpanded] = React.useState(false);
   const [isAssignmentsExpanded, setIsAssignmentsExpanded] = React.useState(false);
 
+
+  // message teacher
+
+  const [teacherChatOpen, setTeacherChatOpen] = useState(false);
+const [teacherMessages, setTeacherMessages] = useState([]);
+const [teacherMessage, setTeacherMessage] = useState("");
+const [teacherName, setTeacherName] = useState("Teacher");
+const teacherId = localStorage.getItem("teacherId"); // or the main teacher assigned
+const studentId = localStorage.getItem("studentId");
+
+
+ 
+
+
+
+
+// open teacher message
+
+const openTeacherChat = async () => {
+  setTeacherChatOpen(true);
+
+  try {
+    const res = await fetch(
+      `http://localhost:5000/messages/chat/${studentId}/${teacherId}`
+    );
+    const data = await res.json();
+    if (res.ok) setTeacherMessages(data);
+  } catch (err) {
+    console.error("Error loading teacher chat:", err);
+  }
+};
+
+
+// handle message
+
+const handleSendTeacherMessage = async () => {
+  if (!teacherMessage.trim()) return;
+
+  try {
+    const res = await fetch("http://localhost:5000/messages/send", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        senderId: studentId,
+        senderName: studentName,
+        receiverId: teacherId,
+        content: teacherMessage,
+      }),
+    });
+
+    if (!res.ok) throw new Error("Failed to send message");
+
+    const data = await res.json();
+    if (data && data._id) {
+      setTeacherMessages((prev) => [...prev, data]);
+      setTeacherMessage("");
+    }
+  } catch (err) {
+    console.error("Error sending teacher message:", err);
+    alert("Failed to send message");
+  }
+};
+
   // New states for student
   const [studentName, setStudentName] = React.useState("Loading...");
   const [studentImg, setStudentImg] = React.useState(null);
@@ -668,10 +732,66 @@ export default function Dashboard({ setActive }) {
           <NavButton icon="📊" title="Check Grades" onClick={() => setActive("Grades")} />
           <NavButton icon="📅" title="View Schedule" onClick={() => setActive("Schedule")} />
           <NavButton icon="📥" title="Resources" onClick={() => setActive("Resources")} />
-          <NavButton icon="💬" title="Message Teacher" onClick={() => setActive("Settings")} />
-        </div>
+          <NavButton
+  icon="💬"
+  title="Message Teacher"
+  onClick={openTeacherChat}
+/>
+        </div> 
       </div>
+
+      {teacherChatOpen && (
+  <div className="modal-overlay" onClick={() => setTeacherChatOpen(false)}>
+    <div className="modal-content chat-box" onClick={(e) => e.stopPropagation()}>
+      <h3>Chat with {teacherName}</h3>
+
+      <div className="chat-messages">
+        {teacherMessages.length > 0 ? (
+          teacherMessages.map((msg, idx) => (
+            <div
+              key={msg._id || idx}
+              className={msg.senderId === studentId ? "msg-sent" : "msg-received"}
+            >
+              <strong>{msg.senderName || "Unknown"}:</strong>
+              <span> {msg.content || msg.text || "No content"} </span>
+              <span className="timestamp">
+                {msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString() : "No time"}
+              </span>
+            </div>
+          ))
+        ) : (
+          <div className="no-messages">No messages yet. Start the conversation!</div>
+        )}
+      </div>
+
+      <div className="chat-input">
+        <input
+          type="text"
+          value={teacherMessage}
+          onChange={(e) => setTeacherMessage(e.target.value)}
+          placeholder="Type a message..."
+          onKeyPress={(e) => e.key === 'Enter' && handleSendTeacherMessage()}
+        />
+        <button onClick={handleSendTeacherMessage}>Send</button>
+      </div>
+
+      <button className="close-btn" onClick={() => setTeacherChatOpen(false)}>
+        Close
+      </button>
     </div>
+
+    
+    <TeacherChatBubble
+      teacherId={teacherId}          // teacherId from student context
+      teacherName={teacherName}      // teacherName if you have it
+    />
+  </div>
+)}
+
+    </div>
+
+
+
   );
 }
 
