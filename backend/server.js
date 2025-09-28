@@ -1,3 +1,4 @@
+import nodemailer from "nodemailer";
 import bcrypt from "bcryptjs";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -105,5 +106,40 @@ mongoose
 app.use("/", teacherRoutes);
 app.use("/", studentRoutes);
 app.use("/api", registerRoutes);
+// ✅ Admin Login Route
+app.post("/admin/login", async (req, res) => {
+  try {
+    const { username, email, password } = req.body;
+
+    // Find admin by username or email
+    const admin = await Admin.findOne({
+      $or: [{ username }, { email }],
+    });
+
+    if (!admin) {
+      return res.status(400).json({ message: "Admin not found" });
+    }
+
+    // Compare password
+    const isMatch = await bcrypt.compare(password, admin.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: "Invalid credentials" });
+    }
+
+    // Return JSON response
+    res.json({
+      token: "fake-jwt-token", // TODO: Replace with real JWT
+      admin: {
+        id: admin._id,
+        username: admin.username,
+        email: admin.email,
+      },
+    });
+  } catch (err) {
+    console.error("Login error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

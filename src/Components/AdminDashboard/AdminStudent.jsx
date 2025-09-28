@@ -1,89 +1,75 @@
-import React, { useMemo, useState, useEffect } from "react";
+import { RiDeleteBin5Line } from "react-icons/ri";
 import { FaEdit } from "react-icons/fa";
+import { useState, useEffect, useMemo } from "react";
 import Select from "react-select";
 import countryList from "react-select-country-list";
-import styles from "./AdminStudent.module.css";
-import countries from "./countries";
+import styles from "./AdminTeacher.module.css";
 
-export default function AdminStudent() {
-  const [students, setStudents] = useState([]);
+export default function AdminTeacher() {
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [emailStatus, setEmailStatus] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [editingId, setEditingId] = useState(null); // ✅ track editing
+  const [teachers, setTeachers] = useState([]);
+  const [editingId, setEditingId] = useState(null);
 
-  const [form, setForm] = useState({
+  const initialForm = {
     Email: "",
     FullName: "",
     DOfB: "",
     Course: "",
     DateJoined: "",
-    StudentIMG: null,
+    TeacherIMG: "",
     Country: "",
-    StudentID: "",
-    GradeLevel: "",
-    Guardian: "",
-    PhoneNumber: "",
-    GuardianPhoneNumber: "",
-    StateOfOrigin: "",
-    Address: "",
-    Gender: "",
     preview: "",
-  });
-
-  const options = useMemo(() => countryList().getData(), []);
-
-  // Fetch students from backend on component load
-  useEffect(() => {
-    fetchStudents();
-  }, []);
-
-  const fetchStudents = async () => {
-    try {
-      const response = await fetch("http://localhost:5000/admin/students");
-      const data = await response.json();
-      if (response.ok) {
-        setStudents(data);
-      } else {
-        console.error("Failed to fetch students:", data.message);
-      }
-    } catch (error) {
-      console.error("Error fetching students:", error);
-    }
   };
 
+  const [form, setForm] = useState(initialForm);
+  const options = useMemo(() => countryList().getData(), []);
+
+  // ✅ Fetch teachers on load
+  useEffect(() => {
+    const fetchTeachers = async () => {
+      try {
+        const res = await fetch("http://localhost:5000/admin/teachers");
+        const data = await res.json();
+        if (res.ok) setTeachers(data);
+      } catch (err) {
+        console.error("Error fetching teachers:", err);
+      }
+    };
+    fetchTeachers();
+  }, []);
+
+  // ✅ Input handlers
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleCountryChange = (selected) => {
+    setForm({ ...form, Country: selected.label });
   };
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       const previewURL = URL.createObjectURL(file);
-      setForm((prev) => ({
-        ...prev,
-        StudentIMG: file,
-        preview: previewURL,
-      }));
+      setForm({ ...form, TeacherIMG: file, preview: previewURL });
     }
   };
 
-  const handleSubmit = (e) => {
+  // ✅ Save (Add or Update teacher)
+  const handleSave = async (e) => {
     e.preventDefault();
 
-    if (!formData.fullName || !formData.email || !formData.dob) {
-      alert("Full Name, Email and DOB are required!");
+    if (
+      !form.Email ||
+      !form.FullName ||
+      !form.DOfB ||
+      !form.Course ||
+      !form.DateJoined ||
+      !form.Country
+    ) {
+      alert("Please fill all fields");
       return;
     }
-
-    setIsLoading(true);
-    setEmailStatus(
-      editingId ? "Updating student..." : "Processing student registration..."
-    );
 
     try {
       const formData = new FormData();
@@ -91,605 +77,177 @@ export default function AdminStudent() {
       formData.append("FullName", form.FullName);
       formData.append("DOfB", form.DOfB);
       formData.append("Course", form.Course);
-      formData.append("GradeLevel", form.GradeLevel);
-      formData.append("Guardian", form.Guardian);
       formData.append("DateJoined", form.DateJoined);
       formData.append("Country", form.Country);
-      formData.append("StudentIMG", form.StudentIMG);
-      formData.append("PhoneNumber", form.PhoneNumber);
-      formData.append("GuardianPhoneNumber", form.GuardianPhoneNumber);
-      formData.append("StateOfOrigin", form.StateOfOrigin);
-      formData.append("Address", form.Address);
-      formData.append("Gender", form.Gender);
-      let response;
-      if (editingId) {
-        // ✅ UPDATE student
-        response = await fetch(
-          `http://localhost:5000/admin/students/${editingId}`,
-          {
-            method: "PUT",
-            body: formData,
-          }
-        );
-      } else {
-        // ✅ ADD student
-        response = await fetch("http://localhost:5000/admin/add-student", {
-          method: "POST",
-          body: formData,
-        });
+      if (form.TeacherIMG instanceof File) {
+        formData.append("TeacherIMG", form.TeacherIMG);
       }
 
+      let url = "http://localhost:5000/admin/add-teacher";
+      let method = "POST";
+
+      if (editingId) {
+        url = `http://localhost:5000/admin/update-teacher/${editingId}`;
+        method = "PUT";
+      }
+
+      const response = await fetch(url, { method, body: formData });
       const data = await response.json();
 
       if (response.ok) {
-        setEmailStatus(
-          editingId
-            ? "✅ Student updated successfully!"
-            : `✅ Student registered successfully! ${
-                data.emailSent
-                  ? `Welcome email sent to ${form.Email}`
-                  : "Email not sent (check configuration)"
-              }`
-        );
+        if (editingId) {
+          setTeachers((prev) =>
+            prev.map((t) =>
+              t.teacherId === editingId
+                ? { ...t, ...form, TeacherIMG: form.preview || t.TeacherIMG }
+                : t
+            )
+          );
+          alert("Teacher updated!");
+        } else {
+          setTeachers((prev) => [
+            ...prev,
+            { ...form, teacherId: data.teacherId, TeacherIMG: form.preview },
+          ]);
+          alert(
+            `Teacher added! Password sent to email.\nTeacher ID: ${data.teacherId}`
+          );
+        }
 
-        // Refresh students list
-        await fetchStudents();
-
-        // Reset form
-        setForm({
-          Email: "",
-          FullName: "",
-          DOfB: "",
-          Course: "",
-          DateJoined: "",
-          StudentIMG: null,
-          Country: "",
-          StudentID: "",
-          GradeLevel: "",
-          Guardian: "",
-          PhoneNumber: "",
-          GuardianPhoneNumber: "",
-          StateOfOrigin: "",
-          Address: "",
-          Gender: "",
-          preview: "",
-        });
+        setForm(initialForm);
         setEditingId(null);
-
-        // Close form after 3 seconds
-        setTimeout(() => {
-          setIsFormOpen(false);
-          setEmailStatus("");
-        }, 3000);
+        setIsFormOpen(false);
       } else {
-        throw new Error(data.message || "Failed to save student");
+        alert(data.message || "Failed to save teacher");
       }
-    } catch (error) {
-      console.error("Save error:", error);
-      setEmailStatus(`❌ Error: ${error.message}`);
-    } finally {
-      setIsLoading(false);
+    } catch (err) {
+      console.error(err);
+      alert("Error saving teacher");
     }
   };
 
-  // 🔥 Edit button handler
-  const handleEdit = (student) => {
+  // ✅ Edit teacher
+  const handleEdit = (teacher) => {
     setForm({
-      Email: student.Email,
-      FullName: student.FullName,
-      DOfB: student.DOfB,
-      Course: student.Course,
-      GradeLevel: student.GradeLevel,
-      Guardian: student.Guardian,
-      DateJoined: student.DateJoined,
-      Country: student.Country,
-      StudentIMG: student.StudentIMG,
-      preview: student.StudentIMG,
-      StudentID: student.studentId,
-      PhoneNumber: student.PhoneNumber,
-      GuardianPhoneNumber: student.GuardianPhoneNumber,
-      StateOfOrigin: student.StateOfOrigin,
-      Address: student.Address,
-      Gender: student.Gender,
+      Email: teacher.Email,
+      FullName: teacher.FullName,
+      DOfB: teacher.DOfB,
+      Course: teacher.Course,
+      DateJoined: teacher.DateJoined,
+      Country: teacher.Country,
+      TeacherIMG: teacher.TeacherIMG,
+      preview: teacher.TeacherIMG,
     });
-    setEditingId(student.studentId); // ✅ track editing
+    setEditingId(teacher.teacherId);
     setIsFormOpen(true);
   };
 
-  const filteredStudents = students.filter((stu) =>
-    stu.id.toLowerCase().includes(searchId.toLowerCase())
-  );
+  // ✅ Delete teacher
+  const handleDelete = async (teacher) => {
+    if (!window.confirm(`Are you sure you want to delete ${teacher.FullName}?`))
+      return;
 
-  // Pagination logic
-  const totalPages = Math.ceil(filteredStudents.length / studentsPerPage);
-  const startIndex = (currentPage - 1) * studentsPerPage;
-  const paginatedStudents = filteredStudents.slice(
-    startIndex,
-    startIndex + studentsPerPage
-  );
+    try {
+      const res = await fetch(
+        `http://localhost:5000/admin/teachers/${teacher.teacherId}`,
+        { method: "DELETE" }
+      );
 
-  const handlePageChange = (page) => {
-    if (page >= 1 && page <= totalPages) {
-      setCurrentPage(page);
-    }
-  };
+      if (!res.ok) throw new Error("Failed to delete teacher");
 
-  // Enhanced Search and Pagination logic - searches by ID, Name, Email, and Course
-  const filteredStudents = students.filter((student) => {
-    const searchLower = searchTerm.toLowerCase();
-    return (
-      (student.studentId || "").toLowerCase().includes(searchLower) ||
-      (student.FullName || "").toLowerCase().includes(searchLower) ||
-      (student.Email || "").toLowerCase().includes(searchLower) ||
-      (student.Course || "").toLowerCase().includes(searchLower)
-    );
-  });
+      const data = await res.json();
+      alert(data.message);
 
-  const totalPages = Math.ceil(filteredStudents.length / studentsPerPage);
-  const startIndex = (currentPage - 1) * studentsPerPage;
-  const paginatedStudents = filteredStudents.slice(
-    startIndex,
-    startIndex + studentsPerPage
-  );
-
-  const handlePageChange = (page) => {
-    if (page >= 1 && page <= totalPages) {
-      setCurrentPage(page);
+      setTeachers((prev) =>
+        prev.filter((t) => t.teacherId !== teacher.teacherId)
+      );
+    } catch (err) {
+      console.error(err);
+      alert("Error deleting teacher");
     }
   };
 
   return (
-    <div style={{ padding: "20px", fontFamily: "Arial, sans-serif" }}>
-      <div style={{ marginBottom: "20px" }}>
-        <h2 style={{ color: "#333", marginBottom: "10px" }}>Students</h2>
-        <h4 className={styles.add} onClick={() => setIsFormOpen(true)}>
-          + Add Student
-        </h4>
-      </div>
-
-      {emailStatus && (
-        <div
-          style={{
-            padding: "10px",
-            margin: "10px 0",
-            borderRadius: "4px",
-            background: emailStatus.includes("✅")
-              ? "#d4edda"
-              : emailStatus.includes("❌")
-              ? "#f8d7da"
-              : "#d1ecf1",
-            border: `1px solid ${
-              emailStatus.includes("✅")
-                ? "#c3e6cb"
-                : emailStatus.includes("❌")
-                ? "#f5c6cb"
-                : "#bee5eb"
-            }`,
-            color: emailStatus.includes("✅")
-              ? "#155724"
-              : emailStatus.includes("❌")
-              ? "#721c24"
-              : "#0c5460",
-            fontSize: "14px",
+    <div className={styles.container}>
+      {/* Header */}
+      <div className={styles.header}>
+        <h1>Teachers</h1>
+        <button
+          className={styles.addButton}
+          onClick={() => {
+            setEditingId(null);
+            setForm(initialForm);
+            setIsFormOpen(true);
           }}
         >
-          {emailStatus}
-        </div>
-      )}
+          + Add Teacher
+        </button>
+      </div>
 
+      {/* ✅ Modal */}
       {isFormOpen && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            backgroundColor: "rgba(0,0,0,0.5)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 1000,
-          }}
-        >
-          <div className={styles.openModal}>
-            <div>
-              <div className={styles.openModal1}>
-                <input
-                  type="email"
-                  name="Email"
-                  placeholder="Email"
-                  value={form.Email}
-                  onChange={handleInputChange}
-                  required
-                />
-                <input
-                  type="text"
-                  name="FullName"
-                  placeholder="Full Name"
-                  value={form.FullName}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-              <div className={styles.openModal2}>
-                <label className={styles.openModal2v1}>
-                  D0B:{" "}
-                  <input
-                    type="date"
-                    name="DOfB"
-                    value={form.DOfB}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </label>
-
-                <input
-                  className={styles.openModal2v2}
-                  type="number"
-                  name="PhoneNumber"
-                  placeholder="Phone number"
-                  value={form.PhoneNumber}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-              <div className={styles.openModal1}>
-                <input
-                  type="text"
-                  name="Course"
-                  placeholder="Course"
-                  value={form.Course}
-                  onChange={handleInputChange}
-                  required
-                />
-                <input
-                  type="text"
-                  name="GradeLevel"
-                  placeholder="Grade Level"
-                  value={form.GradeLevel}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-              <div className={styles.genders}>
-                <label>Gender: </label>
-                <select
-                  name="Gender"
-                  value={form.Gender}
-                  onChange={handleInputChange}
-                  required
-                >
-                  <option value="">Select Gender</option>
-                  <option value="Male">Male</option>
-                  <option value="Female">Female</option>
-                </select>
-              </div>
-              <div className={styles.openModal1}>
-                <input
-                  type="text"
-                  name="Guardian"
-                  placeholder="Guardian/Parent Name"
-                  value={form.Guardian}
-                  onChange={handleInputChange}
-                  required
-                />
-                <input
-                  type="number"
-                  name="GuardianPhoneNumber" // ✅ added
-                  placeholder="Guardian Phone Number"
-                  value={form.GuardianPhoneNumber}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-              <div className={styles.genders}>
-                <label>Date Enrolled: </label>
-                <input
-                  type="datetime-local"
-                  name="DateJoined"
-                  value={form.DateJoined}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-              <div className={styles.openModal1}>
-                <input
-                  type="text"
-                  name="Address"
-                  placeholder="Address"
-                  value={form.Address}
-                  onChange={handleInputChange}
-                  required
-                />
-                <input
-                  type="text"
-                  name="StateOfOrigin"
-                  placeholder="State Of Origin"
-                  value={form.StateOfOrigin}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-              <div className={styles.imgpre}>
-                <label>Student Photo:</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  name="StudentIMG"
-                  onChange={handleImageChange}
-                  required={!editingId} // photo only required when adding
-                />
-                {form.preview && (
-                  <img
-                    className={styles.previewimg}
-                    src={form.preview}
-                    alt="Preview"
-                    // style={{ width: "240px", height: "240" }}
-                  />
-                )}
-              </div>
-              <div>
-                <label>Country:</label>
-                <Select
-                  options={options}
-                  onChange={handleCountryChange}
-                  placeholder="Select Country"
-                  value={
-                    options.find((opt) => opt.label === form.Country) || null
-                  }
-                />
-              </div>
-              <div className={styles.buutons}>
-                <button
-                  type="button"
-                  onClick={handleSave}
-                  disabled={isLoading}
-                  className={styles.buutonsv1}
-                >
-                  {isLoading ? "Processing..." : editingId ? "Update" : "Save"}
-                </button>
-                <button
-                  className={styles.buutonsv2}
-                  type="button"
-                  onClick={() => {
-                    setIsFormOpen(false);
-                    setEmailStatus("");
-                    setEditingId(null);
-                  }}
-                  disabled={isLoading}
-                  style={{
-                    cursor: isLoading ? "not-allowed" : "pointer",
-
-                    opacity: isLoading ? 0.7 : 1,
-                  }}
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      <div>
-        <table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Photo</th>
-              <th>Full Name</th>
-              <th>Email</th>
-              <th>DOB</th>
-              <th>Course</th>
-              <th>Grade</th>
-              <th>Sex</th>
-              <th>P/Number</th>
-              <th>Guardian</th>
-              <th>G.P/Number</th>
-              <th>S/Date</th>
-              <th>Country</th>
-              <th>S/Origin</th>
-              <th>Address</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {students.length === 0 ? (
-              <tr>
-                <td colSpan="11">
-                  No students found. Click "Add Student" to get started.
-                </td>
-              </tr>
-            ) : (
-              students.map((student, index) => (
-                <tr key={student._id || index}>
-                  <td>{student.studentId}</td>
-                  <td>
-                    {student.StudentIMG ? (
-                      <img
-                        src={student.StudentIMG}
-                        alt={student.FullName}
-                        style={{
-                          width: "50px",
-                          height: "5rem",
-                          borderRadius: "5rem",
-                          objectFit: "cover",
-                        }}
-                      />
-                    ) : (
-                      <div>No Photo</div>
-                    )}
-                    {student.FullName}
-                  </td>
-                  <td>{student.Email}</td>
-                  <td>{student.DOfB}</td>
-                  <td>{student.Course}</td>
-                  <td>{student.GradeLevel}</td>
-                  <td>{student.Gender}</td>
-                  <td>{student.PhoneNumber}</td>
-                  <td>{student.Guardian}</td>
-
-                  <td>{student.GuardianPhoneNumber}</td>
-                  <td>
-                    {student.DateJoined
-                      ? new Date(student.DateJoined).toLocaleDateString()
-                      : ""}
-                  </td>
-                  <td>{student.Country}</td>
-
-                  <td>{student.StateOfOrigin}</td>
-                  <td>{student.Address}</td>
-
-                  <td>
-                    <button onClick={() => handleEdit(student)}>
-                      <FaEdit />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(student.studentId, index)}
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Modal */}
-      {showModal && (
-        <div className={styles.modalOverlay}>
-          <div className={styles.modal}>
-            <h2>{editingId ? "Edit Student" : "Add Student"}</h2>
-            <form className={styles.form} onSubmit={handleSubmit}>
-              <input
-                type="text"
-                name="fullName"
-                placeholder="Full Name"
-                value={formData.fullName}
-                onChange={handleChange}
-                required
-              />
+        <div className={styles.modal}>
+          <div className={styles.modalContent}>
+            <h2>{editingId ? "Edit Teacher" : "Add Teacher"}</h2>
+            <form onSubmit={handleSave} className={styles.form}>
               <input
                 type="email"
-                name="email"
+                name="Email"
                 placeholder="Email"
-                value={formData.email}
-                onChange={handleChange}
-                required
+                value={form.Email}
+                onChange={handleInputChange}
+              />
+              <input
+                type="text"
+                name="FullName"
+                placeholder="Full Name"
+                value={form.FullName}
+                onChange={handleInputChange}
               />
               <input
                 type="date"
-                name="dob"
-                value={formData.dob}
-                onChange={handleChange}
-                required
+                name="DOfB"
+                value={form.DOfB}
+                onChange={handleInputChange}
               />
               <input
                 type="text"
-                name="course"
-                placeholder="Course"
-                value={formData.course}
-                onChange={handleChange}
+                name="Course"
+                placeholder="Course / Subject"
+                value={form.Course}
+                onChange={handleInputChange}
               />
               <input
-                type="text"
-                name="grade"
-                placeholder="Grade Level"
-                value={formData.grade}
-                onChange={handleChange}
+                type="datetime-local"
+                name="DateJoined"
+                value={form.DateJoined}
+                onChange={handleInputChange}
               />
-              <input
-                type="text"
-                name="guardian"
-                placeholder="Guardian Name"
-                value={formData.guardian}
-                onChange={handleChange}
-              />
-              <input
-                type="text"
-                name="phone"
-                placeholder="Phone Number"
-                value={formData.phone}
-                onChange={handleChange}
-              />
-              <input
-                type="text"
-                name="gphone"
-                placeholder="Guardian Phone Number"
-                value={formData.gphone}
-                onChange={handleChange}
-              />
-              <input
-                type="date"
-                name="gdob"
-                value={formData.gdob}
-                onChange={handleChange}
-              />
-              <select
-                name="country"
-                value={formData.country}
-                onChange={handleChange}
-              >
-                <option value="">Select Country</option>
-                {countries.map((c) => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
-                ))}
-              </select>
-              <input
-                type="text"
-                name="origin"
-                placeholder="State of Origin"
-                value={formData.origin}
-                onChange={handleChange}
-              />
-              <input
-                type="text"
-                name="address"
-                placeholder="Address"
-                value={formData.address}
-                onChange={handleChange}
-              />
-              <select
-                name="sex"
-                value={formData.sex}
-                onChange={handleChange}
-              >
-                <option value="">Select Gender</option>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-                <option value="Other">Other</option>
-              </select>
               <input
                 type="file"
-                name="photo"
                 accept="image/*"
-                onChange={handleChange}
+                name="TeacherIMG"
+                onChange={handleImageChange}
               />
-              {formData.preview && (
-                <img
-                  src={formData.preview}
-                  alt="preview"
-                  className={styles.preview}
-                />
-              )}
+
+              <Select
+                options={options}
+                onChange={handleCountryChange}
+                placeholder="Select Country"
+                value={options.find((opt) => opt.label === form.Country) || null}
+              />
 
               <div className={styles.modalActions}>
-                <button type="submit" className={styles.saveBtn}>
+                <button type="submit" className={styles.saveButton}>
                   {editingId ? "Update" : "Save"}
                 </button>
                 <button
                   type="button"
+                  className={styles.cancelButton}
                   onClick={() => {
-                    setShowModal(false);
+                    setIsFormOpen(false);
                     setEditingId(null);
-                    setFormData(initialForm());
                   }}
-                  className={styles.cancelBtn}
                 >
                   Cancel
                 </button>
@@ -698,6 +256,64 @@ export default function AdminStudent() {
           </div>
         </div>
       )}
+
+      {/* ✅ Teacher Table */}
+      <table className={styles.table}>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Fullname</th>
+            <th>Email</th>
+            <th>DOB</th>
+            <th>Course</th>
+            <th>Date Joined</th>
+            <th>Country</th>
+            <th>No_Students</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {teachers.map((teacher, index) => (
+            <tr key={index}>
+              <td>{teacher.teacherId}</td>
+              <td>
+                {teacher.TeacherIMG ? (
+                  <img
+                    src={teacher.TeacherIMG}
+                    alt={teacher.FullName}
+                    width="40"
+                    height="40"
+                    style={{ borderRadius: "50%", marginRight: "8px" }}
+                  />
+                ) : (
+                  "No Image"
+                )}
+                {teacher.FullName}
+              </td>
+              <td>{teacher.Email}</td>
+              <td>{teacher.DOfB}</td>
+              <td>{teacher.Course}</td>
+              <td>{teacher.DateJoined}</td>
+              <td>{teacher.Country}</td>
+              <td>{teacher.No_Students || 0}</td>
+              <td>
+                <button
+                  className={styles.actionButton}
+                  onClick={() => handleEdit(teacher)}
+                >
+                  <FaEdit />
+                </button>
+                <button
+                  className={styles.actionButton}
+                  onClick={() => handleDelete(teacher)}
+                >
+                  <RiDeleteBin5Line />
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }

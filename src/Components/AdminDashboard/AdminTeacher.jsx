@@ -1,9 +1,9 @@
+import { useState, useEffect, useMemo } from "react";
 import { RiDeleteBin5Line } from "react-icons/ri";
 import { FaEdit } from "react-icons/fa";
-import { useState, useEffect, useMemo } from "react";
 import Select from "react-select";
 import countryList from "react-select-country-list";
-import styles from "./AdminTeacher.module.css"; // ✅ now used
+import styles from "./AdminTeacher.module.css";
 
 export default function AdminTeacher() {
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -23,7 +23,7 @@ export default function AdminTeacher() {
 
   const options = useMemo(() => countryList().getData(), []);
 
-  // ✅ Fetch teachers on load
+  // Fetch teachers on load
   useEffect(() => {
     const fetchTeachers = async () => {
       try {
@@ -111,6 +111,7 @@ export default function AdminTeacher() {
           );
         }
 
+        // Reset form
         setForm({
           Email: "",
           FullName: "",
@@ -173,6 +174,7 @@ export default function AdminTeacher() {
 
   return (
     <div className={styles.container}>
+      {/* Header */}
       <div className={styles.header}>
         <h1>Teachers</h1>
         <button
@@ -186,6 +188,7 @@ export default function AdminTeacher() {
         </button>
       </div>
 
+      {/* Form Modal */}
       {isFormOpen && (
         <div>
           <form onSubmit={handleSave}>
@@ -222,7 +225,6 @@ export default function AdminTeacher() {
               value={form.DateJoined}
               onChange={handleInputChange}
             />
-
             <input
               type="file"
               accept="image/*"
@@ -230,31 +232,31 @@ export default function AdminTeacher() {
               onChange={handleImageChange}
             />
 
-              <Select
-                options={options}
-                onChange={handleCountryChange}
-                placeholder="Select Country"
-                value={options.find((opt) => opt.label === form.Country) || null}
-              />
+            <Select
+              options={options}
+              onChange={handleCountryChange}
+              placeholder="Select Country"
+              value={options.find((opt) => opt.label === form.Country) || null}
+            />
 
-              <button type="submit" className={styles.saveButton}>
-                {editingId ? "Update" : "Save"}
-              </button>
-              <button
-                type="button"
-                className={styles.cancelButton}
-                onClick={() => {
-                  setIsFormOpen(false);
-                  setEditingId(null);
-                }}
-              >
-                Cancel
-              </button>
-            </form>
-          </div>
+            <button type="submit" className={styles.saveButton}>
+              {editingId ? "Update" : "Save"}
+            </button>
+            <button
+              type="button"
+              className={styles.cancelButton}
+              onClick={() => {
+                setIsFormOpen(false);
+                setEditingId(null);
+              }}
+            >
+              Cancel
+            </button>
+          </form>
         </div>
       )}
 
+      {/* Teachers Table */}
       <table className={styles.table}>
         <thead>
           <tr>
@@ -270,8 +272,8 @@ export default function AdminTeacher() {
           </tr>
         </thead>
         <tbody>
-          {teachers.map((teacher, index) => (
-            <tr key={index}>
+          {teachers.map((teacher) => (
+            <tr key={teacher.teacherId}>
               <td>{teacher.teacherId}</td>
               <td>
                 {teacher.TeacherIMG ? (
