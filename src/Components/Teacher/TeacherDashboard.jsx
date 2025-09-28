@@ -9,6 +9,7 @@ export default function TeacherDashboard() {
   const [notifications, setNotifications] = useState([]);
   const [showNotifications, setShowNotifications] = useState(false);
   const [teacherId, setTeacherId] = useState(null);
+  const [replyTexts, setReplyTexts] = useState({});
 
   useEffect(() => {
     // Get teacherId from localStorage (set during login)
@@ -106,49 +107,49 @@ export default function TeacherDashboard() {
   };
 
   // Reply to student message
-  const replyToStudent = async (studentId, replyMessage, notifId) => {
-    if (!replyMessage || !replyMessage.trim()) {
-      alert("Please enter a reply message");
-      return;
-    }
+ const replyToStudent = async (studentId, replyMessage, notifId) => {
+  if (!replyMessage || !replyMessage.trim()) {
+    alert("Please enter a reply message");
+    return;
+  }
 
-    try {
-      const response = await fetch(`http://localhost:5000/messages/send`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          senderId: teacherId,
-          senderName: teacher?.FullName || "Teacher",
-          receiverId: studentId,
-          content: replyMessage,
-        }),
-      });
+  try {
+    const response = await fetch(`http://localhost:5000/messages/send`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        senderId: teacherId,
+        senderName: teacher?.FullName || "Teacher",
+        receiverId: studentId,
+        content: replyMessage,
+      }),
+    });
 
-      if (!response.ok) throw new Error("Failed to send reply");
+    if (!response.ok) throw new Error("Failed to send reply");
 
-      // Mark original message as read and clear reply input
-      await markAsRead(notifId);
-      
-      // Clear reply text
-      setNotifications(prev =>
-        prev.map(n => n._id === notifId ? { ...n, replyText: "" } : n)
-      );
+    await markAsRead(notifId);
 
-      alert("Reply sent successfully!");
-      
-    } catch (err) {
-      console.error("Error replying:", err);
-      alert("Failed to send reply. Please try again.");
-    }
-  };
+    // Clear reply input
+    setReplyTexts(prev => ({
+      ...prev,
+      [notifId]: ""
+    }));
+
+    alert("Reply sent successfully!");
+  } catch (err) {
+    console.error("Error replying:", err);
+    alert("Failed to send reply. Please try again.");
+  }
+};
+
 
   // Update reply text for specific notification
   const updateReplyText = (notifId, text) => {
-    setNotifications(prev =>
-      prev.map(n => n._id === notifId ? { ...n, replyText: text } : n)
-    );
-  };
-
+  setReplyTexts(prev => ({
+    ...prev,
+    [notifId]: text
+  }));
+};
   const unreadCount = notifications.filter((n) => !n.isRead).length;
       
   return (
@@ -229,34 +230,35 @@ export default function TeacherDashboard() {
 
                   {/* Reply Section */}
                   <div className="reply-section">
-                    <input
-                      type="text"
-                      placeholder="Reply to student..."
-                      value={notification.replyText || ""}
-                      onChange={(e) => updateReplyText(notification._id, e.target.value)}
-                      className="reply-input"
-                      onKeyPress={(e) => {
-                        if (e.key === 'Enter') {
-                          replyToStudent(
-                            notification.senderId,
-                            notification.replyText,
-                            notification._id
-                          );
-                        }
-                      }}
-                    />
-                    <button
-                      className="reply-btn"
-                      onClick={() =>
-                        replyToStudent(
-                          notification.senderId,
-                          notification.replyText,
-                          notification._id
-                        )
-                      }
-                    >
-                      Reply
-                    </button>
+                   <input
+  type="text"
+  placeholder="Reply to student..."
+  value={replyTexts[notification._id] || ""}
+  onChange={(e) => updateReplyText(notification._id, e.target.value)}
+  className="reply-input"
+  onKeyPress={(e) => {
+    if (e.key === 'Enter') {
+      replyToStudent(
+        notification.senderId,
+        replyTexts[notification._id],
+        notification._id
+      );
+    }
+  }}
+/>
+<button
+  className="reply-btn"
+  onClick={() =>
+    replyToStudent(
+      notification.senderId,
+      replyTexts[notification._id],
+      notification._id
+    )
+  }
+>
+  Reply
+</button>
+
                   </div>
 
                   {!notification.isRead && <div className="unread-indicator"></div>}

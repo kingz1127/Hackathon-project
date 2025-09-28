@@ -16,6 +16,7 @@ export default function Attendancestu() {
   const [view, setView] = useState("daily");
   const [student, setStudent] = useState(null);
   const [attendanceRecords, setAttendanceRecords] = useState([]);
+  const [refreshToggle, setRefreshToggle] = useState(false); // 🔄 added for refetch
 
   const studentId = localStorage.getItem("studentId");
 
@@ -30,14 +31,21 @@ export default function Attendancestu() {
   }, [studentId]);
 
   // Fetch attendance for logged-in student
-  useEffect(() => {
+  const fetchAttendance = () => {
     if (!studentId) return;
 
     fetch(`http://localhost:5000/attendance/student/${studentId}`)
       .then(res => res.json())
       .then(records => setAttendanceRecords(records))
       .catch(err => console.error("Error fetching attendance:", err));
-  }, [studentId]);
+  };
+
+  useEffect(() => {
+    fetchAttendance();
+  }, [studentId, refreshToggle]); // 🔄 refetch when refreshToggle flips
+
+  // 🔄 Function you can call after update
+  const refreshAttendance = () => setRefreshToggle(prev => !prev);
 
   // Attendance stats
   const totalSessions = attendanceRecords.length;
@@ -130,8 +138,8 @@ export default function Attendancestu() {
         </div>
 
         <div className="action-buttons">
-          <button className="btn btn-secondary">
-            <Download size={16} /> Export
+          <button className="btn btn-secondary" onClick={refreshAttendance}>
+            <Download size={16} /> Refresh
           </button>
           <button className="btn btn-primary">
             <FileText size={16} /> Request Leave
