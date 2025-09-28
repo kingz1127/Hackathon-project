@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import TeacherChatBubble from "./TeacherChatBubbble";
 
 // Navigation Button Component with hover effects
 function NavButton({ icon, title, onClick }) {
@@ -359,6 +360,10 @@ const [teacherMessage, setTeacherMessage] = useState("");
 const [teacherName, setTeacherName] = useState("Teacher");
 const teacherId = localStorage.getItem("teacherId"); // or the main teacher assigned
 const studentId = localStorage.getItem("studentId");
+
+
+ 
+
 
 
 
@@ -774,10 +779,19 @@ const handleSendTeacherMessage = async () => {
         Close
       </button>
     </div>
+
+    
+    <TeacherChatBubble
+      teacherId={teacherId}          // teacherId from student context
+      teacherName={teacherName}      // teacherName if you have it
+    />
   </div>
 )}
 
     </div>
+
+
+
   );
 }
 

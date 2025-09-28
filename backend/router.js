@@ -7,8 +7,10 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 import Admin from "./models/Admin.js";
-import Teacher from "./models/Teacher.js"; // Import the new Teacher model
-import Student from "./models/Student.js"; 
+import Attendance from "./models/Attendance.js";
+import Message from "./models/Message.js";
+import Student from "./models/Student.js";
+import Teacher from "./models/Teacher.js";
 
 dotenv.config();
 
@@ -226,6 +228,57 @@ router.post(
         });
       }
 
+
+      // ✅ Create attendance record
+router.post("/attendance/student/:studentId", async (req, res) => {
+  try {
+    const { studentId, classId, teacherId, date, status, note } = req.body;
+
+    const existing = await Attendance.findOne({ studentId, classId, date });
+    if (existing) return res.status(400).json({ message: "Attendance already recorded for this student today" });
+
+    const attendance = new Attendance({ studentId, classId, teacherId, date, status, note });
+    await attendance.save();
+    res.status(201).json(attendance);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// ✅ Get attendance for a class + date
+router.get("/:classId/:date", async (req, res) => {
+  try {
+    const { classId, date } = req.params;
+    const start = new Date(date);
+    start.setHours(0, 0, 0, 0);
+    const end = new Date(date);
+    end.setHours(23, 59, 59, 999);
+
+    const records = await Attendance.find({
+      classId,
+      date: { $gte: start, $lte: end }
+    }).populate("studentId", "fullName studentId");
+
+    res.json(records);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// ✅ Update attendance
+router.patch("/:id", async (req, res) => {
+  try {
+    const { status, note } = req.body;
+    const updated = await Attendance.findByIdAndUpdate(req.params.id, { status, note }, { new: true });
+    res.json(updated);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
      // GET all messages for a specific student
 router.get("/messages/student/:studentId", async (req, res) => {
   try {
@@ -237,25 +290,6 @@ router.get("/messages/student/:studentId", async (req, res) => {
   }
 });
 
-// GET messages for a student
-router.get("/messages/student/:studentId", async (req, res) => {
-  try {
-    const messages = await Message.find({ receiverId: req.params.studentId }).sort({ createdAt: -1 });
-    res.json(messages);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// GET messages for a teacher
-router.get("/messages/teacher/:teacherId", async (req, res) => {
-  try {
-    const messages = await Message.find({ receiverId: req.params.teacherId }).sort({ createdAt: -1 });
-    res.json(messages);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
 
 // SEND message
 router.post("/messages/send", async (req, res) => {
@@ -485,7 +519,7 @@ router.delete("/admin/teachers/:teacherId", async (req, res) => {
     }
 
     // 2. Remove from Admin.teachers array
-    await Admin.updateMany({}, { $pull: { teachers: { teacherId } } });
+    await Admin.updateMany({}, { $pull: { teachers: {teacherId } } });
 
     res.json({ message: "Teacher deleted successfully" });
   } catch (error) {
@@ -504,7 +538,6 @@ router.get("/admin/teachers/:id", async (req, res) => {
     if (!teacher) {
       return res.status(404).json({ message: "Teacher not found" });
     }
-
     const teacherFormatted = {
       _id: teacher._id,
       teacherId: teacher.teacherId,

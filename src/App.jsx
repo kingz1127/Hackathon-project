@@ -24,6 +24,7 @@ import TeacherDashboard from "./Components/Teacher/TeacherDashboard";
 import StudentDashboard from "./Components/Student/StudentDashboard";
 
 import Assignments from "./Components/Student/Assignments";
+import Attendancestu from "./Components/Student/Attendancestu";
 import Courses from "./Components/Student/Courses";
 import Dashboard from "./Components/Student/Dashboard";
 import Grades from "./Components/Student/Grades";
@@ -68,9 +69,9 @@ export default function App() {
 
         {/* Student page routesstudentassignments */}
         <Route path="/" element={<StudentDashboard />} >
-         <Route path="/student" element={<Dashboard />} />
+         <Route path="student" element={<Dashboard />} />
         <Route path= "studentcourses" element={<Courses/>}/>
-        <Route path= "studentattendance" element={<Attendance/>}/>
+        <Route path= "studentattendance" element={<Attendancestu/>}/>
         <Route path= "studentgrades" element={<Grades/>}/>
         <Route path= "studentassignments" element={<Assignments/>}/>
         <Route path= "studentresources" element={<Resources/>}/>

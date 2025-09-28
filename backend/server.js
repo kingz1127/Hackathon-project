@@ -7,13 +7,16 @@ import mongoose from "mongoose";
 import path from "path";
 import process from "process";
 import { fileURLToPath } from "url";
+import attendanceRoutes from "./attendance.js";
+import messageRoutes from "./message.js";
 import Admin from "./models/Admin.js";
 import registerRoutes from "./models/registerRoutes.js";
 import Student from "./models/Student.js";
 import Teacher from "./models/Teacher.js"; // Import Teacher model
 import teacherRoutes from "./router.js";
 import studentRoutes from "./studentRoutes.js";
-import messageRoutes from "./message.js";
+
+
 
 dotenv.config();
 
@@ -44,6 +47,10 @@ app.use(express.json());
 
 // Serve static files (uploaded images)
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
+
+app.use("/attendance", attendanceRoutes);
+
 
 // Enhanced Admin login route - checks both Admin collection and Teacher collection
 app.post("/admin/login", async (req, res) => {
@@ -174,7 +181,6 @@ app.post("/admin/login", async (req, res) => {
         },
       });
     }
-
     // Handle student login
     if (!admin && !teacher) {
       console.log("Searching for student with email:", email);
@@ -274,7 +280,7 @@ app.post("/admin/migrate-teachers", async (req, res) => {
 
     const admin = await Admin.findOne({ username: "admin" });
     if (!admin || !admin.teachers || admin.teachers.length === 0) {
-      return res.json({
+      return res.json({ 
         message: "No teachers found in Admin collection to migrate",
         migrated: 0,
       });
@@ -337,6 +343,10 @@ app.post("/admin/migrate-teachers", async (req, res) => {
   }
 });
 
+
+
+
+
 // Health check route
 app.get("/health", (req, res) => {
   res.json({
@@ -355,7 +365,7 @@ app.use("/api", registerRoutes);
 mongoose
   .connect(MONGO_URI)
   .then(() => {
-    console.log("MongoDB connected");
+    console.log("MongoDB connected Weirdo!");
     // Check if default admin exists
     setTimeout(async () => {
       try {
