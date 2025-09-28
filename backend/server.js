@@ -361,9 +361,11 @@ mongoose
       try {
         const adminCount = await Admin.countDocuments();
         const teacherCount = await Teacher.countDocuments();
+        const studentCount = await Student.countDocuments();
 
         console.log("Total admins in database:", adminCount);
         console.log("Total teachers in Teacher collection:", teacherCount);
+        console.log("Total student in Student collection: ", studentCount);
 
         const defaultAdmin = await Admin.findOne({ username: "admin" });
         if (defaultAdmin) {
@@ -375,6 +377,7 @@ mongoose
             "Teachers in admin array:",
             defaultAdmin.teachers?.length || 0
           );
+          console.log("Students in admin array: ", defaultAdmin.students?.length || 0);
         } else {
           console.log("No default admin found with username 'admin'");
         }
