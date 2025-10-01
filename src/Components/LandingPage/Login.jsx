@@ -13,11 +13,13 @@ export default function Login() {
   const [schoolID, setSchoolID] = useState("");
   const [schoolPassword, setSchoolPassword] = useState("");
   const [error, setError] = useState("");
+  const [isAuthenticating, setIsAuthenticating] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
+      setIsAuthenticating(true);
       const response = await fetch("http://localhost:5000/admin/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -40,7 +42,7 @@ export default function Login() {
           localStorage.setItem("userRole", "admin");
           localStorage.setItem("adminId", data.admin.id);
           navigate("/admindashboard");
-         } else if (data.teacher) {
+        } else if (data.teacher) {
           localStorage.setItem("userRole", "teacher");
           localStorage.setItem("teacherId", data.teacher.id); // correct key
           localStorage.setItem("teacherName", data.teacher.fullName);
@@ -48,6 +50,7 @@ export default function Login() {
         } else if (data.student) {
           localStorage.setItem("userRole", "student");
           localStorage.setItem("studentId", data.studentId);
+          setIsAuthenticating(false);
           navigate("/student");
         }
       }
@@ -131,7 +134,10 @@ export default function Login() {
           </div>
           {error && <p style={{ color: "red" }}>{error}</p>}
 
-         <button type="submit">Login</button>
+          <button type="submit">
+            Login
+          </button>
+          <p>{isAuthenticating && "loading..."}</p>
         </form>
       </div>
     </>
