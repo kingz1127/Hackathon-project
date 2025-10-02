@@ -123,3 +123,22 @@
   background-color: rgb(5, 116, 251);
   cursor: pointer;
 }
+
+.passwordWrapper {
+  position: relative;
+  width: 100%;
+}
+
+.passwordWrapper input {
+  width: 100%;
+  padding-right: 2.5rem; /* leave space for eye icon */
+}
+
+.eyeIcon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: gray;
+}

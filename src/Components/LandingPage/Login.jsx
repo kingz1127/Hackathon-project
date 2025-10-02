@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { AiOutlineQuestionCircle } from "react-icons/ai";
+import { AiOutlineQuestionCircle, AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { BiLockAlt } from "react-icons/bi";
 import { HiMail } from "react-icons/hi";
 import { IoMdCall, IoMdPerson } from "react-icons/io";
-import { Link, NavLink, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import styles from "./Login.module.css";
 
 export default function Login() {
@@ -13,16 +13,16 @@ export default function Login() {
   const [schoolID, setSchoolID] = useState("");
   const [schoolPassword, setSchoolPassword] = useState("");
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false); // 👈 toggle state
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
       const response = await fetch("http://localhost:5000/admin/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          username: schoolID.includes("@") ? undefined : schoolID, // email if teacher
+          username: schoolID.includes("@") ? undefined : schoolID,
           email: schoolID.includes("@") ? schoolID : undefined,
           password: schoolPassword,
         }),
@@ -34,15 +34,13 @@ export default function Login() {
         setError(data.message);
       } else {
         localStorage.setItem("token", data.token);
-
-        // Handle different user types
         if (data.admin) {
           localStorage.setItem("userRole", "admin");
           localStorage.setItem("adminId", data.admin.id);
           navigate("/admindashboard");
-         } else if (data.teacher) {
+        } else if (data.teacher) {
           localStorage.setItem("userRole", "teacher");
-          localStorage.setItem("teacherId", data.teacher.id); // correct key
+          localStorage.setItem("teacherId", data.teacher.id);
           localStorage.setItem("teacherName", data.teacher.fullName);
           navigate("/teachdashboard");
         } else if (data.student) {
@@ -58,20 +56,14 @@ export default function Login() {
   };
 
   useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 2) {
-        setScrolled(true);
-      } else {
-        setScrolled(false);
-      }
-    };
+    const handleScroll = () => setScrolled(window.scrollY > 2);
     window.addEventListener("scroll", handleScroll);
-
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   return (
     <>
+      {/* Header */}
       <div className={styles.regHeader}>
         <div className={styles.div0}>
           <div className={styles.div1}>
@@ -108,6 +100,8 @@ export default function Login() {
           <button onClick={() => navigate("/register")}>ENROLL NOW</button>
         </div>
       </div>
+
+      {/* Login Form */}
       <div className={styles.login}>
         <h1>Login</h1>
         <form className={styles.form} onSubmit={handleSubmit}>
@@ -118,20 +112,32 @@ export default function Login() {
             onChange={(e) => setSchoolID(e.target.value)}
             className={styles.formtext}
           />
-          <input
-            type="password"
-            placeholder="Password"
-            value={schoolPassword}
-            onChange={(e) => setSchoolPassword(e.target.value)}
-            className={styles.formtext}
-          />
+
+          {/* Password with eye toggle */}
+          <div className={styles.passwordWrapper}>
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="Password"
+              value={schoolPassword}
+              onChange={(e) => setSchoolPassword(e.target.value)}
+              className={styles.formtext}
+            />
+            <span
+              className={styles.eyeIcon}
+              onClick={() => setShowPassword(!showPassword)} 
+            >
+              {showPassword ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
+            </span>
+          </div>
+
           <div className={styles.remember}>
             <input type="checkbox" />
             <p>Remember me</p>
           </div>
+
           {error && <p style={{ color: "red" }}>{error}</p>}
 
-         <button type="submit">Login</button>
+          <button type="submit">Login</button>
         </form>
       </div>
     </>

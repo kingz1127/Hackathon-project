@@ -16,7 +16,6 @@ import Student from "./models/Student.js";
 import Teacher from "./models/Teacher.js"; 
 import teacherRoutes from "./router.js";
 import studentRoutes from "./studentRoutes.js";
-import messageRoutes from "./message.js";
 
 dotenv.config();
 
