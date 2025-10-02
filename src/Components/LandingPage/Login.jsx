@@ -13,11 +13,16 @@ export default function Login() {
   const [schoolID, setSchoolID] = useState("");
   const [schoolPassword, setSchoolPassword] = useState("");
   const [error, setError] = useState("");
+<<<<<<< HEAD
   const [showPassword, setShowPassword] = useState(false); // 👈 toggle state
+=======
+  const [isAuthenticating, setIsAuthenticating] = useState(false);
+>>>>>>> ff151720b8ea5984e62fcde9aaf3ee6ee724af47
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      setIsAuthenticating(true);
       const response = await fetch("http://localhost:5000/admin/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -46,6 +51,7 @@ export default function Login() {
         } else if (data.student) {
           localStorage.setItem("userRole", "student");
           localStorage.setItem("studentId", data.studentId);
+          setIsAuthenticating(false);
           navigate("/student");
         }
       }
@@ -137,7 +143,14 @@ export default function Login() {
 
           {error && <p style={{ color: "red" }}>{error}</p>}
 
+<<<<<<< HEAD
           <button type="submit">Login</button>
+=======
+          <button type="submit">
+            Login
+          </button>
+          <p>{isAuthenticating && "loading..."}</p>
+>>>>>>> ff151720b8ea5984e62fcde9aaf3ee6ee724af47
         </form>
       </div>
     </>

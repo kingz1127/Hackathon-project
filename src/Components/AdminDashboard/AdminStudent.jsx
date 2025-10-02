@@ -1,75 +1,114 @@
-import { RiDeleteBin5Line } from "react-icons/ri";
+import { RiDeleteBin6Line } from "react-icons/ri";
+import React, { useMemo, useState, useEffect } from "react";
 import { FaEdit } from "react-icons/fa";
-import { useState, useEffect, useMemo } from "react";
 import Select from "react-select";
 import countryList from "react-select-country-list";
-import styles from "./AdminTeacher.module.css";
+import styles from "./AdminStudent.module.css";
 
-export default function AdminTeacher() {
+export default function AdminStudent() {
+  const [students, setStudents] = useState([]);
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [teachers, setTeachers] = useState([]);
+  const [emailStatus, setEmailStatus] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const [editingId, setEditingId] = useState(null);
 
-  const initialForm = {
+  // Added from first code: Search and Pagination
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const studentsPerPage = 10;
+
+  const [form, setForm] = useState({
     Email: "",
     FullName: "",
     DOfB: "",
     Course: "",
     DateJoined: "",
-    TeacherIMG: "",
+    StudentIMG: null,
     Country: "",
+    StudentID: "",
+    GradeLevel: "",
+    Guardian: "",
+    PhoneNumber: "",
+    GuardianPhoneNumber: "",
+    StateOfOrigin: "",
+    Address: "",
+    Gender: "",
     preview: "",
-  };
+  });
 
-  const [form, setForm] = useState(initialForm);
   const options = useMemo(() => countryList().getData(), []);
 
-  // ✅ Fetch teachers on load
+  // Fetch students from backend on component load
   useEffect(() => {
-    const fetchTeachers = async () => {
-      try {
-        const res = await fetch("http://localhost:5000/admin/teachers");
-        const data = await res.json();
-        if (res.ok) setTeachers(data);
-      } catch (err) {
-        console.error("Error fetching teachers:", err);
-      }
-    };
-    fetchTeachers();
+    fetchStudents();
   }, []);
 
-  // ✅ Input handlers
-  const handleInputChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+  const fetchStudents = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/admin/students");
+      const data = await response.json();
+      if (response.ok) {
+        setStudents(data);
+      } else {
+        console.error("Failed to fetch students:", data.message);
+      }
+    } catch (error) {
+      console.error("Error fetching students:", error);
+    }
   };
 
-  const handleCountryChange = (selected) => {
-    setForm({ ...form, Country: selected.label });
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       const previewURL = URL.createObjectURL(file);
-      setForm({ ...form, TeacherIMG: file, preview: previewURL });
+      setForm((prev) => ({
+        ...prev,
+        StudentIMG: file,
+        preview: previewURL,
+      }));
     }
   };
 
-  // ✅ Save (Add or Update teacher)
-  const handleSave = async (e) => {
-    e.preventDefault();
+  const handleCountryChange = (selectedOption) => {
+    setForm((prev) => ({
+      ...prev,
+      Country: selectedOption ? selectedOption.label : "",
+    }));
+  };
 
+  const handleSave = async () => {
     if (
-      !form.Email ||
       !form.FullName ||
+      !form.Email ||
       !form.DOfB ||
       !form.Course ||
+      !form.GradeLevel ||
+      !form.Guardian ||
       !form.DateJoined ||
-      !form.Country
+      !form.Country ||
+      !form.StudentIMG ||
+      !form.PhoneNumber ||
+      !form.GuardianPhoneNumber ||
+      !form.StateOfOrigin ||
+      !form.Address ||
+      !form.Gender
     ) {
-      alert("Please fill all fields");
+      setEmailStatus("Please fill in all required fields");
       return;
     }
+
+    setIsLoading(true);
+    setEmailStatus(
+      editingId ? "Updating student..." : "Processing student registration..."
+    );
 
     try {
       const formData = new FormData();
@@ -77,93 +116,160 @@ export default function AdminTeacher() {
       formData.append("FullName", form.FullName);
       formData.append("DOfB", form.DOfB);
       formData.append("Course", form.Course);
+      formData.append("GradeLevel", form.GradeLevel);
+      formData.append("Guardian", form.Guardian);
       formData.append("DateJoined", form.DateJoined);
       formData.append("Country", form.Country);
-      if (form.TeacherIMG instanceof File) {
-        formData.append("TeacherIMG", form.TeacherIMG);
-      }
+      formData.append("StudentIMG", form.StudentIMG);
+      formData.append("PhoneNumber", form.PhoneNumber);
+      formData.append("GuardianPhoneNumber", form.GuardianPhoneNumber);
+      formData.append("StateOfOrigin", form.StateOfOrigin);
+      formData.append("Address", form.Address);
+      formData.append("Gender", form.Gender);
 
-      let url = "http://localhost:5000/admin/add-teacher";
-      let method = "POST";
-
+      let response;
       if (editingId) {
-        url = `http://localhost:5000/admin/update-teacher/${editingId}`;
-        method = "PUT";
+        // UPDATE student
+        response = await fetch(
+         `http://localhost:5000/admin/students/${editingId}`,
+          {
+            method: "PUT",
+            body: formData,
+          }
+        );
+      } else {
+        // ADD student
+        response = await fetch("http://localhost:5000/admin/add-student", {
+          method: "POST",
+          body: formData,
+        });
       }
 
-      const response = await fetch(url, { method, body: formData });
       const data = await response.json();
 
-      if (response.ok) {
-        if (editingId) {
-          setTeachers((prev) =>
-            prev.map((t) =>
-              t.teacherId === editingId
-                ? { ...t, ...form, TeacherIMG: form.preview || t.TeacherIMG }
-                : t
-            )
-          );
-          alert("Teacher updated!");
-        } else {
-          setTeachers((prev) => [
-            ...prev,
-            { ...form, teacherId: data.teacherId, TeacherIMG: form.preview },
-          ]);
-          alert(
-            `Teacher added! Password sent to email.\nTeacher ID: ${data.teacherId}`
-          );
-        }
+     if (response.ok) {
+        setEmailStatus(
+          editingId
+            ? "✅ Student updated successfully!"
+            : `✅ Student registered successfully! ${
+                data.emailSent
+                  ? `Welcome email sent to ${form.Email}`
+                  : "Email not sent (check configuration)"
+              }`
+        );
 
-        setForm(initialForm);
+        // Refresh students list
+        await fetchStudents();
+
+        // Reset form
+        setForm({
+          Email: "",
+          FullName: "",
+          DOfB: "",
+          Course: "",
+          DateJoined: "",
+          StudentIMG: null,
+          Country: "",
+          StudentID: "",
+          GradeLevel: "",
+          Guardian: "",
+          PhoneNumber: "",
+          GuardianPhoneNumber: "",
+          StateOfOrigin: "",
+          Address: "",
+          Gender: "",
+          preview: "",
+        });
         setEditingId(null);
-        setIsFormOpen(false);
+
+        // Close form after 3 seconds
+        setTimeout(() => {
+          setIsFormOpen(false);
+          setEmailStatus("");
+        }, 3000);
       } else {
-        alert(data.message || "Failed to save teacher");
+        throw new Error(data.message || "Failed to save student");
       }
-    } catch (err) {
-      console.error(err);
-      alert("Error saving teacher");
+    } catch (error) {
+      console.error("Save error:", error);
+      setEmailStatus(`❌ Error: ${error.message}`);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  // ✅ Edit teacher
-  const handleEdit = (teacher) => {
+  // Edit button handler
+  const handleEdit = (student) => {
     setForm({
-      Email: teacher.Email,
-      FullName: teacher.FullName,
-      DOfB: teacher.DOfB,
-      Course: teacher.Course,
-      DateJoined: teacher.DateJoined,
-      Country: teacher.Country,
-      TeacherIMG: teacher.TeacherIMG,
-      preview: teacher.TeacherIMG,
+      Email: student.Email,
+      FullName: student.FullName,
+      DOfB: student.DOfB,
+      Course: student.Course,
+      GradeLevel: student.GradeLevel,
+      Guardian: student.Guardian,
+      DateJoined: student.DateJoined,
+      Country: student.Country,
+      StudentIMG: student.StudentIMG,
+      preview: student.StudentIMG,
+      StudentID: student.studentId,
+      PhoneNumber: student.PhoneNumber,
+      GuardianPhoneNumber: student.GuardianPhoneNumber,
+      StateOfOrigin: student.StateOfOrigin,
+      Address: student.Address,
+      Gender: student.Gender,
     });
-    setEditingId(teacher.teacherId);
+    setEditingId(student.studentId);
     setIsFormOpen(true);
   };
 
-  // ✅ Delete teacher
-  const handleDelete = async (teacher) => {
-    if (!window.confirm(`Are you sure you want to delete ${teacher.FullName}?`))
-      return;
+  const handleDelete = async (studentId, index) => {
+    if (window.confirm("Are you sure you want to delete this student?")) {
+      try {
+        const response = await fetch(
+         ` http://localhost:5000/admin/students/${studentId}`,
+          {
+            method: "DELETE",
+          }
+        );
 
-    try {
-      const res = await fetch(
-        `http://localhost:5000/admin/teachers/${teacher.teacherId}`,
-        { method: "DELETE" }
-      );
+        if (response.ok) {
+          // Remove from local state immediately
+          setStudents((prev) => prev.filter((_, i) => i !== index));
+          setEmailStatus("✅ Student deleted successfully");
+          setTimeout(() => setEmailStatus(""), 3000);
+        } else {
+          const data = await response.json();
+          throw new Error(data.message || "Failed to delete student");
+        }
+      } catch (error) {
+        console.error("Delete error:", error);
+        setEmailStatus(`❌ Error: ${error.message}`);
+        setTimeout(() => setEmailStatus(""), 3000);
+      }
+    }
+  };
 
-      if (!res.ok) throw new Error("Failed to delete teacher");
+  // Enhanced Search and Pagination logic
+  const filteredStudents = students.filter((student) => {
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      (student.studentId || "").toLowerCase().includes(searchLower) ||
+      (student.FullName || "").toLowerCase().includes(searchLower) ||
+      (student.Email || "").toLowerCase().includes(searchLower) ||
+      (student.Course || "").toLowerCase().includes(searchLower)
+    );
+  });
 
-      const data = await res.json();
-      alert(data.message);
+  const totalPages = Math.ceil(filteredStudents.length / studentsPerPage);
+  const startIndex = (currentPage - 1) * studentsPerPage;
+  const paginatedStudents = filteredStudents.slice(
+    startIndex,
+    startIndex + studentsPerPage
+  );
 
-      setTeachers((prev) =>
-        prev.filter((t) => t.teacherId !== teacher.teacherId)
-      );
-    } catch (err) {
-      console.error(err);
-      alert("Error deleting teacher");
+  const handlePageChange = (page) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
     }
   };
 
@@ -171,70 +277,171 @@ export default function AdminTeacher() {
     <div className={styles.container}>
       {/* Header */}
       <div className={styles.header}>
-        <h1>Teachers</h1>
-        <button
-          className={styles.addButton}
-          onClick={() => {
-            setEditingId(null);
-            setForm(initialForm);
-            setIsFormOpen(true);
-          }}
-        >
-          + Add Teacher
-        </button>
+        <h1>Students</h1>
+        <div className={styles.actions}>
+          <input
+            type="text"
+            placeholder="Search by ID, Name, Email, or Course..."
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setCurrentPage(1);
+            }}
+            className={styles.search}
+          />
+          <button
+            onClick={() => {
+              setForm({
+                Email: "",
+                FullName: "",
+                DOfB: "",
+                Course: "",
+                DateJoined: "",
+                StudentIMG: null,
+                Country: "",
+                StudentID: "",
+                GradeLevel: "",
+                Guardian: "",
+                PhoneNumber: "",
+                GuardianPhoneNumber: "",
+                StateOfOrigin: "",
+                Address: "",
+                Gender: "",
+                preview: "",
+              });
+              setEditingId(null);
+              setIsFormOpen(true);
+            }}
+            className={styles.addBtn}
+          >
+            + Add Student
+          </button>
+        </div>
       </div>
 
-      {/* ✅ Modal */}
+      {/* Status */}
+      {emailStatus && (
+        <div
+          style={{
+            padding: "10px",
+            margin: "10px 0",
+            borderRadius: "4px",
+            background: emailStatus.includes("✅")
+              ? "#d4edda"
+              : emailStatus.includes("❌")
+              ? "#f8d7da"
+              : "#d1ecf1",
+            border: `1px solid ${
+              emailStatus.includes("✅")
+                ? "#c3e6cb"
+                : emailStatus.includes("❌")
+                ? "#f5c6cb"
+                : "#bee5eb"
+            }`,
+            color: emailStatus.includes("✅")
+              ? "#155724"
+              : emailStatus.includes("❌")
+              ? "#721c24"
+              : "#0c5460",
+            fontSize: "14px",
+          }}
+        >
+          {emailStatus}
+        </div>
+      )}
+
+      {/* Modal */}
       {isFormOpen && (
-        <div className={styles.modal}>
-          <div className={styles.modalContent}>
-            <h2>{editingId ? "Edit Teacher" : "Add Teacher"}</h2>
-            <form onSubmit={handleSave} className={styles.form}>
-              <input
-                type="email"
-                name="Email"
-                placeholder="Email"
-                value={form.Email}
-                onChange={handleInputChange}
-              />
+        <div className={styles.modalOverlay}>
+          <div className={styles.modal}>
+            <h2>{editingId ? "Edit Student" : "Add Student"}</h2>
+            <form
+              className={styles.form}
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleSave();
+              }}
+            >
               <input
                 type="text"
                 name="FullName"
                 placeholder="Full Name"
                 value={form.FullName}
                 onChange={handleInputChange}
+                required
               />
               <input
-                type="date"
-                name="DOfB"
-                value={form.DOfB}
+                type="email"
+                name="Email"
+                placeholder="Email"
+                value={form.Email}
                 onChange={handleInputChange}
+                required
+              />
+              <label className={styles.inputlabel}>
+                Date of Birth:
+                <input
+                  type="date"
+                  name="DOfB"
+                  value={form.DOfB}
+                  placeholder="Date of birth"
+                  onChange={handleInputChange}
+                  required
+                />
+              </label>
+
+              <select
+                name="Course"
+                value={form.Course}
+                onChange={handleInputChange}
+              >
+                <option value="">Preferred Course</option>
+                <option value="AI & Machine Learning">AI & Machine Learning</option>
+                <option value="Cyber Security">Cyber Security</option>
+                <option value="Data Analytics">Data Analytics</option>
+                <option value="Networking">Networking</option>
+                <option value="Python">Python</option>
+                <option value="Software Engineering">
+                  Software Engineering / FullStack
+                </option>
+              </select>
+
+              <input
+                type="text"
+                name="GradeLevel"
+                placeholder="Grade Level"
+                value={form.GradeLevel}
+                onChange={handleInputChange}
+                required
               />
               <input
                 type="text"
-                name="Course"
-                placeholder="Course / Subject"
-                value={form.Course}
+                name="Guardian"
+                placeholder="Guardian Name"
+                value={form.Guardian}
                 onChange={handleInputChange}
+                required
               />
               <input
-                type="datetime-local"
-                name="DateJoined"
-                value={form.DateJoined}
+                type="text"
+                name="PhoneNumber"
+                placeholder="Phone Number"
+                value={form.PhoneNumber}
                 onChange={handleInputChange}
+                required
               />
               <input
-                type="text" 
+                type="text"
                 name="GuardianPhoneNumber"
                 placeholder="Guardian Phone Number"
                 value={form.GuardianPhoneNumber}
                 onChange={handleInputChange}
                 required
               />
+
               <label className={styles.inputlab}>
-                Date Enrolled: 
+                Date Enrolled:
                 <input
-                
                   type="datetime-local"
                   name="DateJoined"
                   value={form.DateJoined}
@@ -248,18 +455,78 @@ export default function AdminTeacher() {
                 placeholder="Select Country"
                 value={options.find((opt) => opt.label === form.Country) || null}
               />
+              <input
+                type="text"
+                name="StateOfOrigin"
+                placeholder="State of Origin"
+                value={form.StateOfOrigin}
+                onChange={handleInputChange}
+                required
+              />
+              <input
+                type="text"
+                name="Address"
+                placeholder="Address"
+                value={form.Address}
+                onChange={handleInputChange}
+                required
+              />
+              <select
+                name="Gender"
+                value={form.Gender}
+                onChange={handleInputChange}
+                required
+              >
+                <option value="">Select Gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+              </select>
+              <input
+                type="file"
+                name="StudentIMG"
+                accept="image/*"
+                onChange={handleImageChange}
+                required={!editingId}
+              />
+              {form.preview && (
+                <img src={form.preview} alt="preview" className={styles.preview} />
+              )}
 
               <div className={styles.modalActions}>
-                <button type="submit" className={styles.saveButton}>
-                  {editingId ? "Update" : "Save"}
+                <button
+                  type="submit"
+                  className={styles.saveBtn}
+                  disabled={isLoading}
+                >
+                  {isLoading ? "Processing..." : editingId ? "Update" : "Save"}
                 </button>
                 <button
                   type="button"
-                  className={styles.cancelButton}
                   onClick={() => {
                     setIsFormOpen(false);
                     setEditingId(null);
+                    setEmailStatus("");
+                    setForm({
+                      Email: "",
+                      FullName: "",
+                      DOfB: "",
+                      Course: "",
+                      DateJoined: "",
+                      StudentIMG: null,
+                      Country: "",
+                      StudentID: "",
+                      GradeLevel: "",
+                      Guardian: "",
+                      PhoneNumber: "",
+                      GuardianPhoneNumber: "",
+                      StateOfOrigin: "",
+                      Address: "",
+                      Gender: "",
+                      preview: "",
+                    });
                   }}
+                  className={styles.cancelBtn}
+                  disabled={isLoading}
                 >
                   Cancel
                 </button>
@@ -269,63 +536,108 @@ export default function AdminTeacher() {
         </div>
       )}
 
-      {/* ✅ Teacher Table */}
-      <table className={styles.table}>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Fullname</th>
-            <th>Email</th>
-            <th>DOB</th>
-            <th>Course</th>
-            <th>Date Joined</th>
-            <th>Country</th>
-            <th>No_Students</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {teachers.map((teacher, index) => (
-            <tr key={index}>
-              <td>{teacher.teacherId}</td>
-              <td>
-                {teacher.TeacherIMG ? (
-                  <img
-                    src={teacher.TeacherIMG}
-                    alt={teacher.FullName}
-                    width="40"
-                    height="40"
-                    style={{ borderRadius: "50%", marginRight: "8px" }}
-                  />
-                ) : (
-                  "No Image"
-                )}
-                {teacher.FullName}
-              </td>
-              <td>{teacher.Email}</td>
-              <td>{teacher.DOfB}</td>
-              <td>{teacher.Course}</td>
-              <td>{teacher.DateJoined}</td>
-              <td>{teacher.Country}</td>
-              <td>{teacher.No_Students || 0}</td>
-              <td>
-                <button
-                  className={styles.actionButton}
-                  onClick={() => handleEdit(teacher)}
-                >
-                  <FaEdit />
-                </button>
-                <button
-                  className={styles.actionButton}
-                  onClick={() => handleDelete(teacher)}
-                >
-                  <RiDeleteBin5Line />
-                </button>
-              </td>
+      {/* Table */}
+      <div className={styles.tableWrapper}>
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Full Name</th>
+              <th>Email</th>
+              <th>DOB</th>
+              <th>Course</th>
+              <th>Grade</th>
+              <th>Sex</th>
+              <th>P/Number</th>
+              <th>Guardian</th>
+              <th>G.P/Number</th>
+              <th>S/Date</th>
+              <th>Country</th>
+              <th>S/Origin</th>
+              <th>Address</th>
+              <th>Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {paginatedStudents.length === 0 ? (
+              <tr>
+                <td colSpan="16">
+                  No students found. Click "Add Student" to get started.
+                </td>
+              </tr>
+            ) : (
+              paginatedStudents.map((student, index) => (
+                <tr key={student._id || index}>
+                  <td>{student.studentId}</td>
+                  
+                  <td className={styles.fullimg}>
+                    {student.StudentIMG ? (
+                      <img
+                        src={student.StudentIMG}
+                        alt={student.FullName}
+                        className={styles.photo}
+                      />
+                    ) : (
+                      <div>No Photo</div>
+                    )}
+                    {student.FullName}
+                    
+                  </td>
+                  <td>{student.Email}</td>
+                  <td>{student.DOfB}</td>
+                  <td>{student.Course}</td>
+                  <td>{student.GradeLevel}</td>
+                  <td>{student.Gender}</td>
+                  <td>{student.PhoneNumber}</td>
+                  <td>{student.Guardian}</td>
+                  <td>{student.GuardianPhoneNumber}</td>
+                  <td>
+                    {student.DateJoined
+                      ? new Date(student.DateJoined).toLocaleDateString()
+                      : ""}
+                  </td>
+                  <td>{student.Country}</td>
+                  <td>{student.StateOfOrigin}</td>
+                  <td>{student.Address}</td>
+                  <td className={styles.actionsCol}>
+                    <button
+                      className={styles.editBtn}
+                      onClick={() => handleEdit(student)}
+                    >
+                      <FaEdit />
+                    </button>
+                    <button
+                      className={styles.deleteBtn}
+                      onClick={() => handleDelete(student.studentId, index)}
+                    >
+                      <RiDeleteBin6Line />
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+
+        {/* Pagination */}
+        <div className={styles.pagination}>
+          <button
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+          >
+            Previous
+          </button>
+          <span>
+            Page {currentPage} of {totalPages || 1}
+          </span>
+          <button
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages || totalPages === 0}
+          >
+            Next
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

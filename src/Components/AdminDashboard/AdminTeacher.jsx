@@ -193,18 +193,19 @@ export default function AdminTeacher() {
       {isFormOpen && (
         <div>
           <form onSubmit={handleSave}>
-            <input
-              type="email"
-              name="Email"
-              placeholder="Email"
-              value={form.Email}
-              onChange={handleInputChange}
-            />
+            
             <input
               type="text"
               name="FullName"
               placeholder="Full Name"
               value={form.FullName}
+              onChange={handleInputChange}
+            />
+            <input
+              type="email"
+              name="Email"
+              placeholder="Email"
+              value={form.Email}
               onChange={handleInputChange}
             />
             <input
@@ -276,7 +277,7 @@ export default function AdminTeacher() {
           {teachers.map((teacher) => (
             <tr key={teacher.teacherId}>
               <td>{teacher.teacherId}</td>
-              <td>
+              <td className={styles.fullimg}>
                 {teacher.TeacherIMG ? (
                   <img
                     src={teacher.TeacherIMG}
@@ -297,6 +298,7 @@ export default function AdminTeacher() {
               <td>{teacher.Country}</td>
               <td>{teacher.No_Students || 0}</td>
               <td>
+                <div className={styles.actionButton}>
                 <button
                   className={styles.actionButton}
                   onClick={() => handleEdit(teacher)}
@@ -309,6 +311,7 @@ export default function AdminTeacher() {
                 >
                   <RiDeleteBin5Line />
                 </button>
+                </div>
               </td>
             </tr>
           ))}
