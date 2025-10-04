@@ -1,25 +1,28 @@
-import nodemailer from "nodemailer";
 import bcrypt from "bcryptjs";
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
 import fs from "fs";
 import mongoose from "mongoose";
+import nodemailer from "nodemailer";
 import path from "path";
 import process from "process";
 import { fileURLToPath } from "url";
-import attendanceRoutes from "./attendance.js";
-import messageRoutes from "./message.js";
+// import attendanceRoutes from "./attendance.js";
 import Admin from "./models/Admin.js";
-import registerRoutes from "./models/registerRoutes.js";
+// import registerRoutes from "./models/registerRoutes.js";
 import Student from "./models/Student.js";
-import Teacher from "./models/Teacher.js"; 
-import teacherRoutes from "./router.js";
-import studentRoutes from "./studentRoutes.js";
-// <<<<<<< HEAD
-// =======
-// import messageRoutes from "./message.js";
-// >>>>>>> ff151720b8ea5984e62fcde9aaf3ee6ee724af47
+import Teacher from "./models/Teacher.js";
+// import teacherRoutes from "./router.js";
+// import studentRoutes from "./studentRoutes.js";
+
+
+import eventRoutes from "./routes/eventRoutes.js";  // ✅ FIXED
+import attendanceRoutes from "./routes/attendance.js";
+import teacherRoutes from "./routes/router.js";
+import studentRoutes from "./routes/studentRoutes.js";
+import registerRoutes from "./routes/registerRoutes.js";
+import messageRoutes from "./routes/message.js";
 
 dotenv.config();
 
@@ -383,6 +386,7 @@ app.get("/health", (req, res) => {
 // Register routes
 app.use("/", teacherRoutes);
 app.use("/", studentRoutes);
+app.use("/api/events", eventRoutes);
 // Mount the register route
 app.use("/api", registerRoutes);
 
@@ -436,40 +440,40 @@ mongoose
 app.use("/", teacherRoutes);
 app.use("/", studentRoutes);
 app.use("/api", registerRoutes);
-// ✅ Admin Login Route
-app.post("/admin/login", async (req, res) => {
-  try {
-    const { username, email, password } = req.body;
+// // ✅ Admin Login Route
+// app.post("/admin/login", async (req, res) => {
+//   try {
+//     const { username, email, password } = req.body;
 
-    // Find admin by username or email
-    const admin = await Admin.findOne({
-      $or: [{ username }, { email }],
-    });
+//     // Find admin by username or email
+//     const admin = await Admin.findOne({
+//       $or: [{ username }, { email }],
+//     });
 
-    if (!admin) {
-      return res.status(400).json({ message: "Admin not found" });
-    }
+//     if (!admin) {
+//       return res.status(400).json({ message: "Admin not found" });
+//     }
 
-    // Compare password
-    const isMatch = await bcrypt.compare(password, admin.password);
-    if (!isMatch) {
-      return res.status(400).json({ message: "Invalid credentials" });
-    }
+//     // Compare password
+//     const isMatch = await bcrypt.compare(password, admin.password);
+//     if (!isMatch) {
+//       return res.status(400).json({ message: "Invalid credentials" });
+//     }
 
-    // Return JSON response
-    res.json({
-      token: "fake-jwt-token", // TODO: Replace with real JWT
-      admin: {
-        id: admin._id,
-        username: admin.username,
-        email: admin.email,
-      },
-    });
-  } catch (err) {
-    console.error("Login error:", err);
-    res.status(500).json({ message: "Server error" });
-  }
-});
+//     // Return JSON response
+//     res.json({
+//       token: "fake-jwt-token", // TODO: Replace with real JWT
+//       admin: {
+//         id: admin._id,
+//         username: admin.username,
+//         email: admin.email,
+//       },
+//     });
+//   } catch (err) {
+//     console.error("Login error:", err);
+//     res.status(500).json({ message: "Server error" });
+//   }
+// });
 
 
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

@@ -99,7 +99,7 @@ async function createDefaultAdmin() {
         "✅ Default admin created: username=admin, password=admin123"
       );
     } else {
-      console.log("ℹ️ Admin already exists, skipping creation");
+      console.log("ℹ Admin already exists, skipping creation");
     }
   } catch (error) {
     console.error("❌ Error creating default admin:", error);
