@@ -16,10 +16,10 @@ import Student from "./models/Student.js";
 import Teacher from "./models/Teacher.js"; 
 import teacherRoutes from "./router.js";
 import studentRoutes from "./studentRoutes.js";
-<<<<<<< HEAD
-=======
+// <<<<<<< HEAD
+// =======
 // import messageRoutes from "./message.js";
->>>>>>> ff151720b8ea5984e62fcde9aaf3ee6ee724af47
+// >>>>>>> ff151720b8ea5984e62fcde9aaf3ee6ee724af47
 
 dotenv.config();
 

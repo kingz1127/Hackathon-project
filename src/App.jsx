@@ -29,6 +29,7 @@ import Courses from "./Components/Student/Courses";
 import Dashboard from "./Components/Student/Dashboard";
 import Grades from "./Components/Student/Grades";
 import TeacherDashboardLayout from "./Components/Teacher/TeacherDashboardLayout";
+import StudentSettings from "./Components/Student/Settings";
 
 
 export default function App() {
@@ -75,7 +76,7 @@ export default function App() {
         <Route path= "studentgrades" element={<Grades/>}/>
         <Route path= "studentassignments" element={<Assignments/>}/>
         <Route path= "studentresources" element={<Resources/>}/>
-        <Route path= "studentsettings" element={<Settings/>}/>
+        <Route path= "studentsettings" element={<StudentSettings/>}/>
       </Route>
       </Routes>
     </BrowserRouter>

@@ -13,11 +13,11 @@ export default function Login() {
   const [schoolID, setSchoolID] = useState("");
   const [schoolPassword, setSchoolPassword] = useState("");
   const [error, setError] = useState("");
-<<<<<<< HEAD
+// <<<<<<< HEAD
   const [showPassword, setShowPassword] = useState(false); // 👈 toggle state
-=======
+// =======
   const [isAuthenticating, setIsAuthenticating] = useState(false);
->>>>>>> ff151720b8ea5984e62fcde9aaf3ee6ee724af47
+// >>>>>>> ff151720b8ea5984e62fcde9aaf3ee6ee724af47
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -126,7 +126,7 @@ export default function Login() {
               placeholder="Password"
               value={schoolPassword}
               onChange={(e) => setSchoolPassword(e.target.value)}
-              className={styles.formtext}
+              className={styles.formtext2}
             />
             <span
               className={styles.eyeIcon}
@@ -143,14 +143,14 @@ export default function Login() {
 
           {error && <p style={{ color: "red" }}>{error}</p>}
 
-<<<<<<< HEAD
-          <button type="submit">Login</button>
-=======
-          <button type="submit">
+
+           <button type="submit">Login</button>
+{/* // ======= */}
+          {/* <button type="submit">
             Login
-          </button>
-          <p>{isAuthenticating && "loading..."}</p>
->>>>>>> ff151720b8ea5984e62fcde9aaf3ee6ee724af47
+          </button> */}
+          <p style={{color:"green"}}>{isAuthenticating && "loading..."}</p>
+{/* >>>>>>> ff151720b8ea5984e62fcde9aaf3ee6ee724af47 */}
         </form>
       </div>
     </>
