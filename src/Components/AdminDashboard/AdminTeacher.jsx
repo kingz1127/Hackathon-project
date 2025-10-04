@@ -1,14 +1,19 @@
 import { useState, useEffect, useMemo } from "react";
 import { RiDeleteBin5Line } from "react-icons/ri";
-import { FaEdit } from "react-icons/fa";
+import { FaEdit, FaEye } from "react-icons/fa";
 import Select from "react-select";
 import countryList from "react-select-country-list";
 import styles from "./AdminTeacher.module.css";
 
 export default function AdminTeacher() {
-  const [isFormOpen, setIsFormOpen] = useState(false);
   const [teachers, setTeachers] = useState([]);
+  const [students, setStudents] = useState([]);
   const [editingId, setEditingId] = useState(null);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isViewOpen, setIsViewOpen] = useState(false);
+  const [selectedTeacher, setSelectedTeacher] = useState(null);
+
+  const options = useMemo(() => countryList().getData(), []);
 
   const [form, setForm] = useState({
     Email: "",
@@ -21,15 +26,27 @@ export default function AdminTeacher() {
     preview: "",
   });
 
-  const options = useMemo(() => countryList().getData(), []);
+  const resetForm = () => {
+    setForm({
+      Email: "",
+      FullName: "",
+      DOfB: "",
+      Course: "",
+      DateJoined: "",
+      TeacherIMG: "",
+      Country: "",
+      preview: "",
+    });
+    setEditingId(null);
+  };
 
-  // Fetch teachers on load
+  // Fetch teachers
   useEffect(() => {
     const fetchTeachers = async () => {
       try {
         const res = await fetch("http://localhost:5000/admin/teachers");
         const data = await res.json();
-        if (res.ok) setTeachers(data);
+        if (Array.isArray(data)) setTeachers(data);
       } catch (err) {
         console.error("Error fetching teachers:", err);
       }
@@ -37,97 +54,68 @@ export default function AdminTeacher() {
     fetchTeachers();
   }, []);
 
-  const handleInputChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+  const handleInputChange = (e) =>
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
-  const handleCountryChange = (selected) => {
-    setForm({ ...form, Country: selected.label });
-  };
+  const handleCountryChange = (selected) =>
+    setForm((prev) => ({ ...prev, Country: selected?.label || "" }));
 
   const handleImageChange = (e) => {
-    const file = e.target.files[0];
+    const file = e.target.files?.[0];
     if (file) {
       const previewURL = URL.createObjectURL(file);
-      setForm({ ...form, TeacherIMG: file, preview: previewURL });
+      setForm((prev) => ({ ...prev, TeacherIMG: file, preview: previewURL }));
     }
   };
 
+  // Save Teacher
   const handleSave = async (e) => {
     e.preventDefault();
+    const { Email, FullName, DOfB, Course, DateJoined, Country } = form;
 
-    if (
-      !form.Email ||
-      !form.FullName ||
-      !form.DOfB ||
-      !form.Course ||
-      !form.DateJoined ||
-      !form.Country ||
-       (!editingId && !form.TeacherIMG) // ← ADD THIS
-    ) {
-      alert("Please fill all fields");
-      return;
+    if (!Email || !FullName || !DOfB || !Course || !DateJoined || !Country) {
+      return alert("Please fill all fields");
     }
 
     try {
       const formData = new FormData();
-      formData.append("Email", form.Email);
-      formData.append("FullName", form.FullName);
-      formData.append("DOfB", form.DOfB);
-      formData.append("Course", form.Course);
-      formData.append("DateJoined", form.DateJoined);
-      formData.append("Country", form.Country);
-      if (form.TeacherIMG instanceof File) {
-        formData.append("TeacherIMG", form.TeacherIMG);
-      }
+      Object.entries(form).forEach(([key, value]) => {
+        if (value) formData.append(key, value);
+      });
 
       let url = "http://localhost:5000/admin/add-teacher";
       let method = "POST";
-
       if (editingId) {
         url = `http://localhost:5000/admin/update-teacher/${editingId}`;
         method = "PUT";
       }
 
-      const response = await fetch(url, { method, body: formData });
-      const data = await response.json();
+      const res = await fetch(url, { method, body: formData });
+      const data = await res.json();
 
-      if (response.ok) {
-        if (editingId) {
-          setTeachers((prev) =>
-            prev.map((t) =>
-              t.teacherId === editingId
-                ? { ...t, ...form, TeacherIMG: form.preview || t.TeacherIMG }
-                : t
-            )
-          );
-          alert("Teacher updated!");
-        } else {
-          setTeachers((prev) => [
-            ...prev,
-            { ...form, teacherId: data.teacherId, TeacherIMG: form.preview },
-          ]);
-          alert(
-            `Teacher added! Password sent to email.\nTeacher ID: ${data.teacherId}`
-          );
-        }
-
-        // Reset form
-        setForm({
-          Email: "",
-          FullName: "",
-          DOfB: "",
-          Course: "",
-          DateJoined: "",
-          TeacherIMG: "",
-          Country: "",
-          preview: "",
-        });
-        setEditingId(null);
-        setIsFormOpen(false);
+      if (editingId) {
+        setTeachers((prev) =>
+          prev.map((t) =>
+            t.teacherId === editingId
+              ? { ...t, ...form, TeacherIMG: form.preview || t.TeacherIMG }
+              : t
+          )
+        );
+        alert("Teacher updated");
       } else {
-        alert(data.message || "Failed to save teacher");
+        setTeachers((prev) => [
+          ...prev,
+          {
+            ...form,
+            teacherId: data.teacherId || `T${Date.now()}`,
+            TeacherIMG: form.preview, // show preview immediately
+          },
+        ]);
+        alert("Teacher added");
       }
+
+      resetForm();
+      setIsFormOpen(false);
     } catch (err) {
       console.error(err);
       alert("Error saving teacher");
@@ -136,41 +124,48 @@ export default function AdminTeacher() {
 
   const handleEdit = (teacher) => {
     setForm({
-      Email: teacher.Email,
-      FullName: teacher.FullName,
-      DOfB: teacher.DOfB,
-      Course: teacher.Course,
-      DateJoined: teacher.DateJoined,
-      Country: teacher.Country,
-      TeacherIMG: teacher.TeacherIMG,
-      preview: teacher.TeacherIMG,
+      Email: teacher.Email || "",
+      FullName: teacher.FullName || "",
+      DOfB: teacher.DOfB || "",
+      Course: teacher.Course || "",
+      DateJoined: teacher.DateJoined || "",
+      Country: teacher.Country || "",
+      TeacherIMG: teacher.TeacherIMG || "",
+      preview: teacher.TeacherIMG || "",
     });
     setEditingId(teacher.teacherId);
     setIsFormOpen(true);
   };
 
   const handleDelete = async (teacher) => {
-    if (!window.confirm(`Are you sure you want to delete ${teacher.FullName}?`))
-      return;
-
+    if (!window.confirm(`Delete ${teacher.FullName}?`)) return;
     try {
       const res = await fetch(
         `http://localhost:5000/admin/teachers/${teacher.teacherId}`,
         { method: "DELETE" }
       );
-
-      if (!res.ok) throw new Error("Failed to delete teacher");
-
       const data = await res.json();
-      alert(data.message);
-
+      alert(data.message || "Deleted");
       setTeachers((prev) =>
         prev.filter((t) => t.teacherId !== teacher.teacherId)
       );
     } catch (err) {
       console.error(err);
-      alert("Error deleting teacher");
     }
+  };
+
+  const handleView = async (teacher) => {
+    setSelectedTeacher(teacher);
+    try {
+      const res = await fetch(
+        `http://localhost:5000/admin/teachers/${teacher.teacherId}/students`
+      );
+      const data = await res.json();
+      setStudents(Array.isArray(data) ? data : []);
+    } catch (err) {
+      setStudents(teacher.students || []);
+    }
+    setIsViewOpen(true);
   };
 
   return (
@@ -181,7 +176,7 @@ export default function AdminTeacher() {
         <button
           className={styles.addButton}
           onClick={() => {
-            setEditingId(null);
+            resetForm();
             setIsFormOpen(true);
           }}
         >
@@ -189,80 +184,12 @@ export default function AdminTeacher() {
         </button>
       </div>
 
-      {/* Form Modal */}
-      {isFormOpen && (
-        <div>
-          <form onSubmit={handleSave}>
-            
-            <input
-              type="text"
-              name="FullName"
-              placeholder="Full Name"
-              value={form.FullName}
-              onChange={handleInputChange}
-            />
-            <input
-              type="email"
-              name="Email"
-              placeholder="Email"
-              value={form.Email}
-              onChange={handleInputChange}
-            />
-            <input
-              type="date"
-              name="DOfB"
-              value={form.DOfB}
-              onChange={handleInputChange}
-            />
-            <input
-              type="text"
-              name="Course"
-              placeholder="Course / Subject"
-              value={form.Course}
-              onChange={handleInputChange}
-            />
-            <input
-              type="datetime-local"
-              name="DateJoined"
-              value={form.DateJoined}
-              onChange={handleInputChange}
-            />
-            <input
-              type="file"
-              accept="image/*"
-              name="TeacherIMG"
-              onChange={handleImageChange}
-            />
-
-            <Select
-              options={options}
-              onChange={handleCountryChange}
-              placeholder="Select Country"
-              value={options.find((opt) => opt.label === form.Country) || null}
-            />
-
-            <button type="submit" className={styles.saveButton}>
-              {editingId ? "Update" : "Save"}
-            </button>
-            <button
-              type="button"
-              className={styles.cancelButton}
-              onClick={() => {
-                setIsFormOpen(false);
-                setEditingId(null);
-              }}
-            >
-              Cancel
-            </button>
-          </form>
-        </div>
-      )}
-
       {/* Teachers Table */}
       <table className={styles.table}>
         <thead>
           <tr>
             <th>ID</th>
+            <th>Photo</th>
             <th>Fullname</th>
             <th>Email</th>
             <th>DOB</th>
@@ -274,49 +201,186 @@ export default function AdminTeacher() {
           </tr>
         </thead>
         <tbody>
-          {teachers.map((teacher) => (
-            <tr key={teacher.teacherId}>
-              <td>{teacher.teacherId}</td>
-              <td className={styles.fullimg}>
-                {teacher.TeacherIMG ? (
-                  <img
-                    src={teacher.TeacherIMG}
-                    alt={teacher.FullName}
-                    width="40"
-                    height="40"
-                    style={{ borderRadius: "50%", marginRight: "8px" }}
-                  />
-                ) : (
-                  "No Image"
-                )}
-                {teacher.FullName}
-              </td>
-              <td>{teacher.Email}</td>
-              <td>{teacher.DOfB}</td>
-              <td>{teacher.Course}</td>
-              <td>{teacher.DateJoined}</td>
-              <td>{teacher.Country}</td>
-              <td>{teacher.No_Students || 0}</td>
+          {teachers.map((t) => (
+            <tr key={t.teacherId}>
+              <td>{t.teacherId}</td>
               <td>
-                <div className={styles.actionButton}>
+                <img
+                  src={t.TeacherIMG || "/default.png"}
+                  alt={t.FullName}
+                  width="40"
+                  height="40"
+                  style={{ borderRadius: "50%", objectFit: "cover" }}
+                />
+              </td>
+              <td>{t.FullName}</td>
+              <td>{t.Email}</td>
+              <td>{t.DOfB}</td>
+              <td>{t.Course}</td>
+              <td>{t.DateJoined}</td>
+              <td>{t.Country}</td>
+              <td>{t.No_Students || 0}</td>
+              <td>
                 <button
                   className={styles.actionButton}
-                  onClick={() => handleEdit(teacher)}
+                  onClick={() => handleEdit(t)}
                 >
                   <FaEdit />
                 </button>
                 <button
                   className={styles.actionButton}
-                  onClick={() => handleDelete(teacher)}
+                  onClick={() => handleDelete(t)}
                 >
                   <RiDeleteBin5Line />
                 </button>
-                </div>
+                <button
+                  className={styles.actionButton}
+                  onClick={() => handleView(t)}
+                >
+                  <FaEye style={{ color: "blue" }} />
+                </button>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
+
+      {/* Add/Edit Modal */}
+      {isFormOpen && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modalContent}>
+            <div className={styles.modalHeader}>
+              <h2>{editingId ? "Edit Teacher" : "Add Teacher"}</h2>
+              <button
+                className={styles.closeButton}
+                onClick={() => setIsFormOpen(false)}
+              >
+                ×
+              </button>
+            </div>
+            <form onSubmit={handleSave} className={styles.form}>
+              <input
+                type="email"
+                name="Email"
+                placeholder="Email"
+                value={form.Email}
+                onChange={handleInputChange}
+              />
+              <input
+                type="text"
+                name="FullName"
+                placeholder="Full Name"
+                value={form.FullName}
+                onChange={handleInputChange}
+              />
+              <input
+                type="date"
+                name="DOfB"
+                value={form.DOfB}
+                onChange={handleInputChange}
+              />
+              <input
+                type="text"
+                name="Course"
+                placeholder="Course"
+                value={form.Course}
+                onChange={handleInputChange}
+              />
+              <input
+                type="datetime-local"
+                name="DateJoined"
+                value={form.DateJoined}
+                onChange={handleInputChange}
+              />
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+              />
+
+              {form.preview && (
+                <img
+                  src={form.preview}
+                  alt="Preview"
+                  width="100"
+                  style={{ marginTop: 8, borderRadius: "8px" }}
+                />
+              )}
+
+              <Select
+                options={options}
+                onChange={handleCountryChange}
+                placeholder="Select Country"
+                value={
+                  options.find((opt) => opt.label === form.Country) || null
+                }
+              />
+
+              <button type="submit" className={styles.saveButton}>
+                {editingId ? "Update" : "Save"}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* View Modal */}
+      {isViewOpen && selectedTeacher && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modalContent}>
+            <div className={styles.modalHeader}>
+              <h2>Teacher Details</h2>
+              <button
+                className={styles.closeButton}
+                onClick={() => setIsViewOpen(false)}
+              >
+                ×
+              </button>
+            </div>
+            <div className={styles.teacherDetail}>
+              <img
+                src={selectedTeacher.TeacherIMG || "/default.png"}
+                alt={selectedTeacher.FullName}
+                width="80"
+                height="80"
+                style={{ borderRadius: "50%" }}
+              />
+              <p>
+                <b>ID:</b> {selectedTeacher.teacherId}
+              </p>
+              <p>
+                <b>Name:</b> {selectedTeacher.FullName}
+              </p>
+              <p>
+                <b>Email:</b> {selectedTeacher.Email}
+              </p>
+              <p>
+                <b>DOB:</b> {selectedTeacher.DOfB}
+              </p>
+              <p>
+                <b>Course:</b> {selectedTeacher.Course}
+              </p>
+              <p>
+                <b>Date Joined:</b> {selectedTeacher.DateJoined}
+              </p>
+              <p>
+                <b>Country:</b> {selectedTeacher.Country}
+              </p>
+
+              <h3>Students</h3>
+              <ul>
+                {students.length > 0 ? (
+                  students.map((s) => (
+                    <li key={s.studentId || s.Email}>{s.FullName}</li>
+                  ))
+                ) : (
+                  <p>No students assigned</p>
+                )}
+              </ul>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -8,13 +8,30 @@ import nodemailer from "nodemailer";
 import path from "path";
 import process from "process";
 import { fileURLToPath } from "url";
+<<<<<<< HEAD
 import attendanceRoutes from "./attendance.js";
+=======
+// import attendanceRoutes from "./attendance.js";
+>>>>>>> 29eb4dd1f7dbc261c6a567659005f81e9d49a5ee
 import Admin from "./models/Admin.js";
-import registerRoutes from "./models/registerRoutes.js";
+// import registerRoutes from "./models/registerRoutes.js";
 import Student from "./models/Student.js";
 import Teacher from "./models/Teacher.js";
+<<<<<<< HEAD
 import teacherRoutes from "./router.js";
 import studentRoutes from "./studentRoutes.js";
+=======
+// import teacherRoutes from "./router.js";
+// import studentRoutes from "./studentRoutes.js";
+
+
+import eventRoutes from "./routes/eventRoutes.js";  // ✅ FIXED
+import attendanceRoutes from "./routes/attendance.js";
+import teacherRoutes from "./routes/router.js";
+import studentRoutes from "./routes/studentRoutes.js";
+import registerRoutes from "./routes/registerRoutes.js";
+import messageRoutes from "./routes/message.js";
+>>>>>>> 29eb4dd1f7dbc261c6a567659005f81e9d49a5ee
 
 dotenv.config();
 
@@ -378,6 +395,7 @@ app.get("/health", (req, res) => {
 // Register routes
 app.use("/", teacherRoutes);
 app.use("/", studentRoutes);
+app.use("/api/events", eventRoutes);
 // Mount the register route
 app.use("/api", registerRoutes);
 
@@ -431,40 +449,40 @@ mongoose
 app.use("/", teacherRoutes);
 app.use("/", studentRoutes);
 app.use("/api", registerRoutes);
-// ✅ Admin Login Route
-app.post("/admin/login", async (req, res) => {
-  try {
-    const { username, email, password } = req.body;
+// // ✅ Admin Login Route
+// app.post("/admin/login", async (req, res) => {
+//   try {
+//     const { username, email, password } = req.body;
 
-    // Find admin by username or email
-    const admin = await Admin.findOne({
-      $or: [{ username }, { email }],
-    });
+//     // Find admin by username or email
+//     const admin = await Admin.findOne({
+//       $or: [{ username }, { email }],
+//     });
 
-    if (!admin) {
-      return res.status(400).json({ message: "Admin not found" });
-    }
+//     if (!admin) {
+//       return res.status(400).json({ message: "Admin not found" });
+//     }
 
-    // Compare password
-    const isMatch = await bcrypt.compare(password, admin.password);
-    if (!isMatch) {
-      return res.status(400).json({ message: "Invalid credentials" });
-    }
+//     // Compare password
+//     const isMatch = await bcrypt.compare(password, admin.password);
+//     if (!isMatch) {
+//       return res.status(400).json({ message: "Invalid credentials" });
+//     }
 
-    // Return JSON response
-    res.json({
-      token: "fake-jwt-token", // TODO: Replace with real JWT
-      admin: {
-        id: admin._id,
-        username: admin.username,
-        email: admin.email,
-      },
-    });
-  } catch (err) {
-    console.error("Login error:", err);
-    res.status(500).json({ message: "Server error" });
-  }
-});
+//     // Return JSON response
+//     res.json({
+//       token: "fake-jwt-token", // TODO: Replace with real JWT
+//       admin: {
+//         id: admin._id,
+//         username: admin.username,
+//         email: admin.email,
+//       },
+//     });
+//   } catch (err) {
+//     console.error("Login error:", err);
+//     res.status(500).json({ message: "Server error" });
+//   }
+// });
 
 
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

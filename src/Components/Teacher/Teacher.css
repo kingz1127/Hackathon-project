@@ -107,14 +107,21 @@ body {
 
 .nav-link {
   display: flex;
-  align-items: center;
+  /* flex-direction: row; */
+  /* align-items: center; */
   gap: 2rem;
   margin-bottom: 1rem;
   color: #ddd;
   text-decoration: none;
-  padding: 3rem 1.5rem;
+  /* padding: 3rem 1.5rem; */
   border-radius: 8px;
   transition: background 0.3s;
+}
+.nav-link div{
+  display: flex;
+  align-items: center;
+  /* justify-content: center; */
+  column-gap: 1rem;
 }
 
 .nav-link:hover {
@@ -126,7 +133,6 @@ body {
   background: rgba(255, 255, 255, 0.2);
   color: #fff;
 }
-
 /* =========================================================
    DASHBOARD (Header, Cards, Assignments)
 ========================================================= */

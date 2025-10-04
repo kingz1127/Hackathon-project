@@ -125,19 +125,28 @@
 }
 
 .passwordWrapper {
-  position: relative;
-  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .passwordWrapper input {
-  width: 100%;
-  padding-right: 2.5rem; /* leave space for eye icon */
+  border: none;
+  display: flex;
+  width: 39rem;
+  height: 4.5rem;
+  padding-left: 0.5rem;
+  padding-right:3rem;
+  border-radius: 0.8rem;
+  border: 1px solid gray;
+  font-size: 1.7rem;
+  
 }
 
 .eyeIcon {
   position: absolute;
-  right: 10px;
-  top: 50%;
+  right: 4rem;
+  margin-top: 3rem;
   transform: translateY(-50%);
   cursor: pointer;
   color: gray;

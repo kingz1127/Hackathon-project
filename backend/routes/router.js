@@ -6,11 +6,11 @@ import nodemailer from "nodemailer";
 import path from "path";
 import { fileURLToPath } from "url";
 
-import Admin from "./models/Admin.js";
-import Attendance from "./models/Attendance.js";
-import Message from "./models/Message.js";
-import Student from "./models/Student.js";
-import Teacher from "./models/Teacher.js";
+import Admin from "../models/Admin.js";
+import Attendance from "../models/Attendance.js";
+import Message from "../models/Message.js";
+import Student from "../models/Student.js";
+import Teacher from "../models/Teacher.js";
 
 dotenv.config();
 
@@ -402,8 +402,8 @@ router.post("/messages/send", async (req, res) => {
               <p style="color: #666; font-size: 12px; text-align: center;">This is an automated message. Please do not reply to this email.</p>
             </div>
           `,
-            text: `Hello ${FullName},\n\nYour teacher account has been created.\n\nLogin Credentials:\nTeacher ID: ${teacherId}\nEmail: ${Email}\nTemporary Password: ${teacherPassword}\n\nLogin at: http://localhost:5173/login\n\nPlease change your password after your first login.\n\nThis is an automated message.`,
-          };
+            text: `Hello ${FullName},\n\nYour teacher account has been created.\n\nLogin Credentials:\nTeacher ID: ${teacherId}\nEmail: ${Email}\nTemporary Password: ${teacherPassword}\n\nLogin at: http://localhost:5173/login\n\nPlease change your password after your first login.\n\nThis is an automated message.,
+          `};
 
           const info = await transporter.sendMail(mailOptions);
           console.log("Email sent successfully!");

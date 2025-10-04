@@ -29,6 +29,7 @@ import Courses from "./Components/Student/Courses";
 import Dashboard from "./Components/Student/Dashboard";
 import Grades from "./Components/Student/Grades";
 import TeacherDashboardLayout from "./Components/Teacher/TeacherDashboardLayout";
+import EventsPage from "./Components/AdminDashboard/EventPage";
 
 
 export default function App() {
@@ -52,6 +53,7 @@ export default function App() {
           <Route path="admindashboard1" element={<AdminDashboard1 />} />
           <Route path="adminstudent" element={<AdminStudent />} />
           <Route path="adminteacher" element={<AdminTeacher />} />
+          <Route path= "adminmessages" element={<EventsPage />} />
           <Route path="*" element={<p>Invalid route (404 Not Found)!!!</p>} />
         </Route>
 

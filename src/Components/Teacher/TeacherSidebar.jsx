@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { FaBook, FaClipboardCheck, FaCog, FaEnvelope, FaTachometerAlt, FaUsers } from "react-icons/fa";
 import { NavLink } from "react-router";
@@ -48,28 +47,35 @@ export default function TeacherSidebar() {
       </div>
 
       <NavLink to="/teachdashboard" className="nav-link">
-        <FaTachometerAlt /> Dashboard
+       <div><p> <FaTachometerAlt /></p> <p>Dashboard</p></div>
       </NavLink>
+      
       <NavLink to="/teachprofile" className="nav-link">
-        <FaUsers /> Profile
+        <div><p> <FaUsers /></p> <p>Profile</p></div>
       </NavLink>
+
       <NavLink to="/teachclasses" className="nav-link">
-        <FaBook /> My Classes
+      <div><p> <FaBook /></p> <p>My Classes</p></div>   
       </NavLink>
+
       <NavLink to="/teachattendance" className="nav-link">
-        <FaClipboardCheck /> Attendance
+      <div><p> <FaClipboardCheck /></p> <p>Attendance</p></div>
       </NavLink>
+
       <NavLink to="/teachstudent" className="nav-link">
-        <FaUsers /> Students
+      <div><p> <FaUsers /> </p> <p>Students</p></div>
       </NavLink>
+
       <NavLink to="/teachannouncements" className="nav-link">
-        <FaEnvelope /> Announcements
+      <div><p><FaEnvelope /></p> <p>Announcements</p></div>      
       </NavLink>
+
       <NavLink to="/teachresources" className="nav-link">
-        <FaBook /> Resources
+      <div><p> <FaBook /></p> <p>Resources</p></div>       
       </NavLink>
+
       <NavLink to="/teachsettings" className="nav-link">
-        <FaCog /> Settings
+      <div><p> <FaCog /></p> <p>Settings</p></div>
       </NavLink>
     </div>
   );

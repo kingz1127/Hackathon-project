@@ -141,7 +141,6 @@ export default function Login() {
           {error && <p style={{ color: "red" }}>{error}</p>}
 
           <button type="submit">Login</button>
-         
           <p>{isAuthenticating && "loading..."}</p>
         </form>
       </div>
