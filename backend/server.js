@@ -1,25 +1,20 @@
-import nodemailer from "nodemailer";
 import bcrypt from "bcryptjs";
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
 import fs from "fs";
 import mongoose from "mongoose";
+import nodemailer from "nodemailer";
 import path from "path";
 import process from "process";
 import { fileURLToPath } from "url";
 import attendanceRoutes from "./attendance.js";
-import messageRoutes from "./message.js";
 import Admin from "./models/Admin.js";
 import registerRoutes from "./models/registerRoutes.js";
 import Student from "./models/Student.js";
-import Teacher from "./models/Teacher.js"; 
+import Teacher from "./models/Teacher.js";
 import teacherRoutes from "./router.js";
 import studentRoutes from "./studentRoutes.js";
-<<<<<<< HEAD
-=======
-// import messageRoutes from "./message.js";
->>>>>>> ff151720b8ea5984e62fcde9aaf3ee6ee724af47
 
 dotenv.config();
 

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { AiOutlineQuestionCircle, AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
+import { AiOutlineEye, AiOutlineEyeInvisible, AiOutlineQuestionCircle } from "react-icons/ai";
 import { BiLockAlt } from "react-icons/bi";
 import { HiMail } from "react-icons/hi";
 import { IoMdCall, IoMdPerson } from "react-icons/io";
@@ -13,11 +13,8 @@ export default function Login() {
   const [schoolID, setSchoolID] = useState("");
   const [schoolPassword, setSchoolPassword] = useState("");
   const [error, setError] = useState("");
-<<<<<<< HEAD
   const [showPassword, setShowPassword] = useState(false); // 👈 toggle state
-=======
   const [isAuthenticating, setIsAuthenticating] = useState(false);
->>>>>>> ff151720b8ea5984e62fcde9aaf3ee6ee724af47
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -143,14 +140,9 @@ export default function Login() {
 
           {error && <p style={{ color: "red" }}>{error}</p>}
 
-<<<<<<< HEAD
           <button type="submit">Login</button>
-=======
-          <button type="submit">
-            Login
-          </button>
+         
           <p>{isAuthenticating && "loading..."}</p>
->>>>>>> ff151720b8ea5984e62fcde9aaf3ee6ee724af47
         </form>
       </div>
     </>
