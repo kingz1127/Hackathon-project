@@ -4,10 +4,10 @@ import multer from "multer";
 import nodemailer from "nodemailer";
 import path from "path";
 import { fileURLToPath } from "url";
-import Admin from "./models/Admin.js";
-import Student from "./models/Student.js";
-import Teacher from "./models/Teacher.js";
-import Message from "./models/Message.js";
+import Admin from "../models/Admin.js";
+import Student from "../models/Student.js";
+import Teacher from "../models/Teacher.js";
+import Message from "../models/Message.js";
 
 const router = express.Router();
 const __filename = fileURLToPath(import.meta.url);
