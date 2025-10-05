@@ -98,121 +98,152 @@
 }
 
 /* Notifications */
-.notification-badge {
-  position: absolute;
-  top: -2px;
-  right: -2px;
-  background-color: #ef4444;
-  color: white;
-  font-size: 10px;
-  font-weight: bold;
-  border-radius: 50%;
-  width: 18px;
-  height: 18px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 2px solid white;
-}
-.badge-inline {
-  color: #ef4444;
-  font-weight: 600;
-}
+
 .notification-panel {
   position: absolute;
-  top: 80px;
+  top: 60px;
   right: 20px;
-  width: 400px;
-  max-height: 500px;
-  background-color: white;
-  border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-  border: 1px solid #e2e8f0;
-  z-index: 1001;
-  overflow: hidden;
+  width: 350px;
+  max-height: 450px;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+  overflow-y: auto;
+  z-index: 1000;
+  padding: 10px;
 }
+
 .notification-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px 20px;
-  border-bottom: 1px solid #e2e8f0;
-  background-color: #f8fafc;
+  border-radius: 1rem;;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 5px;
+  margin-bottom: 10px;
 }
+
 .notification-title {
-  margin: 0;
-  font-size: 18px;
-  font-weight: 600;
-  color: #1e293b;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: white;
 }
-.close-btn {
+.notification-header-actions .close-btn {
   background: none;
+  margin: 1.5rem;
+}
+
+.notification-header-actions .clear-all-btn{
+  background-color: #007bff;
+  color: var(--white);
   border: none;
-  font-size: 24px;
+  border-radius: 0.5rem;
+  padding: 0.3rem 0.6rem;
+  font-size: 1rem;
+  margin-right: 3rem;
   cursor: pointer;
-  color: #64748b;
-  padding: 0;
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background-color 0.2s ease;
+  transition: background 0.2s ease;
 }
+
 .notifications-list {
-  max-height: 400px;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
-.no-notifications {
-  padding: 40px 20px;
-  text-align: center;
-  color: #64748b;
-  font-size: 14px;
-}
+
 .notification-item {
-  padding: 16px 20px;
-  border-bottom: 1px solid #f1f5f9;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
   position: relative;
+  background: #f9f9f9;
+  border-radius: 8px;
+  padding: 10px 12px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  transition: transform 0.2s;
 }
+
+.notification-item:hover {
+  transform: translateY(-2px);
+}
+
 .unread-notification {
-  background-color: #f0f9ff;
-  border-left: 4px solid #3b82f6;
+  border-left: 4px solid #4caf50;
 }
+
 .notification-sender {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 6px;
+  font-weight: bold;
 }
+
 .sender-icon {
-  font-size: 16px;
+  margin-right: 5px;
 }
-.sender-name {
-  font-weight: 600;
-  font-size: 14px;
-  color: #1e293b;
-}
+
 .notification-time {
-  font-size: 12px;
-  color: #64748b;
-  margin-left: auto;
+  font-size: 0.8rem;
+  color: #777;
+  margin-left: 10px;
 }
+
+.delete-btn {
+  background: none;
+  border: none;
+  color: #e74c3c;
+  cursor: pointer;
+  font-size: 1.2rem;
+}
+
 .notification-message {
-  font-size: 14px;
-  color: #374151;
-  line-height: 1.4;
-  padding-left: 24px;
+  margin: 6px 0;
+  font-size: 0.95rem;
 }
+
+.action-buttons {
+  display: flex;
+  gap: 5px;
+}
+
+.mark-read-btn {
+  background-color: #4caf50;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  padding: 4px 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.reply-box {
+  display: flex;
+  gap: 5px;
+  margin-top: 5px;
+}
+
+.reply-box input {
+  flex: 1;
+  padding: 5px 8px;
+  font-size: 0.9rem;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+.reply-box button {
+  padding: 5px 10px;
+  font-size: 0.85rem;
+  border-radius: 5px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+}
+
 .unread-dot {
   position: absolute;
-  top: 16px;
-  left: 8px;
-  width: 8px;
-  height: 8px;
-  background-color: #22262cff;
+  top: 10px;
+  left: -6px;
+  width: 10px;
+  height: 10px;
+  background: #4caf50;
   border-radius: 50%;
 }
 

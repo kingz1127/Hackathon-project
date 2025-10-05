@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { FaTrash } from "react-icons/fa";
+import { FaX } from 'react-icons/fa6';
 import "./dashboard.css"; // Import the new CSS file
 import TeacherChatBubble from "./TeacherChatBubbble";
 
@@ -40,15 +41,25 @@ function ProfileIcon({ course = "Full Stack Development", semester = "Semester 3
         setStudentName("Error loading student");
       });
 
-    const fetchNotifications = () => {
-      fetch(`http://localhost:5000/messages/student/${studentId}`)
-        .then((res) => res.json())
-        .then((data) => {
-          const sortedData = data.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-          setNotifications(sortedData);
-        })
-        .catch((err) => console.error("Error fetching notifications:", err));
-    };
+  const fetchNotifications = async () => {
+  const studentId = localStorage.getItem("studentId");
+  console.log("Fetching notifications for:", studentId);
+
+  try {
+    const res = await fetch(`http://localhost:5000/messages/student/${studentId}`);
+    console.log("Response status:", res.status);
+    
+    if (!res.ok) throw new Error("Failed to fetch notifications");
+
+    const data = await res.json();
+    console.log("Fetched notifications:", data);
+
+    setNotifications(data.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)));
+  } catch (err) {
+    console.error("Error fetching notifications:", err);
+  }
+};
+
 
     fetchNotifications();
     const interval = setInterval(fetchNotifications, 10000);
@@ -73,6 +84,8 @@ function ProfileIcon({ course = "Full Stack Development", semester = "Semester 3
   const handleNotifications = () => {
     setShowNotifications(!showNotifications);
     setIsDropdownOpen(false);
+    console.log("notifications:", notifications)
+
   };
 
   const handleSettings = () => {
@@ -175,7 +188,8 @@ function ProfileIcon({ course = "Full Stack Development", semester = "Semester 3
         )}
       </div>
 
-      {showNotifications && (
+     
+     {showNotifications && (
         <div className="notification-panel">
           <div className="notification-header">
             <h3 className="notification-title">Notifications</h3>
@@ -183,7 +197,7 @@ function ProfileIcon({ course = "Full Stack Development", semester = "Semester 3
               {notifications.length > 0 && (
                 <button className="clear-all-btn" onClick={clearAllNotifications}>Clear All</button>
               )}
-              <button className="close-btn" onClick={() => setShowNotifications(false)}>×</button>
+              <button className="close-btn" onClick={() => setShowNotifications(false)}><FaX/></button>
             </div>
           </div>
           <div className="notifications-list">
@@ -549,16 +563,20 @@ const sendMessageToTeacher = async () => {
       </div>
 
       {/* Teacher Chat Modal */}
-      {teacherChatOpen && (
-        <TeacherChatBubble
-          messages={teacherMessages}
-          onClose={() => setTeacherChatOpen(false)}
-          teacherName={teacherName}
-          message={teacherMessage}
-          setMessage={setTeacherMessage}
-          sendMessage={sendMessageToTeacher}
-        />
-      )}
+     {/* Teacher Chat Modal */}
+{teacherChatOpen && (
+  <TeacherChatBubble
+    messages={teacherMessages}
+    message={teacherMessage}
+    setMessage={setTeacherMessage}
+    sendMessage={sendMessageToTeacher} // fixed
+    teacherName={teacherName}
+    studentId={studentId}
+    teacherId={teacherId}
+    onClose={() => setTeacherChatOpen(false)} // fixed case
+  />
+)}
+
     </div>
   );
 }

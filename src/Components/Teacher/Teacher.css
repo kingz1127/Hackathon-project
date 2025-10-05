@@ -202,9 +202,26 @@ body {
 .notification-actions button {
   background: transparent;
   border: none;
-  color: var(--white);
+  color: var(--dark);
   cursor: pointer;
   margin-left: 0.5rem;
+}
+.notification-actions .close-btn {
+  background: none;
+  color: white;
+  margin: 1.5rem;
+}
+
+.notification-actions .clear-all-btn{
+  background: var(--secondary);
+  color: var(--white);
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.3rem 0.6rem;
+  font-size: 1rem;
+  margin-right: 3rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
 }
 
 .notifications-list {
@@ -1314,6 +1331,47 @@ body {
   transform: scale(1.05);
 }
 
+
+/* ===================== */
+/* announcements Page Styles */
+/* ===================== */
+.announcements-container {
+  padding: 20px;
+  font-family: system-ui, -apple-system, sans-serif;
+  background-color: #f8fafc;
+  min-height: 100vh;
+}
+
+.announcements-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.announcement-card {
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.announcement-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #1e293b;
+}
+
+.announcement-desc {
+  margin: 10px 0;
+  color: #64748b;
+}
+
+.announcement-date,
+.announcement-author {
+  font-size: 0.85rem;
+  color: #94a3b8;
+}
 
 
 /* ===================== */

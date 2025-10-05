@@ -8,30 +8,16 @@ import nodemailer from "nodemailer";
 import path from "path";
 import process from "process";
 import { fileURLToPath } from "url";
-<<<<<<< HEAD
-import attendanceRoutes from "./attendance.js";
-=======
-// import attendanceRoutes from "./attendance.js";
->>>>>>> 29eb4dd1f7dbc261c6a567659005f81e9d49a5ee
 import Admin from "./models/Admin.js";
+import attendanceRoutes from "./routes/attendance.js";
 // import registerRoutes from "./models/registerRoutes.js";
 import Student from "./models/Student.js";
 import Teacher from "./models/Teacher.js";
-<<<<<<< HEAD
-import teacherRoutes from "./router.js";
-import studentRoutes from "./studentRoutes.js";
-=======
-// import teacherRoutes from "./router.js";
-// import studentRoutes from "./studentRoutes.js";
-
-
-import eventRoutes from "./routes/eventRoutes.js";  // ✅ FIXED
-import attendanceRoutes from "./routes/attendance.js";
+import eventRoutes from "./routes/eventRoutes.js";
+import messageRoutes from "./routes/message.js";
+import registerRoutes from "./routes/registerRoutes.js";
 import teacherRoutes from "./routes/router.js";
 import studentRoutes from "./routes/studentRoutes.js";
-import registerRoutes from "./routes/registerRoutes.js";
-import messageRoutes from "./routes/message.js";
->>>>>>> 29eb4dd1f7dbc261c6a567659005f81e9d49a5ee
 
 dotenv.config();
 
@@ -449,6 +435,7 @@ mongoose
 app.use("/", teacherRoutes);
 app.use("/", studentRoutes);
 app.use("/api", registerRoutes);
+app.use("/", messageRoutes);
 // // ✅ Admin Login Route
 // app.post("/admin/login", async (req, res) => {
 //   try {

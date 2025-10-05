@@ -11,46 +11,50 @@ export default function TeacherDashboard() {
   const [teacherId, setTeacherId] = useState(null);
   const [replyTexts, setReplyTexts] = useState({});
 
-  useEffect(() => {
-    // Get teacherId from localStorage (set during login)
-    const storedTeacherId = localStorage.getItem("teacherId");
+ useEffect(() => {
+  const storedTeacherId = localStorage.getItem("teacherId");
+  if (!storedTeacherId) {
+    console.error("No teacherId found in localStorage. User not logged in?");
+    return;
+  }
+  setTeacherId(storedTeacherId);
 
-    if (!storedTeacherId) {
-      console.error("No teacherId found in localStorage. User not logged in?");
-      return;
+  // Fetch teacher data
+  fetch(`http://localhost:5000/admin/teachers/${storedTeacherId}`)
+    .then((res) => {
+      if (!res.ok) throw new Error(`Failed to fetch teacher. Status: ${res.status}`);
+      return res.json();
+    })
+    .then((data) => setTeacher(data))
+    .catch((err) => console.error("Error fetching teacher:", err));
+
+  // Fetch teacher notifications
+  const fetchNotifications = async () => {
+    const url = `http://localhost:5000/messages/teacher/${storedTeacherId}`;
+    console.log("Fetching notifications for:", storedTeacherId, "URL:", url);
+
+    try {
+      const res = await fetch(url);
+      if (!res.ok) {
+        console.error(`Notifications fetch failed. Status: ${res.status}`);
+        return; // stop further processing
+      }
+
+      const data = await res.json();
+      console.log("Fetched notifications:", data);
+
+      const sortedData = data.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+      setNotifications(sortedData);
+    } catch (err) {
+      console.error("Error fetching notifications:", err);
     }
+  };
 
-    setTeacherId(storedTeacherId);
+  fetchNotifications();
+  const interval = setInterval(fetchNotifications, 10000); // poll every 10s
+  return () => clearInterval(interval);
+}, []);
 
-    // Fetch teacher data
-    fetch(`http://localhost:5000/admin/teachers/${storedTeacherId}`)
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch teacher");
-        return res.json();
-      })
-      .then((data) => setTeacher(data))
-      .catch((err) => console.error("Error fetching teacher:", err));
-
-    
-
-    // Fetch teacher notifications
-    const fetchNotifications = () => {
-      fetch(`http://localhost:5000/messages/teacher/${storedTeacherId}`)
-        .then((res) => res.json())
-        .then((data) => {
-          const sortedData = data.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-          setNotifications(sortedData);
-        })
-        .catch((err) => console.error("Error fetching notifications:", err));
-    };
-
-    fetchNotifications();
-
-    // Poll for new notifications every 10 seconds
-    const interval = setInterval(fetchNotifications, 10000);
-    return () => clearInterval(interval);
-
-  }, []);
 
   // Mark notification as read
   const markAsRead = async (id) => {

@@ -1,87 +1,42 @@
-// src/pages/Announcements.jsx
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./Teacher.css";
 
 export default function Announcements() {
-  const [announcements, setAnnouncements] = useState([
-    {
-      id: 1,
-      title: "Exam Schedule",
-      message: "The midterm exams will begin next Monday. Please check the timetable.",
-      author: "Admin",
-      date: "2025-08-27",
-    },
-    {
-      id: 2,
-      title: "Holiday Notice",
-      message: "School will remain closed this Friday for a public holiday.",
-      author: "Principal",
-      date: "2025-08-25",
-    },
-  ]);
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const [newAnnouncement, setNewAnnouncement] = useState({
-    title: "",
-    message: "",
-    author: "",
-  });
-
-  const handleChange = (e) => {
-    setNewAnnouncement({ ...newAnnouncement, [e.target.name]: e.target.value });
-  };
-
-  const handleAdd = (e) => {
-    e.preventDefault();
-    if (!newAnnouncement.title || !newAnnouncement.message) return;
-
-    const newItem = {
-      id: announcements.length + 1,
-      ...newAnnouncement,
-      date: new Date().toISOString().split("T")[0],
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const res = await fetch("http://localhost:5000/events/");
+        if (!res.ok) throw new Error("Failed to fetch events");
+        const data = await res.json();
+        setEvents(data);
+      } catch (err) {
+        console.error("Error fetching events:", err);
+      } finally {
+        setLoading(false);
+      }
     };
+    fetchEvents();
+  }, []);
 
-    setAnnouncements([newItem, ...announcements]);
-    setNewAnnouncement({ title: "", message: "", author: "" });
-  };
+  if (loading) return <p>Loading announcements...</p>;
+
+  if (events.length === 0)
+    return <p>No announcements at the moment.</p>;
 
   return (
-    <div>
-      <h2>Announcements</h2>
-
-      {/* Form to add announcements */}
-      <form className="announcement-form" onSubmit={handleAdd}>
-        <input
-          type="text"
-          name="title"
-          placeholder="Announcement Title"
-          value={newAnnouncement.title}
-          onChange={handleChange}
-        />
-        <textarea
-          name="message"
-          placeholder="Write your message..."
-          value={newAnnouncement.message}
-          onChange={handleChange}
-        />
-        <input
-          type="text"
-          name="author"
-          placeholder="Your Name"
-          value={newAnnouncement.author}
-          onChange={handleChange}
-        />
-        <button type="submit">Post Announcement</button>
-      </form>
-
-      {/* Announcement list */}
-      <div className="announcement-list">
-        {announcements.map((a) => (
-          <div key={a.id} className="announcement-card">
-            <h4>{a.title}</h4>
-            <div className="announcement-meta">
-              {a.date} • {a.author}
-            </div>
-            <p>{a.message}</p>
+    <div className="announcements-container">
+      <h2>📢 Announcements</h2>
+      <div className="events-list">
+        {events.map(event => (
+          <div key={event._id} className="event-card">
+            <h3>{event.title}</h3>
+            <p>{event.description}</p>
+            <p><strong>Date:</strong> {new Date(event.date).toLocaleDateString()}</p>
+            {event.location && <p><strong>Location:</strong> {event.location}</p>}
+            {event.organizer && <p><strong>Organizer:</strong> {event.organizer}</p>}
           </div>
         ))}
       </div>

@@ -38,7 +38,7 @@ export default function Student() {
 
     try {
       const res = await fetch(
-        `http://localhost:5000/messages/chat/${teacherId}/${student._id}`
+        `http://localhost:5000/messages/chat/${teacherId}/${student.studentId}`
       );
       const data = await res.json();
       if (res.ok) setChatMessages(data);
@@ -71,7 +71,7 @@ export default function Student() {
         body: JSON.stringify({
           senderId: teacherId,
           senderName: teacherName,
-          receiverId: selectedStudent._id,
+          receiverId: selectedStudent.studentId,
           content: message,
         }),
       });
@@ -89,7 +89,7 @@ export default function Student() {
 
   // refresh chat
   const res = await fetch(
-    `http://localhost:5000/messages/chat/${teacherId}/${selectedStudent._id}`
+    `http://localhost:5000/messages/chat/${teacherId}/${selectedStudent.studentId}`
   );
   const updatedMessages = await res.json();
   if (res.ok) setChatMessages(updatedMessages);
@@ -113,7 +113,7 @@ export default function Student() {
   const interval = setInterval(async () => {
     try {
       const res = await fetch(
-        `http://localhost:5000/messages/chat/${teacherId}/${selectedStudent._id}`
+        `http://localhost:5000/messages/chat/${teacherId}/${selectedStudent.studentId}`
       );
       const data = await res.json();
       if (res.ok) setChatMessages(data);
