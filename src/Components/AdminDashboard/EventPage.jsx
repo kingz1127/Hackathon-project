@@ -4,7 +4,7 @@ import EventModal from "./UI/EventModal";
 import EventForm from "./UI/EventForm";
 import { Search, Filter, Plus, Edit, Trash2 } from "lucide-react";
 import axios from "axios";
-import "./EventPage.css"; // Import the CSS file
+import "./EventPage.css";
 
 export default function EventsPage() {
   const [events, setEvents] = useState([]);
@@ -17,14 +17,12 @@ export default function EventsPage() {
 
   const today = new Date();
 
-  // ✅ Fetch events on page load
   useEffect(() => {
     axios.get("http://localhost:5000/api/events")
       .then(res => setEvents(res.data))
-      .catch(err => console.error("❌ Error fetching events:", err));
+      .catch(err => console.error("Error fetching events:", err));
   }, []);
 
-  // Filter + Search + Sort
   const filteredEvents = events
     .filter((event) => {
       const eventDate = new Date(event.date);
@@ -34,73 +32,126 @@ export default function EventsPage() {
     })
     .filter((event) => {
       const query = search.toLowerCase();
+      const title = event.title?.toLowerCase() || "";
+      const location = event.location?.toLowerCase() || "";
+      const organizer = event.organizer?.toLowerCase() || "";
+      const dateStr = new Date(event.date).toDateString().toLowerCase();
+      const participants = (event.participants || []).map(p => p?.toLowerCase() || "");
       return (
-        event.title.toLowerCase().includes(query) ||
-        new Date(event.date).toDateString().toLowerCase().includes(query) ||
-        event.location.toLowerCase().includes(query) ||
-        event.organizer?.toLowerCase().includes(query) ||
-        (event.participants || []).some((p) => p.toLowerCase().includes(query))
+        title.includes(query) ||
+        dateStr.includes(query) ||
+        location.includes(query) ||
+        organizer.includes(query) ||
+        participants.some(p => p.includes(query))
       );
     })
     .sort((a, b) => new Date(a.date) - new Date(b.date));
 
-  // Add new event
   const handleAdd = () => {
     setEventToEdit(null);
     setFormModalOpen(true);
   };
 
-  // Edit existing event
   const handleEdit = (event) => {
     setEventToEdit(event);
     setFormModalOpen(true);
   };
 
-  // Save event (add or edit)
   const handleSave = async (newEvent, id) => {
     try {
+      let savedEvent;
+
       if (id) {
         const { data } = await axios.put(`http://localhost:5000/api/events/${id}`, newEvent);
         setEvents(events.map((e) => (e._id === id ? data : e)));
+        savedEvent = data;
       } else {
         const { data } = await axios.post("http://localhost:5000/api/events", newEvent);
-        setEvents([...events, data]);
+        // Handle both {event: {...}} and direct {...} responses safely
+        const eventData = data.event || data;
+        setEvents([...events, eventData]);
+        savedEvent = eventData;
+
+        await sendEventNotifications(savedEvent);
       }
+
       setFormModalOpen(false);
     } catch (err) {
-      console.error("❌ Error saving event:", err);
+      console.error("Error saving event:", err);
     }
   };
 
-  // Delete event
+  const sendEventNotifications = async (event) => {
+    try {
+      console.log("🔔 Starting to send event notifications for:", event.title);
+
+      const [teachersRes, studentsRes] = await Promise.all([
+        axios.get("http://localhost:5000/admin/teachers"),
+        axios.get("http://localhost:5000/admin/students")
+      ]);
+
+      const teachers = teachersRes.data;
+      const students = studentsRes.data;
+
+      console.log("📚 Found teachers:", teachers.length);
+      console.log("👨‍🎓 Found students:", students.length);
+
+      const notificationContent = `New Event: ${event.title}\n${event.description || ''}\nDate: ${new Date(event.date).toLocaleDateString()}\nLocation: ${event.location || 'TBA'}`;
+
+      const teacherNotifications = teachers.map(teacher => {
+        console.log("Sending to teacher ID:", teacher._id);
+        return axios.post("http://localhost:5000/messages/send", {
+          senderId: "admin",
+          senderName: "Admin",
+          receiverId: teacher._id,
+          content: notificationContent,
+          eventId: event._id,
+          isEventNotification: true
+        });
+      });
+
+      const studentNotifications = students.map(student => {
+        console.log("Sending to student ID:", student._id);
+        return axios.post("http://localhost:5000/messages/send", {
+          senderId: "admin",
+          senderName: "Admin",
+          receiverId: student._id,
+          content: notificationContent,
+          eventId: event._id,
+          isEventNotification: true
+        });
+      });
+
+      const results = await Promise.all([...teacherNotifications, ...studentNotifications]);
+
+      console.log("✅ Event notifications sent successfully! Total:", results.length);
+      alert(`Event created! Notifications sent to ${teachers.length} teachers and ${students.length} students.`);
+    } catch (err) {
+      console.error("❌ Error sending event notifications:", err);
+      console.error("Error details:", err.response?.data);
+      alert("Event created but failed to send some notifications. Check console for details.");
+    }
+  };
+
   const handleDelete = async (id) => {
     try {
       await axios.delete(`http://localhost:5000/api/events/${id}`);
       setEvents(events.filter((e) => e._id !== id));
     } catch (err) {
-      console.error("❌ Error deleting event:", err);
+      console.error("Error deleting event:", err);
     }
   };
 
-  // Calendar months
   const months = [
     "January","February","March","April","May","June",
     "July","August","September","October","November","December"
   ];
-  const currentMonthIndex = new Date().getMonth();
-  const rotatedMonths = [
-    ...months.slice(currentMonthIndex),
-    ...months.slice(0, currentMonthIndex),
-  ];
 
   return (
     <div className="events-container">
-      {/* Title */}
       <h1 className="page-title">Admin – Events & Calendar</h1>
 
-      {/* Search + Filter Controls */}
       <div className="controls">
-        {/* Search Bar */}
         <div className="search-container">
           <Search className="search-icon" size={18} />
           <input
@@ -112,7 +163,6 @@ export default function EventsPage() {
           />
         </div>
 
-        {/* Filter */}
         <div className="filter-container">
           <Filter size={18} className="filter-icon" />
           <select
@@ -127,18 +177,15 @@ export default function EventsPage() {
         </div>
       </div>
 
-      {/* Layout */}
       <div className="layout-grid">
-        {/* Calendar */}
         <div className="calendar-section">
           <Calendar
             events={filteredEvents}
-            months={rotatedMonths}
+            months={months}
             onSelect={setSelectedEvent}
           /> 
         </div>
 
-        {/* Manage Events List */}
         <div className="manage-events">
           <h2 className="manage-title">Manage Events</h2>
           <ul className="events-list">
@@ -182,7 +229,6 @@ export default function EventsPage() {
         </div>
       </div>
 
-      {/* Event Details Modal */}
       {selectedEvent && (
         <EventModal
           event={selectedEvent}
@@ -190,7 +236,6 @@ export default function EventsPage() {
         />
       )}
 
-      {/* Add/Edit Form Modal */}
       {formModalOpen && (
         <EventForm
           event={eventToEdit}
@@ -199,7 +244,6 @@ export default function EventsPage() {
         />
       )}
 
-      {/* Floating Action Button */}
       <button
         onClick={handleAdd}
         className="fab"

@@ -580,7 +580,8 @@ export default function AdminStudent() {
                     ) : (
                       <div>No Photo</div>
                     )}
-                    {student.FullName}
+                    <p>{student.FullName}</p>
+                    
                     
                   </td>
                   <td>{student.Email}</td>

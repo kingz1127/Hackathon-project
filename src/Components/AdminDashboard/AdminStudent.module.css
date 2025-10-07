@@ -91,9 +91,10 @@
 
 /* Table */
 .table{
-  width: 100%;
-  border-collapse: collapse;
-  min-width: 1200px; /* allow horizontal scroll if needed */
+  /* width: 100%; */
+  /* border-collapse: collapse; */
+  /* min-width: 1200px;  */
+  /* allow horizontal scroll if needed */
   background: var(--card);
 }
 
@@ -104,19 +105,22 @@
   background: linear-gradient(180deg,#fafbff,#f4f6fb);
   border-bottom: 1px solid var(--border);
   padding: 12px 10px;
-  text-align: center;
-  font-size: 13px;
+  /* text-align: center; */
+  font-size: 1.8rem;
   color: var(--muted);
   font-weight: 600;
 }
 
 .table tbody td{
-  padding: 10px;
+  display: flexbox;
+  align-items: center;
+  justify-content: center;
+  padding-left: 1rem;
+  padding-right: 5rem;
   border-bottom: 1px solid #f1f4f8;
-  font-size: 14px;
+  font-size: 1.5rem;
   text-align: center;
   color: var(--text);
-  vertical-align: middle;
 }
 
 .table tbody tr:hover{
@@ -217,11 +221,13 @@
   background: var(--success);
   color: white;
 }
-/* .fullimg{
+
+.fullimg{
   display: flex;
-  column-gap: 4px;
+  column-gap: 1rem;
   align-items: center;
-} */
+}
+
 /* ==== MODAL OVERLAY ==== */
 .modalOverlay {
   position: fixed;

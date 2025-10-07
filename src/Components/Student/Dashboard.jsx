@@ -21,9 +21,13 @@ function ProfileIcon({ course = "Full Stack Development", semester = "Semester 3
   const [studentName, setStudentName] = useState("Loading...");
   const [studentImg, setStudentImg] = useState(null);
   const [studentCourse, setStudentCourse] = useState(null);
-
   const [notifications, setNotifications] = useState([]);
   const [replyTexts, setReplyTexts] = useState({});
+  
+  // Event notification states (MOVED INSIDE COMPONENT)
+  const [selectedEventId, setSelectedEventId] = useState(null);
+  const [eventDetails, setEventDetails] = useState(null);
+  const [showEventModal, setShowEventModal] = useState(false);
 
   useEffect(() => {
     const studentId = localStorage.getItem("studentId");
@@ -60,7 +64,6 @@ function ProfileIcon({ course = "Full Stack Development", semester = "Semester 3
   }
 };
 
-
     fetchNotifications();
     const interval = setInterval(fetchNotifications, 10000);
     return () => clearInterval(interval);
@@ -85,7 +88,6 @@ function ProfileIcon({ course = "Full Stack Development", semester = "Semester 3
     setShowNotifications(!showNotifications);
     setIsDropdownOpen(false);
     console.log("notifications:", notifications)
-
   };
 
   const handleSettings = () => {
@@ -127,6 +129,23 @@ function ProfileIcon({ course = "Full Stack Development", semester = "Semester 3
       );
     } catch (err) {
       console.error("Error marking as read:", err);
+    }
+  };
+
+  // Function to handle clicking on event notification (MOVED INSIDE COMPONENT)
+  const handleEventNotificationClick = async (notification) => {
+    if (notification.isEventNotification && notification.eventId) {
+      try {
+        const res = await fetch(`http://localhost:5000/api/events/${notification.eventId}`);
+        if (!res.ok) throw new Error("Failed to fetch event details");
+        const eventData = await res.json();
+        setEventDetails(eventData);
+        setShowEventModal(true);
+        await markAsRead(notification._id);
+      } catch (err) {
+        console.error("Error fetching event details:", err);
+        alert("Event details not found");
+      }
     }
   };
 
@@ -188,7 +207,6 @@ function ProfileIcon({ course = "Full Stack Development", semester = "Semester 3
         )}
       </div>
 
-     
      {showNotifications && (
         <div className="notification-panel">
           <div className="notification-header">
@@ -212,7 +230,18 @@ function ProfileIcon({ course = "Full Stack Development", semester = "Semester 3
                     <span className="notification-time">{new Date(notification.timestamp).toLocaleString()}</span>
                     <button className="delete-btn" onClick={() => deleteNotification(notification._id)} title="Delete notification"><FaTrash /></button>
                   </div>
-                  <div className="notification-message">{notification.content}</div>
+                  <div 
+                    className="notification-message" 
+                    style={{ cursor: notification.isEventNotification ? 'pointer' : 'default' }}
+                    onClick={() => {
+                      if (notification.isEventNotification) {
+                        handleEventNotificationClick(notification);
+                      }
+                    }}
+                  >
+                    {notification.isEventNotification && <span style={{ marginRight: '5px' }}>🎉</span>}
+                    {notification.content}
+                  </div>
                   <div className="action-buttons">
                     {!notification.isRead && <button className="mark-read-btn" onClick={() => markAsRead(notification._id)}>Mark as Read</button>}
                   </div>
@@ -233,9 +262,32 @@ function ProfileIcon({ course = "Full Stack Development", semester = "Semester 3
           </div>
         </div>
       )}
+
+      {showEventModal && eventDetails && (
+        <div className="event-modal-overlay" onClick={() => setShowEventModal(false)}>
+          <div className="event-modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="event-modal-header">
+              <h3>{eventDetails.title}</h3>
+              <button className="close-btn" onClick={() => setShowEventModal(false)}>
+                <FaX />
+              </button>
+            </div>
+            <div className="event-modal-body">
+              <p><strong>Description:</strong> {eventDetails.description || 'No description'}</p>
+              <p><strong>Date:</strong> {new Date(eventDetails.date).toLocaleDateString()}</p>
+              <p><strong>Location:</strong> {eventDetails.location || 'TBA'}</p>
+              {eventDetails.organizer && <p><strong>Organizer:</strong> {eventDetails.organizer}</p>}
+              {eventDetails.participants && eventDetails.participants.length > 0 && (
+                <p><strong>Participants:</strong> {eventDetails.participants.join(', ')}</p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+
 
 export default function Dashboard({ setActive }) {
   const [isClassesExpanded, setIsClassesExpanded] = useState(false);

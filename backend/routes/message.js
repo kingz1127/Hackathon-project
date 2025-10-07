@@ -1,13 +1,12 @@
 import express from "express";
 import Message from "../models/Message.js";
 
-
 const router = express.Router();
 
-// ✅ UNIFIED: Send a message (teacher → student or student → teacher)
+// ✅ UNIFIED: Send a message (teacher → student or student → teacher OR admin → event notification)
 router.post("/messages/send", async (req, res) => {
   try {
-    const { senderId, senderName, receiverId, content } = req.body;
+    const { senderId, senderName, receiverId, content, eventId, isEventNotification } = req.body;
 
     if (!senderId || !receiverId || !content) {
       return res.status(400).json({ error: "Missing required fields" });
@@ -19,6 +18,8 @@ router.post("/messages/send", async (req, res) => {
       senderName, 
       receiverId, 
       content,
+      eventId: eventId || null,
+      isEventNotification: isEventNotification || false,
       timestamp: new Date(),
       isRead: false
     });
@@ -54,6 +55,7 @@ router.get("/messages/chat/:teacherId/:studentId", async (req, res) => {
 router.get("/messages/student/:studentId", async (req, res) => {
   try {
     const messages = await Message.find({ receiverId: req.params.studentId })
+      .populate('eventId')
       .sort({ timestamp: -1 }); // latest first
 
     res.json(messages);
@@ -67,6 +69,7 @@ router.get("/messages/student/:studentId", async (req, res) => {
 router.get("/messages/teacher/:teacherId", async (req, res) => {
   try {
     const messages = await Message.find({ receiverId: req.params.teacherId })
+      .populate('eventId')
       .sort({ timestamp: -1 }); // latest first
 
     res.json(messages);
@@ -110,6 +113,41 @@ router.delete("/messages/:id", async (req, res) => {
     console.error("Error deleting message:", err);
     res.status(500).json({ error: err.message });
   }
+});
+
+// ✅ NEW: Real-time notification stream using Server-Sent Events (SSE)
+router.get("/messages/stream/:receiverId", async (req, res) => {
+  res.set({
+    "Cache-Control": "no-cache",
+    "Content-Type": "text/event-stream",
+    "Connection": "keep-alive",
+  });
+  res.flushHeaders();
+
+  console.log(`🔔 SSE connected for user: ${req.params.receiverId}`);
+
+  // Function to fetch and send notifications
+  const sendUpdate = async () => {
+    try {
+      const messages = await Message.find({ receiverId: req.params.receiverId })
+        .sort({ timestamp: -1 })
+        .limit(50);
+      res.write(`data: ${JSON.stringify(messages)}\n\n`);
+    } catch (err) {
+      console.error("SSE send error:", err);
+    }
+  };
+
+  // Send immediately once connected
+  await sendUpdate();
+
+  // Poll DB every 5 seconds for updates
+  const interval = setInterval(sendUpdate, 5000);
+
+  req.on("close", () => {
+    console.log(`❌ SSE disconnected for user: ${req.params.receiverId}`);
+    clearInterval(interval);
+  });
 });
 
 export default router;

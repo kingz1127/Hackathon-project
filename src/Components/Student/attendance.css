@@ -13,7 +13,12 @@
   --code-bg: #282c34;
 }
 
-
+.mainContent2{
+  flex-direction: column;
+   gap: 2rem;
+   margin: auto 0;
+   margin-left: -12rem;
+}
 .header {
   display: flex;
   justify-content: space-between;

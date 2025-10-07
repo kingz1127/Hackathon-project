@@ -30,6 +30,7 @@ import Dashboard from "./Components/Student/Dashboard";
 import Grades from "./Components/Student/Grades";
 import TeacherDashboardLayout from "./Components/Teacher/TeacherDashboardLayout";
 import EventsPage from "./Components/AdminDashboard/EventPage";
+import AnnouncementStudent from "./Components/Student/AnnoucementStudent";
 
 
 export default function App() {
@@ -77,6 +78,7 @@ export default function App() {
         <Route path= "studentgrades" element={<Grades/>}/>
         <Route path= "studentassignments" element={<Assignments/>}/>
         <Route path= "studentresources" element={<Resources/>}/>
+        <Route path= "studentAnnoucement" element={<AnnouncementStudent />} />
         <Route path= "studentsettings" element={<Settings/>}/>
       </Route>
       </Routes>

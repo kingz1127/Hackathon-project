@@ -189,7 +189,7 @@ export default function AdminTeacher() {
         <thead>
           <tr>
             <th>ID</th>
-            <th>Photo</th>
+            {/* <th>Photo</th> */}
             <th>Fullname</th>
             <th>Email</th>
             <th>DOB</th>
@@ -204,16 +204,15 @@ export default function AdminTeacher() {
           {teachers.map((t) => (
             <tr key={t.teacherId}>
               <td>{t.teacherId}</td>
-              <td>
+              <td className={styles.tdimgname}>
+
                 <img
                   src={t.TeacherIMG || "/default.png"}
                   alt={t.FullName}
-                  width="40"
-                  height="40"
-                  style={{ borderRadius: "50%", objectFit: "cover" }}
                 />
+                <p>{t.FullName}</p>    
               </td>
-              <td>{t.FullName}</td>
+              
               <td>{t.Email}</td>
               <td>{t.DOfB}</td>
               <td>{t.Course}</td>
@@ -341,8 +340,6 @@ export default function AdminTeacher() {
               <img
                 src={selectedTeacher.TeacherIMG || "/default.png"}
                 alt={selectedTeacher.FullName}
-                width="80"
-                height="80"
                 style={{ borderRadius: "50%" }}
               />
               <p>
@@ -369,12 +366,13 @@ export default function AdminTeacher() {
 
               <h3>Students</h3>
               <ul>
+                
                 {students.length > 0 ? (
                   students.map((s) => (
                     <li key={s.studentId || s.Email}>{s.FullName}</li>
                   ))
                 ) : (
-                  <p>No students assigned</p>
+                  <p>No students assigned!</p>
                 )}
               </ul>
             </div>

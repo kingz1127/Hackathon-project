@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import "./Teacher.css";
+import "./AnnoucementStudent.css";
 
-export default function Announcements() {
+export default function AnnouncementStudent() {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -31,8 +31,8 @@ export default function Announcements() {
     return <p>No announcements at the moment.</p>;
 
   return (
-    <div className="announcements-container">
-      <h2>📢 Announcements</h2>
+    <div className="announcements-container2">
+      <h2 className="annh2">📢 Announcements</h2>
       <div className="events-list">
         {events.map(event => (
           <div key={event._id} className="event-card">

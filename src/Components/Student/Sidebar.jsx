@@ -1,3 +1,5 @@
+import { MdOutlineAnnouncement } from "react-icons/md"; 
+
 
 import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
@@ -106,6 +108,14 @@ export default function Sidebar() {
             }
           >
             <span className="icon">📥</span> Resources
+          </NavLink>
+        </li>
+        <li>
+          <NavLink to="studentAnnoucement" className={({ isActive }) =>
+              isActive ? "sidebar-btn active" : "sidebar-btn"
+            }
+          >
+            <span className="icon">📢</span> Annoucements
           </NavLink>
         </li>
         <li>

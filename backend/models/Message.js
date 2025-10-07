@@ -1,13 +1,19 @@
-// models/Message.js
 import mongoose from "mongoose";
 
-const messageSchema = new mongoose.Schema({
-  senderId: String,
-  senderName: String,
-  receiverId: String,
-  content: String,
-  timestamp: { type: Date, default: Date.now },
-  isRead: { type: Boolean, default: false },
-});
+const messageSchema = new mongoose.Schema(
+  {
+    senderId: { type: String, required: true },
+    senderName: { type: String, required: true },
+    receiverId: { type: String, required: true },
+    content: { type: String, required: true },
+    isRead: { type: Boolean, default: false },
+    eventId: { type: mongoose.Schema.Types.ObjectId, ref: 'Event', default: null },
+    isEventNotification: { type: Boolean, default: false },
+    timestamp: { type: Date, default: Date.now }
+  },
+  { timestamps: true }
+);
 
-export default mongoose.model("Message", messageSchema);
+const Message = mongoose.model("Message", messageSchema);
+
+export default Message;

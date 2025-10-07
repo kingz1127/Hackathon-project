@@ -1,0 +1,13 @@
+.announcements-container2{
+   flex-direction: column;
+   gap: 2rem;
+   margin: auto 0;
+   margin-left: 2rem;
+}
+.annh2{
+    margin-bottom: 2rem;
+}
+.events-list{
+    border: 1px solid rgb(124, 121, 121);
+    border-radius: 8px;
+}

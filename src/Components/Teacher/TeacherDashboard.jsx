@@ -3,58 +3,58 @@ import { useEffect, useState } from "react";
 import { FaBell, FaChalkboard, FaChalkboardTeacher, FaEnvelope, FaTasks, FaTimes, FaTrash, FaUserGraduate } from "react-icons/fa";
 import "./Teacher.css";
 
-
 export default function TeacherDashboard() {
   const [teacher, setTeacher] = useState(null);
   const [notifications, setNotifications] = useState([]);
   const [showNotifications, setShowNotifications] = useState(false);
   const [teacherId, setTeacherId] = useState(null);
   const [replyTexts, setReplyTexts] = useState({});
+  const [showEventModal, setShowEventModal] = useState(false);
+  const [eventDetails, setEventDetails] = useState(null);
 
- useEffect(() => {
-  const storedTeacherId = localStorage.getItem("teacherId");
-  if (!storedTeacherId) {
-    console.error("No teacherId found in localStorage. User not logged in?");
-    return;
-  }
-  setTeacherId(storedTeacherId);
-
-  // Fetch teacher data
-  fetch(`http://localhost:5000/admin/teachers/${storedTeacherId}`)
-    .then((res) => {
-      if (!res.ok) throw new Error(`Failed to fetch teacher. Status: ${res.status}`);
-      return res.json();
-    })
-    .then((data) => setTeacher(data))
-    .catch((err) => console.error("Error fetching teacher:", err));
-
-  // Fetch teacher notifications
-  const fetchNotifications = async () => {
-    const url = `http://localhost:5000/messages/teacher/${storedTeacherId}`;
-    console.log("Fetching notifications for:", storedTeacherId, "URL:", url);
-
-    try {
-      const res = await fetch(url);
-      if (!res.ok) {
-        console.error(`Notifications fetch failed. Status: ${res.status}`);
-        return; // stop further processing
-      }
-
-      const data = await res.json();
-      console.log("Fetched notifications:", data);
-
-      const sortedData = data.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-      setNotifications(sortedData);
-    } catch (err) {
-      console.error("Error fetching notifications:", err);
+  useEffect(() => {
+    const storedTeacherId = localStorage.getItem("teacherId");
+    if (!storedTeacherId) {
+      console.error("No teacherId found in localStorage. User not logged in?");
+      return;
     }
-  };
+    setTeacherId(storedTeacherId);
 
-  fetchNotifications();
-  const interval = setInterval(fetchNotifications, 10000); // poll every 10s
-  return () => clearInterval(interval);
-}, []);
+    // Fetch teacher data
+    fetch(`http://localhost:5000/admin/teachers/${storedTeacherId}`)
+      .then((res) => {
+        if (!res.ok) throw new Error(`Failed to fetch teacher. Status: ${res.status}`);
+        return res.json();
+      })
+      .then((data) => setTeacher(data))
+      .catch((err) => console.error("Error fetching teacher:", err));
 
+    // Fetch teacher notifications
+    const fetchNotifications = async () => {
+      const url = `http://localhost:5000/messages/teacher/${storedTeacherId}`;
+      console.log("Fetching notifications for:", storedTeacherId, "URL:", url);
+
+      try {
+        const res = await fetch(url);
+        if (!res.ok) {
+          console.error(`Notifications fetch failed. Status: ${res.status}`);
+          return;
+        }
+
+        const data = await res.json();
+        console.log("Fetched notifications:", data);
+
+        const sortedData = data.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        setNotifications(sortedData);
+      } catch (err) {
+        console.error("Error fetching notifications:", err);
+      }
+    };
+
+    fetchNotifications();
+    const interval = setInterval(fetchNotifications, 10000);
+    return () => clearInterval(interval);
+  }, []);
 
   // Mark notification as read
   const markAsRead = async (id) => {
@@ -69,6 +69,22 @@ export default function TeacherDashboard() {
       );
     } catch (err) {
       console.error("Error marking as read:", err);
+    }
+  };
+
+  const handleEventNotificationClick = async (notification) => {
+    if (notification.isEventNotification && notification.eventId) {
+      try {
+        const res = await fetch(`http://localhost:5000/api/events/${notification.eventId}`);
+        if (!res.ok) throw new Error("Failed to fetch event details");
+        const eventData = await res.json();
+        setEventDetails(eventData);
+        setShowEventModal(true);
+        await markAsRead(notification._id);
+      } catch (err) {
+        console.error("Error fetching event details:", err);
+        alert("Event details not found");
+      }
     }
   };
 
@@ -111,54 +127,52 @@ export default function TeacherDashboard() {
   };
 
   // Reply to student message
- const replyToStudent = async (studentId, replyMessage, notifId) => {
-  if (!replyMessage || !replyMessage.trim()) {
-    alert("Please enter a reply message");
-    return;
-  }
+  const replyToStudent = async (studentId, replyMessage, notifId) => {
+    if (!replyMessage || !replyMessage.trim()) {
+      alert("Please enter a reply message");
+      return;
+    }
 
-  try {
-    const response = await fetch(`http://localhost:5000/messages/send`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        senderId: teacherId,
-        senderName: teacher?.FullName || "Teacher",
-        receiverId: studentId,
-        content: replyMessage,
-      }),
-    });
+    try {
+      const response = await fetch(`http://localhost:5000/messages/send`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          senderId: teacherId,
+          senderName: teacher?.FullName || "Teacher",
+          receiverId: studentId,
+          content: replyMessage,
+        }),
+      });
 
-    if (!response.ok) throw new Error("Failed to send reply");
+      if (!response.ok) throw new Error("Failed to send reply");
 
-    await markAsRead(notifId);
+      await markAsRead(notifId);
 
-    // Clear reply input
-    setReplyTexts(prev => ({
-      ...prev,
-      [notifId]: ""
-    }));
+      setReplyTexts(prev => ({
+        ...prev,
+        [notifId]: ""
+      }));
 
-    alert("Reply sent successfully!");
-  } catch (err) {
-    console.error("Error replying:", err);
-    alert("Failed to send reply. Please try again.");
-  }
-};
-
+      alert("Reply sent successfully!");
+    } catch (err) {
+      console.error("Error replying:", err);
+      alert("Failed to send reply. Please try again.");
+    }
+  };
 
   // Update reply text for specific notification
   const updateReplyText = (notifId, text) => {
-  setReplyTexts(prev => ({
-    ...prev,
-    [notifId]: text
-  }));
-};
+    setReplyTexts(prev => ({
+      ...prev,
+      [notifId]: text
+    }));
+  };
+
   const unreadCount = notifications.filter((n) => !n.isRead).length;
       
   return (
     <div className="main-content">
-      {/* Header */}
       <div className="header">
         <h1 className="page-title">Teacher Dashboard</h1>
         <div className="header-actions">
@@ -174,7 +188,6 @@ export default function TeacherDashboard() {
         </div>
       </div>
 
-      {/* Notification Panel */}
       {showNotifications && (
         <div className="notification-panel">
           <div className="notification-header">
@@ -217,7 +230,16 @@ export default function TeacherDashboard() {
                     </button>
                   </div>
 
-                  <div className="notification-message">
+                  <div 
+                    className="notification-message"
+                    style={{ cursor: notification.isEventNotification ? 'pointer' : 'default' }}
+                    onClick={() => {
+                      if (notification.isEventNotification) {
+                        handleEventNotificationClick(notification);
+                      }
+                    }}
+                  >
+                    {notification.isEventNotification && <span style={{ marginRight: '5px' }}>🎉</span>}
                     {notification.content}
                   </div>
 
@@ -232,38 +254,38 @@ export default function TeacherDashboard() {
                     )}
                   </div>
 
-                  {/* Reply Section */}
-                  <div className="reply-section">
-                   <input
-  type="text"
-  placeholder="Reply to student..."
-  value={replyTexts[notification._id] || ""}
-  onChange={(e) => updateReplyText(notification._id, e.target.value)}
-  className="reply-input"
-  onKeyPress={(e) => {
-    if (e.key === 'Enter') {
-      replyToStudent(
-        notification.senderId,
-        replyTexts[notification._id],
-        notification._id
-      );
-    }
-  }}
-/>
-<button
-  className="reply-btn"
-  onClick={() =>
-    replyToStudent(
-      notification.senderId,
-      replyTexts[notification._id],
-      notification._id
-    )
-  }
->
-  Reply
-</button>
-
-                  </div>
+                  {!notification.isEventNotification && (
+                    <div className="reply-section">
+                      <input
+                        type="text"
+                        placeholder="Reply to student..."
+                        value={replyTexts[notification._id] || ""}
+                        onChange={(e) => updateReplyText(notification._id, e.target.value)}
+                        className="reply-input"
+                        onKeyPress={(e) => {
+                          if (e.key === 'Enter') {
+                            replyToStudent(
+                              notification.senderId,
+                              replyTexts[notification._id],
+                              notification._id
+                            );
+                          }
+                        }}
+                      />
+                      <button
+                        className="reply-btn"
+                        onClick={() =>
+                          replyToStudent(
+                            notification.senderId,
+                            replyTexts[notification._id],
+                            notification._id
+                          )
+                        }
+                      >
+                        Reply
+                      </button>
+                    </div>
+                  )}
 
                   {!notification.isRead && <div className="unread-indicator"></div>}
                 </div>
@@ -273,7 +295,6 @@ export default function TeacherDashboard() {
         </div>
       )}
 
-      {/* Dashboard Cards */}
       <div className="dashboard-cards">
         <div className="card">
           <div className="card-header">
@@ -293,10 +314,7 @@ export default function TeacherDashboard() {
               <FaUserGraduate />
             </div>
           </div>
-          <div className="card-description">
-            Total students
-           
-          </div>
+          <div className="card-description">Total students</div>
         </div>
 
         <div className="card">
@@ -322,10 +340,8 @@ export default function TeacherDashboard() {
         </div>
       </div>
 
-      {/* Classes Section */}
       <h2 className="section-title"><FaChalkboard /> My Classes</h2>
 
-      {/* Example Classes Grid */}
       <div className="classes-grid">
         <div className="class-card">
           <div className="class-header">
@@ -349,7 +365,6 @@ export default function TeacherDashboard() {
         </div>
       </div>
 
-      {/* Assignments Section */}
       <h2 className="section-title" style={{ marginTop: "30px" }}>
         <FaTasks /> Assignments to Grade
       </h2>
@@ -369,8 +384,28 @@ export default function TeacherDashboard() {
           <div className="status-badge status-pending">Pending</div>
         </div>
       </div>
-    </div>
 
-    
+      {showEventModal && eventDetails && (
+        <div className="event-modal-overlay" onClick={() => setShowEventModal(false)}>
+          <div className="event-modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="event-modal-header">
+              <h3>{eventDetails.title}</h3>
+              <button className="close-btn" onClick={() => setShowEventModal(false)}>
+                <FaTimes />
+              </button>
+            </div>
+            <div className="event-modal-body">
+              <p><strong>Description:</strong> {eventDetails.description || 'No description'}</p>
+              <p><strong>Date:</strong> {new Date(eventDetails.date).toLocaleDateString()}</p>
+              <p><strong>Location:</strong> {eventDetails.location || 'TBA'}</p>
+              {eventDetails.organizer && <p><strong>Organizer:</strong> {eventDetails.organizer}</p>}
+              {eventDetails.participants && eventDetails.participants.length > 0 && (
+                <p><strong>Participants:</strong> {eventDetails.participants.join(', ')}</p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }

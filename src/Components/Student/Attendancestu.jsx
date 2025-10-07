@@ -134,6 +134,7 @@ export default function Attendancestu() {
 
   return (
     <main className="main-content">
+      <div className="mainContent2">
       {/* Header */}
       <div className="header">
         <div className="page-title">
@@ -321,6 +322,7 @@ export default function Attendancestu() {
             )}
           </div>
         )}
+      </div>
       </div>
     </main>
   );
