@@ -1,5 +1,6 @@
 
 import { Outlet } from "react-router-dom";
+import FloatingWidget from "./components/FloatingWidget.jsx";
 import Sidebar from "./Sidebar.jsx";
 import "./StudentDashboard.css";
 
@@ -10,6 +11,7 @@ export default function StudentDashboard() {
       <div className="student-main">
         <Outlet />
       </div>
+      <FloatingWidget />
     </div>
   );
 }

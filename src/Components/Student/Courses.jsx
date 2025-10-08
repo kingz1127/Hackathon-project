@@ -1,6 +1,4 @@
 import { useState } from 'react';
-import { FaCommentDots } from 'react-icons/fa';
-import TeacherChatBubble from "./TeacherChatBubbble";
 import './courses.css'; // Import the external CSS
 
 // Course Card Component
@@ -112,48 +110,6 @@ export default function Courses() {
     totalHours: courses.reduce((sum, c) => sum + c.hours, 0)
   };
 
-  const openTeacherChat = async (teacherName) => {
-    if (!teacherName) return;
-    setSelectedTeacher(teacherName);
-    setTeacherChatOpen(true);
-
-    try {
-      const res = await fetch(`http://localhost:5000/messages/student/${studentId}`);
-      const data = await res.json();
-      const teacherChat = data.filter(
-        msg => msg.senderName === teacherName || msg.receiverId === teacherName
-      );
-      setTeacherMessages(teacherChat);
-    } catch (err) {
-      console.error("Error fetching messages:", err);
-    }
-  };
-
-  const sendMessageToTeacher = async () => {
-    if (!teacherMessage.trim() || !selectedTeacher) return;
-
-    try {
-      const res = await fetch(`http://localhost:5000/messages/send`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          senderId: studentId,
-          senderName: "Student",
-          receiverId: selectedTeacher,
-          content: teacherMessage.trim(),
-        }),
-      });
-
-      if (res.ok) {
-        const newMsg = await res.json();
-        setTeacherMessages(prev => [...prev, newMsg]);
-        setTeacherMessage("");
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
   return (
     <div className="container">
       <div className="header">
@@ -249,14 +205,7 @@ export default function Courses() {
         />
       )}
 
-      <button
-        className="comment-button"
-        onMouseEnter={e => e.currentTarget.classList.add('comment-button-hover')}
-        onMouseLeave={e => e.currentTarget.classList.remove('comment-button-hover')}
-        onClick={() => openTeacherChat(selectedTeacher || "Teacher")}
-      >
-        <FaCommentDots />
-      </button>
+    
     </div>
   );
 }
