@@ -245,16 +245,31 @@ function ProfileIcon({ course = "Full Stack Development", semester = "Semester 3
                   <div className="action-buttons">
                     {!notification.isRead && <button className="mark-read-btn" onClick={() => markAsRead(notification._id)}>Mark as Read</button>}
                   </div>
-                  <div className="reply-box">
-                    <input
-                      type="text"
-                      placeholder="Reply to teacher..."
-                      value={replyTexts[notification._id] || ""}
-                      onChange={(e) => updateReplyText(notification._id, e.target.value)}
-                      onKeyPress={(e) => { if(e.key === 'Enter') handleReply(notification.senderId, replyTexts[notification._id], notification._id) }}
-                    />
-                    <button onClick={() => handleReply(notification.senderId, replyTexts[notification._id], notification._id)}>Send</button>
-                  </div>
+                  {(notification.isEventNotification || notification.senderName?.toLowerCase() === "admin") ? (
+  <div className="reply-box disabled-reply">
+    {/* <input
+      type="text"
+      value="Replies are disabled for admin events"
+      disabled
+      style={{ cursor: "not-allowed", backgroundColor: "#f0f0f0" }}
+    /> */}
+  </div>
+) : (
+  <div className="reply-box">
+    <input
+      type="text"
+      placeholder="Reply to teacher..."
+      value={replyTexts[notification._id] || ""}
+      onChange={(e) => updateReplyText(notification._id, e.target.value)}
+      onKeyPress={(e) => {
+        if (e.key === "Enter")
+          handleReply(notification.senderId, replyTexts[notification._id], notification._id);
+      }}
+    />
+    <button onClick={() => handleReply(notification.senderId, replyTexts[notification._id], notification._id)}>Send</button>
+  </div>
+)}
+
                   {!notification.isRead && <div className="unread-dot"></div>}
                 </div>
               ))

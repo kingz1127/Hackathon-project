@@ -254,38 +254,48 @@ export default function TeacherDashboard() {
                     )}
                   </div>
 
-                  {!notification.isEventNotification && (
-                    <div className="reply-section">
-                      <input
-                        type="text"
-                        placeholder="Reply to student..."
-                        value={replyTexts[notification._id] || ""}
-                        onChange={(e) => updateReplyText(notification._id, e.target.value)}
-                        className="reply-input"
-                        onKeyPress={(e) => {
-                          if (e.key === 'Enter') {
-                            replyToStudent(
-                              notification.senderId,
-                              replyTexts[notification._id],
-                              notification._id
-                            );
-                          }
-                        }}
-                      />
-                      <button
-                        className="reply-btn"
-                        onClick={() =>
-                          replyToStudent(
-                            notification.senderId,
-                            replyTexts[notification._id],
-                            notification._id
-                          )
-                        }
-                      >
-                        Reply
-                      </button>
-                    </div>
-                  )}
+                  {(notification.isEventNotification || notification.senderName?.toLowerCase() === "admin") ? (
+  <div className="reply-section disabled-reply">
+    {/* <input
+      type="text"
+      value="Replies are disabled for admin events"
+      disabled
+      style={{ cursor: "not-allowed", backgroundColor: "#f0f0f0", fontSize:"1rem" }}
+    /> */}
+  </div>
+) : (
+  <div className="reply-section">
+    <input
+      type="text"
+      placeholder="Reply to student..."
+      value={replyTexts[notification._id] || ""}
+      onChange={(e) => updateReplyText(notification._id, e.target.value)}
+      className="reply-input"
+      onKeyPress={(e) => {
+        if (e.key === 'Enter') {
+          replyToStudent(
+            notification.senderId,
+            replyTexts[notification._id],
+            notification._id
+          );
+        }
+      }}
+    />
+    <button
+      className="reply-btn"
+      onClick={() =>
+        replyToStudent(
+          notification.senderId,
+          replyTexts[notification._id],
+          notification._id
+        )
+      }
+    >
+      Reply
+    </button>
+  </div>
+)}
+
 
                   {!notification.isRead && <div className="unread-indicator"></div>}
                 </div>

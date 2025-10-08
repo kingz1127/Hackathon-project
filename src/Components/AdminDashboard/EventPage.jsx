@@ -81,57 +81,59 @@ export default function EventsPage() {
     }
   };
 
-  const sendEventNotifications = async (event) => {
-    try {
-      console.log("🔔 Starting to send event notifications for:", event.title);
+  // In your EventsPage.jsx, update the sendEventNotifications function:
 
-      const [teachersRes, studentsRes] = await Promise.all([
-        axios.get("http://localhost:5000/admin/teachers"),
-        axios.get("http://localhost:5000/admin/students")
-      ]);
+const sendEventNotifications = async (event) => {
+  try {
+    console.log("🔔 Starting to send event notifications for:", event.title);
 
-      const teachers = teachersRes.data;
-      const students = studentsRes.data;
+    const [teachersRes, studentsRes] = await Promise.all([
+      axios.get("http://localhost:5000/admin/teachers"),
+      axios.get("http://localhost:5000/admin/students")
+    ]);
 
-      console.log("📚 Found teachers:", teachers.length);
-      console.log("👨‍🎓 Found students:", students.length);
+    const teachers = teachersRes.data;
+    const students = studentsRes.data;
 
-      const notificationContent = `New Event: ${event.title}\n${event.description || ''}\nDate: ${new Date(event.date).toLocaleDateString()}\nLocation: ${event.location || 'TBA'}`;
+    console.log("📚 Found teachers:", teachers.length);
+    console.log("👨‍🎓 Found students:", students.length);
 
-      const teacherNotifications = teachers.map(teacher => {
-        console.log("Sending to teacher ID:", teacher._id);
-        return axios.post("http://localhost:5000/messages/send", {
-          senderId: "admin",
-          senderName: "Admin",
-          receiverId: teacher._id,
-          content: notificationContent,
-          eventId: event._id,
-          isEventNotification: true
-        });
+    const notificationContent = `📢 New event: ${event.title}\n${event.description || ''}\nDate: ${new Date(event.date).toLocaleDateString()}\nLocation: ${event.location || 'TBA'}`;
+
+    const teacherNotifications = teachers.map(teacher => {
+      console.log("Sending to teacher ID:", teacher.id); // Use teacher.id (login ID)
+      return axios.post("http://localhost:5000/messages/send", {
+        senderId: "admin",
+        senderName: "Admin",
+        receiverId: teacher.teacherId, // 👈 Use teacher.id instead of teacher._id
+        content: notificationContent,
+        eventId: event._id,
+        isEventNotification: true
       });
+    });
 
-      const studentNotifications = students.map(student => {
-        console.log("Sending to student ID:", student._id);
-        return axios.post("http://localhost:5000/messages/send", {
-          senderId: "admin",
-          senderName: "Admin",
-          receiverId: student._id,
-          content: notificationContent,
-          eventId: event._id,
-          isEventNotification: true
-        });
+    const studentNotifications = students.map(student => {
+      console.log("Sending to student ID:", student.studentId); // Use student.studentId (login ID)
+      return axios.post("http://localhost:5000/messages/send", {
+        senderId: "admin",
+        senderName: "Admin",
+        receiverId: student.studentId, // 👈 Use student.studentId instead of student._id
+        content: notificationContent,
+        eventId: event._id,
+        isEventNotification: true
       });
+    });
 
-      const results = await Promise.all([...teacherNotifications, ...studentNotifications]);
+    const results = await Promise.all([...teacherNotifications, ...studentNotifications]);
 
-      console.log("✅ Event notifications sent successfully! Total:", results.length);
-      alert(`Event created! Notifications sent to ${teachers.length} teachers and ${students.length} students.`);
-    } catch (err) {
-      console.error("❌ Error sending event notifications:", err);
-      console.error("Error details:", err.response?.data);
-      alert("Event created but failed to send some notifications. Check console for details.");
-    }
-  };
+    console.log("✅ Event notifications sent successfully! Total:", results.length);
+    alert(`Event created! Notifications sent to ${teachers.length} teachers and ${students.length} students.`);
+  } catch (err) {
+    console.error("❌ Error sending event notifications:", err);
+    console.error("Error details:", err.response?.data);
+    alert("Event created but failed to send some notifications. Check console for details.");
+  }
+};
 
   const handleDelete = async (id) => {
     try {
