@@ -19,7 +19,7 @@ import Resources from "./Components/Teacher/Resources";
 import Settings from "./Components/Teacher/Settings";
 import Student from "./Components/Teacher/Student";
 import TeacherDashboard from "./Components/Teacher/TeacherDashboard";
-
+import "./index.css";
 
 import StudentDashboard from "./Components/Student/StudentDashboard";
 
@@ -31,7 +31,6 @@ import Grades from "./Components/Student/Grades";
 import TeacherDashboardLayout from "./Components/Teacher/TeacherDashboardLayout";
 import EventsPage from "./Components/AdminDashboard/EventPage";
 import AnnouncementStudent from "./Components/Student/AnnoucementStudent";
-
 
 export default function App() {
   return (
@@ -54,33 +53,32 @@ export default function App() {
           <Route path="admindashboard1" element={<AdminDashboard1 />} />
           <Route path="adminstudent" element={<AdminStudent />} />
           <Route path="adminteacher" element={<AdminTeacher />} />
-          <Route path= "adminmessages" element={<EventsPage />} />
           <Route path="*" element={<p>Invalid route (404 Not Found)!!!</p>} />
         </Route>
 
         {/* Teacher page routes */}
-          <Route path= "/" element={<TeacherDashboardLayout/>}>
-      <Route path= "teachdashboard" element={<TeacherDashboard/>}/>
-       <Route path= "teachclasses" element={<MyClasses/>}/>
-       <Route path= "teachprofile" element={<MyProfile/>}/>
-        <Route path= "teachattendance" element={<Attendance/>}/>
-        <Route path= "teachstudent" element={<Student/>}/>
-        <Route path= "teachannouncements" element={<Announcements/>}/>
-        <Route path= "teachresources" element={<Resources/>}/>  ,
-        <Route path= "teachsettings" element={<Settings/>}/>
-      </Route>
+        <Route path="/" element={<TeacherDashboardLayout />}>
+          <Route path="teachdashboard" element={<TeacherDashboard />} />
+          <Route path="teachclasses" element={<MyClasses />} />
+          <Route path="teachprofile" element={<MyProfile />} />
+          <Route path="teachattendance" element={<Attendance />} />
+          <Route path="teachstudent" element={<Student />} />
+          <Route path="teachannouncements" element={<Announcements />} />
+          <Route path="teachresources" element={<Resources />} />
+          <Route path="teachsettings" element={<Settings />} />
+        </Route>
 
         {/* Student page routesstudentassignments */}
-        <Route path="/" element={<StudentDashboard />} >
-         <Route path="student" element={<Dashboard />} />
-        <Route path= "studentcourses" element={<Courses/>}/>
-        <Route path= "studentattendance" element={<Attendancestu/>}/>
-        <Route path= "studentgrades" element={<Grades/>}/>
-        <Route path= "studentassignments" element={<Assignments/>}/>
-        <Route path= "studentresources" element={<Resources/>}/>
-        <Route path= "studentAnnoucement" element={<AnnouncementStudent />} />
-        <Route path= "studentsettings" element={<Settings/>}/>
-      </Route>
+        <Route path="/" element={<StudentDashboard />}>
+          <Route path="student" element={<Dashboard />} />
+          <Route path="studentcourses" element={<Courses />} />
+          <Route path="studentattendance" element={<Attendancestu />} />
+          <Route path="studentgrades" element={<Grades />} />
+          <Route path="studentassignments" element={<Assignments />} />
+          <Route path="studentresources" element={<Resources />} />
+          <Route path="studentAnnoucement" element={<AnnouncementStudent />} />
+          <Route path="studentsettings" element={<Settings />} />
+        </Route>
       </Routes>
     </BrowserRouter>
   );

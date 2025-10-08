@@ -1,127 +1,442 @@
-.regHeader {
-  background: url("src/assets/Student write.jpg");
-  background: linear-gradient(rgba(65, 65, 243, 0.9)),
-    url("src/assets/Student write.jpg");
-  background-size: cover;
-  height: 55rem;
-  color: white;
+/* ------------------------------
+/* ============ 🌐 Global Reset ============ */
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
   font-family: "MS Sans Serif", Geneva, sans-serif;
+  overflow-x: hidden;
 }
-.regHeader .div0 {
-  display: flex;
-  justify-content: space-around;
-  column-gap: 35rem;
-}
-.regHeader .div1,
-.div2 {
-  display: flex;
-  column-gap: 1.5rem;
-  margin-top: 2rem;
-  margin-bottom: 1rem;
-}
-.regHeader a {
-  text-decoration: none;
+
+/* ============ 🧭 Header Background ============ */
+.header {
+  background: linear-gradient(rgba(0, 153, 255, 0.9), rgba(0, 132, 255, 0.9)),
+    url("src/assets/gallery.jpg");
+  background-size: cover;
+  background-position: center;
+  height: 25rem;
   color: white;
-  display: flex;
-  column-gap: 0.3rem;
-  font-size: 1.4rem;
 }
-.regHeader .div0 p {
-  font-size: 1.3rem;
-}
-.regHeader .div3 {
+
+/* ============ 🔝 Top Contact Bar ============ */
+/* ============ 🔝 Top Contact Bar ============ */
+.topBar {
   display: flex;
   justify-content: space-around;
   align-items: center;
-}
-.regHeader .div3 div {
-  display: flex;
-  column-gap: 3rem;
-  color: rgb(163, 163, 242);
-}
-.div3 p:hover {
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 0.6rem 5%;
+  background-color: transparent;
   color: white;
-  cursor: pointer;
-}
-.regHeader .div3 button {
-  background-color: rgb(5, 116, 251);
-  border: none;
-  height: 4rem;
-  width: 12rem;
-  border-radius: 2rem;
-  color: white;
-  font-size: 1.2rem;
-  font-family: "MS Sans Serif", Geneva, sans-serif;
+  font-size: 1rem;
+  z-index: 900;
 }
 
-.div3 {
-  position: fixed; /* makes it stay on top */
+.contactInfo,
+.authLinks {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: nowrap; /* ✅ keep icons in a line */
+}
+
+.contactInfo span,
+.authLinks a {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  white-space: nowrap;
+}
+
+/* ============ 💡 Responsive Text Behavior ============ */
+@media (max-width: 900px) {
+  /* Stack content for better spacing */
+  .topBar {
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    padding: 0.5rem 1rem;
+  }
+
+  /* Hide text labels, keep icons visible */
+  .contactInfo span,
+  .authLinks a {
+    gap: 0; /* remove extra spacing when text is gone */
+  }
+
+  .contactInfo span span,
+  .authLinks a span,
+  .contactInfo span a {
+    display: none; /* hide inner text and links */
+  }
+
+  /* Shrink icon sizes slightly */
+  .contactInfo svg,
+  .authLinks svg {
+    font-size: 1.2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .topBar {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 0.6rem;
+  }
+
+  .contactInfo,
+  .authLinks {
+    gap: 1rem;
+  }
+
+  /* Optional: make icons larger on very small screens */
+  .contactInfo svg,
+  .authLinks svg {
+    font-size: 1.5rem;
+  }
+}
+
+/* ============ 🧭 Main Navigation ============ */
+.mainNav {
+  position: fixed;
+  top: 4.2rem;
   left: 0;
   right: 0;
   z-index: 1000;
   background-color: transparent;
-  transition: background-color 0.7s ease;
-  padding: 15px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 10%;
+  color: white;
+  transition: background-color 0.6s ease, color 0.6s ease, padding 0.3s ease;
 }
 
-.scrolled {
-  background-color: white;
-  margin-top: -5rem;
-  color: black;
+.logo {
+  font-size: 2rem;
+  font-weight: bold;
 }
-.scrolled p {
-  color: black;
-}
-.scrolled p:hover {
-  color: rgb(5, 116, 251);
-  cursor: pointer;
-}
-.login {
+
+/* ✅ Center nav links horizontally */
+.navLinks {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  position: absolute;
-  left: 35%;
-  top: 20rem;
-}
-.login h1 {
-  font-size: 5rem;
-  color: white;
-}
-.login form {
-  display: flex;
-  flex-direction: column;
   justify-content: center;
   align-items: center;
-  margin-top: 5rem;
+  gap: 2rem;
+  list-style: none;
+  flex: 1;
+}
+
+.navLinks li a {
+  text-decoration: none;
+  color: inherit;
+  font-weight: 500;
+  transition: color 0.3s, border-bottom 0.3s;
+  padding-bottom: 4px;
+}
+
+.navLinks li a:hover,
+.navLinks li a.active {
+  color: #fff;
+  border-bottom: 2px solid #fff;
+}
+
+/* ============ ⬇️ Dropdown Level 1 ============ */
+.dropdown {
+  position: relative;
+}
+
+.dropdownMenu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  min-width: 200px;
+  background-color: rgba(255, 255, 255, 0.98);
+  color: #000;
+  list-style: none;
+  padding: 0.5rem 0;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: all 0.3s ease;
+  z-index: 1000;
+}
+
+.dropdown:hover > .dropdownMenu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.dropdownMenu li {
+  position: relative;
+  padding: 0.6rem 1.2rem;
+}
+
+.dropdownMenu li a {
+  color: black;
+  text-decoration: none;
+  display: block;
+}
+
+.dropdownMenu li:hover {
+  background-color: #2baaff;
+}
+
+.dropdownMenu li:hover a {
+  color: white;
+}
+
+/* ============ ⬅️ Dropdown Level 2 (Submenu) ============ */
+.dropdownMenu2 {
+  position: absolute;
+  top: 0;
+  left: 100%;
+  min-width: 180px;
+  background-color: rgba(255, 255, 255, 0.98);
+  color: #000;
+  list-style: none;
+  padding: 0.5rem 0;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(-10px);
+  transition: all 0.3s ease;
+  z-index: 1000;
+}
+
+.dropdownMenu li:hover > .dropdownMenu2 {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(0);
+}
+
+/* ✅ Scroll effect only on mainNav */
+.scrolled {
   background-color: white;
+  color: black;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.scrolled a {
+  color: black;
+}
+
+/* ============ 🎓 Enroll Button ============ */
+.mainNav button {
+  background-color: #00d9ffff;
+  border: none;
+  height: 3rem;
+  width: 10rem;
   border-radius: 2rem;
-  width: 45rem;
-  height: 35rem;
-  box-shadow: 2px 3px 5px rgb(102, 101, 101);
-  row-gap: 2rem;
+  color: white;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 }
+
+.mainNav button:hover {
+  background-color: #004fc4;
+}
+
+/* ============ 🍔 Hamburger Menu ============ */
+.hamburger {
+  display: none;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 25px;
+  height: 18px;
+  cursor: pointer;
+  z-index: 1100;
+}
+
+.hamburger span {
+  display: block;
+  height: 3px;
+  width: 100%;
+  background-color: currentColor;
+  border-radius: 2px;
+  transition: all 0.3s ease;
+}
+
+.hamburger.active span:nth-child(1) {
+  transform: translateY(7.5px) rotate(45deg);
+}
+.hamburger.active span:nth-child(2) {
+  opacity: 0;
+}
+.hamburger.active span:nth-child(3) {
+  transform: translateY(-7.5px) rotate(-45deg);
+}
+.login {
+  max-width: 400px;
+  margin: 4rem auto;
+  background: #fff;
+  padding: 2.5rem;
+  border-radius: 12px;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.login h1 {
+  margin-bottom: 1.5rem;
+  color: #0f3460;
+  font-size: 1.8rem;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
 .formtext {
-  width: 87%;
-  height: 4.5rem;
-  padding-left: 0.5rem;
-  border-radius: 0.8rem;
-  border: 1px solid gray;
-  font-size: 1.7rem;
+  padding: 0.8rem 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  outline: none;
+  transition: 0.3s;
 }
+
+.formtext:focus {
+  border-color: #0f3460;
+  box-shadow: 0 0 4px rgba(15, 52, 96, 0.3);
+}
+
 .remember {
   display: flex;
-  column-gap: 1rem;
-  margin-right: 27rem;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
 }
-.form button {
-  width: 12rem;
-  height: 4rem;
-  border-radius: 2rem;
-  border: none;
+
+.login button {
+  background-color: #0f3460;
   color: white;
-  background-color: rgb(5, 116, 251);
+  border: none;
+  padding: 0.9rem;
+  border-radius: 8px;
+  font-size: 1rem;
   cursor: pointer;
+  transition: 0.3s;
+}
+
+.login button:hover {
+  background-color: #16213e;
+}
+
+/* ============ 📱 Responsive Styles ============ */
+
+/* ====== For Large Screens (Desktops, TVs, 1200px and above) ====== */
+@media (min-width: 1200px) {
+  .mainNav {
+    padding: 1rem 12%;
+  }
+  .navLinks {
+    gap: 3rem;
+  }
+}
+
+/* ====== For Tablets (768px - 1199px) ====== */
+@media (max-width: 1199px) and (min-width: 768px) {
+  .mainNav {
+    padding: 1rem 6%;
+  }
+  .navLinks {
+    gap: 1.5rem;
+  }
+  .mainNav button {
+    width: 8rem;
+  }
+}
+
+/* ====== For Mobile (up to 767px) ====== */
+@media (max-width: 767px) {
+  .hamburger {
+    display: flex;
+  }
+
+  .mainNav {
+    padding: 0.8rem 5%;
+  }
+
+  .navLinks {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: rgba(22, 99, 214, 0.98);
+    gap: 1.2rem;
+    padding: 2rem 0;
+    transform: translateY(-120%);
+    opacity: 0;
+    visibility: hidden;
+    transition: transform 0.4s ease, opacity 0.4s ease, visibility 0.4s ease;
+  }
+
+  .navLinks.show {
+    transform: translateY(0);
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .mainNav button {
+    display: none;
+  }
+
+  .topBar {
+    flex-direction: column;
+    gap: 0.6rem;
+    font-size: 0.85rem;
+  }
+
+  .contactInfo,
+  .authLinks {
+    gap: 1rem;
+  }
+
+  /* Smaller dropdown for mobile */
+  .dropdownMenu {
+    display: none;
+    width: 100%;
+  }
+  .dropdown.open > .dropdownMenu {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+/* ====== Ultra Small Devices (320px - 480px) ====== */
+@media (max-width: 480px) {
+  .logo {
+    font-size: 1.5rem;
+  }
+  .topBar {
+    font-size: 0.8rem;
+  }
+  .mainNav {
+    padding: 0.6rem 4%;
+  }
+  .navLinks {
+    gap: 1rem;
+  }
 }
 
 .passwordWrapper {

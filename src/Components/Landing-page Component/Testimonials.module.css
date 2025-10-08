@@ -1,0 +1,106 @@
+.testimonials {
+  background: #f6f7f8;
+  padding: 3.5rem 1rem;
+}
+
+.inner {
+  max-width: 1000px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.title {
+  color: #1663d6;
+  font-size: 1.05rem;
+  margin-bottom: 1rem;
+}
+
+/* holds slides; fixed height to avoid layout jump */
+.slideWrap {
+  position: relative;
+  height: 240px;
+}
+
+/* each slide sits on top of the others */
+.slide {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.45s ease, transform 0.45s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 1rem;
+}
+
+.slide.active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.quote {
+  max-width: 700px;
+  margin: 0 auto;
+  color: #444;
+  line-height: 1.7;
+  margin-bottom: 1rem;
+  font-size: 0.98rem;
+}
+
+.avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin: 0.6rem 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+.name {
+  color: #1663d6;
+  display: block;
+  margin-bottom: 0.25rem;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.role {
+  color: #999;
+  font-size: 0.9rem;
+}
+
+/* dots */
+.dots {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1px solid #d0d0d0;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+}
+
+.dotActive {
+  background: #1663d6;
+  border-color: #1663d6;
+}
+
+/* Responsive */
+@media (max-width: 700px) {
+  .slideWrap {
+    height: 320px;
+  }
+  .quote {
+    font-size: 0.95rem;
+  }
+}

@@ -19,6 +19,7 @@ import { useEffect, useState } from "react";
 import Register from "./Register";
 // =======
 import styles from "./About.module.css";
+<<<<<<< HEAD
 // >>>>>>> 9a857a6 (update 11:52pm)
 // =======
 
@@ -26,19 +27,27 @@ import styles from "./About.module.css";
 // import staff_2 from "../../assets/staff_2.jpg";
 // import staff_3 from "./assets/staff_3.jpg";
 // >>>>>>> 1adaaecfa738f3b1a895e02b003087c40016cf59
+=======
+import Footer from "../Landing-page Component/Footer";
+import InstructorSection from "../Landing-page Component/InstructorSection";
+import TeamSection from "../Landing-page Component/TeamSection";
+import EducationSection from "../Landing-page Component/EducationSection";
+import WhyChooseUs from "../Landing-page Component/WhyChooseUs";
+>>>>>>> 77194f2 (completed landing page)
 
 export default function About() {
-  const navigate = useNavigate();
-  const [scrolled, setScrolled] = useState(false);
-  const [activeIndex, setActiveIndex] = useState(null); // 👈 added
+  const [isScrolled, setIsScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 2);
+    const handleScroll = () => setIsScrolled(window.scrollY > 50);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+<<<<<<< HEAD
   const services = [
     { title: "Music Class", icon: "🎵" },
     { title: "Math Class", icon: "➗" },
@@ -106,98 +115,124 @@ export default function About() {
             <a href="tel:+2349867435673">+2349867435673</a>
             <HiMail />
             <a href="mailto:">info@NiitAdmin.com</a>
+=======
+  return (
+    <>
+      <header className={styles.header}>
+        {/* Top bar */}
+        <div className={styles.topBar}>
+          <div className={styles.contactInfo}>
+            <span>
+              <AiOutlineQuestionCircle /> Have a question?
+            </span>
+            <span>
+              <IoMdCall /> <a href="tel:+2349867435673">+2349867435673</a>
+            </span>
+            <span>
+              <HiMail />{" "}
+              <a href="mailto:info@NiitAdmin.com">info@NiitAdmin.com</a>
+            </span>
+>>>>>>> 77194f2 (completed landing page)
           </div>
-          <div className={styles.div2}>
+          <div className={styles.authLinks}>
             <Link to="/login">
-              <BiLockAlt />
-              <p>Login</p>
+              <BiLockAlt /> Login
             </Link>
             <Link to="/register">
-              <IoMdPerson />
-              <p>Register</p>
+              <IoMdPerson /> Register
             </Link>
           </div>
         </div>
-        <hr />
-        <div className={`${styles.div3} ${scrolled ? styles.scrolled : ""}`}>
-          <h2>Learner.</h2>
-          <div className={menuOpen ? styles.active : ""}>
-            <p
-              onClick={() => {
-                navigate("/");
-                setMenuOpen(false);
-              }}
-            >
-              Home
-            </p>
-            <p onClick={() => setMenuOpen(false)}>Dropdown</p>
-            <p
-              onClick={() => {
-                navigate("/ourstaff");
-                setMenuOpen(false);
-              }}
-            >
-              Our Staff
-            </p>
-            <p
-              onClick={() => {
-                navigate("/news");
-                setMenuOpen(false);
-              }}
-            >
-              News
-            </p>
-            <p
-              onClick={() => {
-                navigate("/gallery");
-                setMenuOpen(false);
-              }}
-            >
-              Gallery
-            </p>
-            <p
-              onClick={() => {
-                navigate("/about");
-                setMenuOpen(false);
-              }}
-            >
-              About
-            </p>
-            <p
-              onClick={() => {
-                navigate("/contact");
-                setMenuOpen(false);
-              }}
-            >
-              Contact
-            </p>
-          </div>
-          <button className={styles.io}>ENROLL NOW</button>
-          <button
-            className={styles.mobileMenuButton}
-            onClick={() => setMenuOpen(!menuOpen)}
-            aria-label="Toggle menu"
-          >
-            {menuOpen ? "✕" : "☰"}
-          </button>
-        </div>
 
-        {/* Hero */}
-        <div className={styles.introOverlay}>
-          <h1>About Us</h1>
+        <hr className={styles.divider} />
+
+        {/* Main nav */}
+        <nav
+          className={`${styles.mainNav} ${isScrolled ? styles.scrolled : ""}`}
+        >
+          <div className={styles.logo}>Learner.</div>
+
+          {/* Hamburger */}
+          <div
+            className={`${styles.hamburger} ${menuOpen ? styles.active : ""}`}
+            onClick={() => setMenuOpen(!menuOpen)}
+          >
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+
+          {/* Nav Links */}
+          <ul className={`${styles.navLinks} ${menuOpen ? styles.show : ""}`}>
+            <li>
+              <Link to="/">Home</Link>
+            </li>
+
+            {/* Dropdown */}
+            <li
+              className={`${styles.dropdown} ${
+                dropdownOpen ? styles.open : ""
+              }`}
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+            >
+              <Link to="#">Dropdown</Link>
+              <ul className={styles.dropdownMenu}>
+                <li>
+                  <Link to="/elements">Elements</Link>
+                </li>
+                <li>
+                  <Link to="/menu2">Menu 2</Link>
+                  <ul className={styles.dropdownMenu2}>
+                    <li>
+                      <Link to="/submenu1">Submenu 1</Link>
+                    </li>
+                    <li>
+                      <Link to="/submenu2">Submenu 2</Link>
+                    </li>
+                    <li>
+                      <Link to="/submenu3">Submenu 3</Link>
+                    </li>
+                  </ul>
+                </li>
+                <li>
+                  <Link to="/menu3">Menu 3</Link>
+                </li>
+              </ul>
+            </li>
+
+            <li>
+              <Link to="/outstaff">Our Staff</Link>
+            </li>
+            <li>
+              <Link to="/news">News</Link>
+            </li>
+            <li>
+              <Link to="/gallery">Gallery</Link>
+            </li>
+            <li>
+              <Link to="/about">About</Link>
+            </li>
+            <li>
+              <Link to="/contact">Contact</Link>
+            </li>
+          </ul>
+
+          <button onClick={() => navigate("/register")}>ENROLL NOW</button>
+        </nav>
+
+        {/* 🎬 Hero Section */}
+        <div className={styles.spacer}>
+          <h2>About Us</h2>
           <p>
             Another free template by Untree.co. Far far away, behind the word
-            mountains, far from the countries Vokalia and Consonantia...
+            mountains, far from the countries Vokalia and Consonantia, there
+            live.
           </p>
-          <button
-            onClick={() => navigate("/courses")}
-            className={styles.ctaBtn}
-          >
-            Explore Courses
-          </button>
+          <button onClick={() => navigate("/register")}>Explore Courses</button>
         </div>
-      </div>
+      </header>
 
+<<<<<<< HEAD
 {/* <<<<<<< HEAD */}
       {/* ---------- BECOME AN INSTRUCTOR SECTION ---------- */}
       <section className={styles.instructorContainer}>
@@ -428,6 +463,13 @@ export default function About() {
         </div>
       </footer>
 {/* >>>>>>> 1adaaecfa738f3b1a895e02b003087c40016cf59 */}
+=======
+      <InstructorSection />
+      <TeamSection />
+      <EducationSection />
+      <WhyChooseUs />
+      <Footer />
+>>>>>>> 77194f2 (completed landing page)
     </>
   );
 }
