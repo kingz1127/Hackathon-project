@@ -1339,24 +1339,36 @@ body {
   font-family: system-ui, -apple-system, sans-serif;
   background-color: #f8fafc;
   min-height: 100vh;
+  margin-left: 12rem;
 }
 
-.announcements-list {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
+/* Make events-list a 4-column grid */
+.events-list {
+    /* display: flex; */
+  display: grid;
+  grid-template-rows: repeat(4, 1fr); 
+  /* 4 cards per row */
+  gap: 20px; /* space between cards */
   margin-top: 20px;
 }
 
-.announcement-card {
+/* Style each event card */
+.event-card {
   background-color: white;
   padding: 20px;
   border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
+.event-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Typography */
 .announcement-title {
-  font-size: 1.2rem;
+  font-size: 2rem;
   font-weight: bold;
   color: #1e293b;
 }
@@ -1368,7 +1380,7 @@ body {
 
 .announcement-date,
 .announcement-author {
-  font-size: 0.85rem;
+  font-size: 1rem;
   color: #94a3b8;
 }
 

@@ -36,11 +36,12 @@ export default function AnnouncementStudent() {
       <div className="events-list">
         {events.map(event => (
           <div key={event._id} className="event-card">
-            <h3>{event.title}</h3>
-            <p>{event.description}</p>
-            <p><strong>Date:</strong> {new Date(event.date).toLocaleDateString()}</p>
+            <h3 className="announcement-title">{event.title}</h3>
+            <p className="announcement-desc">{event.description}</p>
+            <p className="announcement-date"><strong>Date:</strong> {new Date(event.date).toLocaleDateString()}</p>
             {event.location && <p><strong>Location:</strong> {event.location}</p>}
             {event.organizer && <p><strong>Organizer:</strong> {event.organizer}</p>}
+            {event.participants && <p><strong>Participants: </strong> {event.participants}</p>}
           </div>
         ))}
       </div>

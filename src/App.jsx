@@ -53,6 +53,7 @@ export default function App() {
           <Route path="admindashboard1" element={<AdminDashboard1 />} />
           <Route path="adminstudent" element={<AdminStudent />} />
           <Route path="adminteacher" element={<AdminTeacher />} />
+          <Route path="adminmessages" element={<EventsPage />} />
           <Route path="*" element={<p>Invalid route (404 Not Found)!!!</p>} />
         </Route>
 
