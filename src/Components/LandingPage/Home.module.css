@@ -1,20 +1,4 @@
-/* ============ 🌐 Global Reset ============ */
-*,
-*::before,
-*::after {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
 
-html {
-  scroll-behavior: smooth;
-}
-
-body {
-  font-family: "MS Sans Serif", Geneva, sans-serif;
-  overflow-x: hidden;
-}
 
 /* ============ 🧭 Header Background ============ */
 .header {
@@ -150,7 +134,6 @@ body {
   color: #fff;
   border-bottom: 2px solid #fff;
 }
-
 /* ============ ⬇️ Dropdown Level 1 ============ */
 .dropdown {
   position: relative;
@@ -233,6 +216,7 @@ body {
 
 .scrolled a {
   color: black;
+ 
 }
 
 /* ============ 🎓 Enroll Button ============ */

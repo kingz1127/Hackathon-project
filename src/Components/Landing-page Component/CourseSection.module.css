@@ -62,17 +62,7 @@
   color: #f59e0b;
 }
 
-h3 {
-  font-size: 1.1rem;
-  margin: 0.5rem 0;
-  color: #111827;
-}
 
-p {
-  color: #6b7280;
-  font-size: 0.9rem;
-  margin-bottom: 1.5rem;
-}
 
 .footer {
   display: flex;
@@ -86,15 +76,7 @@ p {
   color: #111827;
 }
 
-a {
-  color: #2563eb;
-  text-decoration: none;
-  font-weight: 500;
-}
 
-a:hover {
-  text-decoration: underline;
-}
 
 /* Responsive */
 @media (max-width: 768px) {

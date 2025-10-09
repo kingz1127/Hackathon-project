@@ -84,7 +84,7 @@ export default function Home() {
             {/* Dropdown Menu */}
             <li
               className={`${styles.dropdown} ${
-                dropdownOpen ? styles.open : ""
+                dropdownOpen ? styles.open : "" 
               }`}
               onClick={() => setDropdownOpen(!dropdownOpen)}
             >
