@@ -61,9 +61,6 @@
 .rating {
   color: #f59e0b;
 }
-
-
-
 .footer {
   display: flex;
   justify-content: space-between;
@@ -75,7 +72,6 @@
   font-size: 1.1rem;
   color: #111827;
 }
-
 
 
 /* Responsive */
