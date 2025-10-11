@@ -32,6 +32,7 @@ import TeacherDashboardLayout from "./Components/Teacher/TeacherDashboardLayout"
 import EventsPage from "./Components/AdminDashboard/EventPage";
 import AnnouncementStudent from "./Components/Student/AnnoucementStudent";
 import FinancePage from "./Components/AdminDashboard/FinancePage";
+import StudentResources from "./Components/Student/StudentResources";
 
 export default function App() {
   return (
@@ -78,7 +79,7 @@ export default function App() {
           <Route path="studentattendance" element={<Attendancestu />} />
           <Route path="studentgrades" element={<Grades />} />
           <Route path="studentassignments" element={<Assignments />} />
-          <Route path="studentresources" element={<Resources />} />
+          <Route path="studentresources" element={<StudentResources />} />
           <Route path="studentAnnoucement" element={<AnnouncementStudent />} />
           <Route path="studentsettings" element={<Settings />} />
         </Route>

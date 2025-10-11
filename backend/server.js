@@ -18,6 +18,7 @@ import messageRoutes from "./routes/message.js";
 import registerRoutes from "./routes/registerRoutes.js";
 import teacherRoutes from "./routes/router.js";
 import studentRoutes from "./routes/studentRoutes.js";
+import resourceRoutes from "./routes/resourceRoutes.js";
 
 dotenv.config();
 
@@ -384,6 +385,7 @@ app.use("/", studentRoutes);
 app.use("/api/events", eventRoutes);
 // Mount the register route
 app.use("/api", registerRoutes);
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 mongoose
   .connect(MONGO_URI, {
@@ -436,40 +438,6 @@ app.use("/", teacherRoutes);
 app.use("/", studentRoutes);
 app.use("/api", registerRoutes);
 app.use("/", messageRoutes);
-// // ✅ Admin Login Route
-// app.post("/admin/login", async (req, res) => {
-//   try {
-//     const { username, email, password } = req.body;
-
-//     // Find admin by username or email
-//     const admin = await Admin.findOne({
-//       $or: [{ username }, { email }],
-//     });
-
-//     if (!admin) {
-//       return res.status(400).json({ message: "Admin not found" });
-//     }
-
-//     // Compare password
-//     const isMatch = await bcrypt.compare(password, admin.password);
-//     if (!isMatch) {
-//       return res.status(400).json({ message: "Invalid credentials" });
-//     }
-
-//     // Return JSON response
-//     res.json({
-//       token: "fake-jwt-token", // TODO: Replace with real JWT
-//       admin: {
-//         id: admin._id,
-//         username: admin.username,
-//         email: admin.email,
-//       },
-//     });
-//   } catch (err) {
-//     console.error("Login error:", err);
-//     res.status(500).json({ message: "Server error" });
-//   }
-// });
-
+app.use("/api/resources", resourceRoutes);
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

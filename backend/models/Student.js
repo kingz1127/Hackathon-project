@@ -24,6 +24,13 @@ const studentSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+
+  // ✅ Add this field to link student → teacher
+  teacherId: {
+    type: String,
+    required: true, // you can make it optional if needed
+  },
+
   gradeLevel: {
     type: String,
     required: true,
@@ -85,19 +92,19 @@ const studentSchema = new mongoose.Schema({
     default: Date.now,
   },
   notifications: [
-  {
-    id: String,
-    sender: String,
-    senderId: String,
-    message: String,
-    type: String,
-    isRead: Boolean,
-    time: String,
-  }
-],
-messages: [
     {
-      sender: String,     // admin/teacher name
+      id: String,
+      sender: String,
+      senderId: String,
+      message: String,
+      type: String,
+      isRead: Boolean,
+      time: String,
+    },
+  ],
+  messages: [
+    {
+      sender: String, // admin/teacher name
       message: String,
       timestamp: { type: Date, default: Date.now },
       isRead: { type: Boolean, default: false },

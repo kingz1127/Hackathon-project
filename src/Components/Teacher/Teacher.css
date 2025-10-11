@@ -1387,11 +1387,14 @@ body {
 /* ===================== */
 /* Resources Page Styles */
 /* ===================== */
-.resources-container {
+.resources {
    margin-left: 12rem;
   padding: 20px;
 }
-.resource-form {
+.resources h1{
+  font-size: 2.5rem;
+}
+.resources form {
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -1403,8 +1406,8 @@ body {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
 }
 
-.resource-form input,
-.resource-form textarea {
+.resources input,
+.resources textarea {
   padding: 10px;
   border: 1px solid #ddd;
   border-radius: 6px;
@@ -1412,12 +1415,12 @@ body {
   width: 100%;
 }
 
-.resource-form textarea {
+.resources textarea {
   resize: none;
   height: 70px;
 }
 
-.resource-form button {
+.resources button {
   background: #23144b; /* deep blue */
   color: #fff;
   padding: 10px;
@@ -1428,16 +1431,18 @@ body {
   transition: background 0.3s ease;
 }
 
-.resource-form button:hover {
+.resources button:hover {
   background: #f15f11; /* orange hover */
 }
 
 /* Resource list */
 .resource-list {
+  margin-top: 1rem;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 16px;
 }
+
 
 .resource-card {
   background: #fff;
@@ -1454,35 +1459,49 @@ body {
 
 .resource-card h4 {
   margin: 0 0 6px;
-  font-size: 16px;
+  font-size: 2rem;
   color: #23144b;
 }
 
 .resource-card p {
-  font-size: 13px;
+  font-size: 1.3rem;
   color: #666;
   margin-bottom: 10px;
 }
 
+.downloadDelete{
+  display: flex;
+   display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 .resource-card a {
   text-decoration: none;
-  color: #f15f11;
-  font-weight: bold;
-  font-size: 14px;
+  color: #fcfcfb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  column-gap: 3px;
+ background-color: #007bff;
+  width: 12rem;
+  border-radius: 6px;
+  height: 4rem;
 }
 
 .resource-card a:hover {
-  text-decoration: underline;
+  background-color: rgb(47, 180, 47);
 }
 
 /* Delete button inside resource cards */
 .resource-card .delete-btn {
-  display: inline-block;
-  margin-top: 8px;
+ display: flex;
+  align-items: center;
+  justify-content: center;
+  column-gap: 3px;
   background: #e63946; /* red for delete */
   color: #fff;
-  padding: 6px 12px;
-  font-size: 13px;
+  
   border: none;
   border-radius: 6px;
   cursor: pointer;
@@ -1491,6 +1510,7 @@ body {
 
 .resource-card .delete-btn:hover {
   background: #b71c1c; /* darker red on hover */
+  color: white;
 }
 
 /* ======================== */
