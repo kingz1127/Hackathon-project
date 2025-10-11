@@ -22,7 +22,7 @@ import resourceRoutes from "./routes/resourceRoutes.js";
 
 dotenv.config();
 
-const app = express();
+const app = express(); 
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI;
 const __filename = fileURLToPath(import.meta.url);

@@ -12,6 +12,9 @@ import Message from "../models/Message.js";
 import Student from "../models/Student.js";
 import Teacher from "../models/Teacher.js";
 
+import crypto from "crypto";
+const passwordResetRequests = new Map();
+
 dotenv.config();
 
 const router = express.Router();
@@ -94,6 +97,185 @@ const setupEmailTransporter = () => {
 };
 
 transporter = setupEmailTransporter();
+
+// ============================================
+// PASSWORD CHANGE ROUTES - Add after transporter setup
+// ============================================
+
+// ✅ STEP 1: Request password change
+router.post("/teacher/:teacherId/request-password-change", async (req, res) => {
+  try {
+    const { teacherId } = req.params;
+    const { oldPassword, newPassword } = req.body;
+
+    console.log("🔐 Password change request for:", teacherId);
+
+    if (!oldPassword || !newPassword) {
+      return res.status(400).json({ message: "Old and new passwords are required" });
+    }
+
+    // Find teacher
+    const teacher = await Teacher.findOne({ teacherId });
+    if (!teacher) {
+      console.log("❌ Teacher not found:", teacherId);
+      return res.status(404).json({ message: "Teacher not found" });
+    }
+
+    console.log("✅ Teacher found:", teacher.email);
+
+    // Verify old password
+    const isMatch = await bcrypt.compare(oldPassword, teacher.password);
+    if (!isMatch) {
+      console.log("❌ Old password incorrect");
+      return res.status(400).json({ message: "Old password is incorrect" });
+    }
+
+    // Generate 6-digit verification code
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    
+    // Store request temporarily (expires in 10 minutes)
+    passwordResetRequests.set(teacherId, {
+      code,
+      newPassword,
+      expires: Date.now() + 10 * 60 * 1000,
+    });
+
+    console.log("📧 Generated verification code:", code);
+
+    // Send email
+    if (transporter) {
+      try {
+        await transporter.sendMail({
+          from: `"Learner Security Alert" <${process.env.EMAIL_USER}>`,
+          to: teacher.email,
+          subject: "⚠️ Password Change Attempt Detected",
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <h2 style="color: #ff9800;">⚠️ Password Change Request</h2>
+              <p>Hello <strong>${teacher.fullName}</strong>,</p>
+              <p>Someone requested to change your password on <strong>${new Date().toLocaleString()}</strong>.</p>
+              
+              <div style="background-color: #fff3cd; padding: 20px; margin: 20px 0; border-radius: 8px; border-left: 4px solid #ff9800;">
+                <h3 style="margin-top: 0; color: #856404;">Verification Code</h3>
+                <p style="font-size: 32px; font-weight: bold; letter-spacing: 4px; text-align: center; color: #333;">
+                  ${code}
+                </p>
+                <p style="margin: 0; color: #856404; font-size: 14px;">This code expires in 10 minutes.</p>
+              </div>
+              
+              <div style="background-color: #f8d7da; padding: 15px; margin: 20px 0; border-radius: 5px; border: 1px solid #f5c6cb;">
+                <p style="margin: 0; color: #721c24;"><strong>⚠️ Important:</strong> If you did not request this change, please ignore this email and your password will remain unchanged.</p>
+              </div>
+              
+              <hr style="margin: 30px 0; border: none; border-top: 1px solid #ddd;">
+              <p style="color: #666; font-size: 12px; text-align: center;">This is an automated security notification.</p>
+            </div>
+          `,
+        });
+        console.log("✅ Verification email sent");
+      } catch (emailError) {
+        console.error("❌ Email error:", emailError);
+      }
+    }
+
+    res.json({ 
+      message: "Verification code sent to your email.",
+      email: teacher.email 
+    });
+  } catch (err) {
+    console.error("❌ Error:", err);
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+});
+
+// ✅ STEP 2: Verify code and change password
+router.post("/teacher/:teacherId/verify-password-change", async (req, res) => {
+  try {
+    const { teacherId } = req.params;
+    const { code } = req.body;
+
+    console.log("🔍 Verifying code for:", teacherId);
+
+    if (!code) {
+      return res.status(400).json({ message: "Verification code is required" });
+    }
+
+    const stored = passwordResetRequests.get(teacherId);
+    if (!stored) {
+      return res.status(400).json({ message: "No password change request found. Please start over." });
+    }
+
+    if (stored.expires < Date.now()) {
+      passwordResetRequests.delete(teacherId);
+      return res.status(400).json({ message: "Verification code expired. Please request a new one." });
+    }
+
+    if (stored.code !== code) {
+      return res.status(400).json({ message: "Invalid verification code" });
+    }
+
+    const teacher = await Teacher.findOne({ teacherId });
+    if (!teacher) {
+      return res.status(404).json({ message: "Teacher not found" });
+    }
+
+    // Update password
+    const hashedPassword = await bcrypt.hash(stored.newPassword, 10);
+    teacher.password = hashedPassword;
+    await teacher.save();
+
+    passwordResetRequests.delete(teacherId);
+
+    console.log("✅ Password updated for:", teacher.email);
+
+    // Send confirmation email
+    if (transporter) {
+      try {
+        await transporter.sendMail({
+          from: `"Learner Security" <${process.env.EMAIL_USER}>`,
+          to: teacher.email,
+          subject: "✅ Password Successfully Changed",
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <h2 style="color: #4CAF50;">✅ Password Changed Successfully</h2>
+              <p>Hello <strong>${teacher.fullName}</strong>,</p>
+              <p>Your password was successfully changed on <strong>${new Date().toLocaleString()}</strong>.</p>
+              
+              <div style="background-color: #d4edda; padding: 20px; margin: 20px 0; border-radius: 8px; border-left: 4px solid #4CAF50;">
+                <h3 style="margin-top: 0; color: #155724;">What's Next?</h3>
+                <p style="margin: 5px 0; color: #155724;">✓ Your old password is no longer valid</p>
+                <p style="margin: 5px 0; color: #155724;">✓ Use your new password for all future logins</p>
+                <p style="margin: 5px 0; color: #155724;">✓ Keep your password secure and don't share it</p>
+              </div>
+              
+              <div style="text-align: center; margin: 30px 0;">
+                <a href="http://localhost:5173/login" style="background-color: #4CAF50; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold;">Login Now</a>
+              </div>
+              
+              <div style="background-color: #fff3cd; padding: 15px; margin: 20px 0; border-radius: 5px; border: 1px solid #ffeaa7;">
+                <p style="margin: 0; color: #856404;"><strong>⚠️ Security Notice:</strong> If you did not make this change, contact support at <a href="mailto:${process.env.EMAIL_USER}">${process.env.EMAIL_USER}</a></p>
+              </div>
+              
+              <hr style="margin: 30px 0; border: none; border-top: 1px solid #ddd;">
+              <p style="color: #666; font-size: 12px; text-align: center;">Automated notification from Learner Management System.</p>
+            </div>
+          `,
+        });
+        console.log("✅ Confirmation email sent");
+      } catch (emailError) {
+        console.error("❌ Email error:", emailError);
+      }
+    }
+
+    res.json({ 
+      message: "Password changed successfully! You can now login with your new password.",
+      success: true 
+    });
+  } catch (err) {
+    console.error("❌ Error:", err);
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+});
 
 // GET /admin/teachers - Fetch all teachers from Teacher collection
 router.get("/admin/teachers", async (req, res) => {
@@ -325,31 +507,6 @@ router.post("/messages/send", async (req, res) => {
         nation: Country,
         password: hashedPassword,
       };
-
-      //update password
-      router.put("/admin/teachers/:id/change-password", async (req, res) => {
-  try {
-    const { oldPassword, newPassword } = req.body;
-
-    const teacher = await Teacher.findOne({ teacherId: req.params.id });
-    if (!teacher) return res.status(404).json({ message: "Teacher not found" });
-
-    // Verify old password
-    const isMatch = await bcrypt.compare(oldPassword, teacher.password);
-    if (!isMatch) return res.status(400).json({ message: "Old password is incorrect" });
-
-    // Hash and update new password
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-    teacher.password = hashedPassword;
-    await teacher.save();
-
-    res.json({ message: "Password updated successfully" });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Failed to update password" });
-  }
-});
-
 
 
       // 1. Create new teacher in Teacher collection
