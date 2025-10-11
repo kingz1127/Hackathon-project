@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 export default function Settings({ teacher, setTeacher }) {
   const teacherId = teacher?.teacherId || localStorage.getItem("teacherId");
-  const [darkMode, setDarkMode] = useState(false);
+  
   
   // Initialize with empty strings to avoid controlled/uncontrolled warnings
   const [fullName, setFullName] = useState("");
@@ -40,24 +40,6 @@ export default function Settings({ teacher, setTeacher }) {
     setTimeout(() => setMessage(""), 5000);
   };
 
-  // Save profile updates
-  // const handleSave = async () => {
-  //   setLoading(true);
-  //   try {
-  //     const res = await fetch(`http://localhost:5000/admin/update-teacher/${teacherId}`, {
-  //       method: "PUT",
-  //       headers: { "Content-Type": "application/json" },
-  //       body: JSON.stringify({ FullName: fullName, Email: email }),
-  //     });
-  //     const data = await res.json();
-  //     if (!res.ok) throw new Error(data.message);
-  //     showMessage("✅ Profile updated successfully!", "success");
-  //   } catch (err) {
-  //     showMessage(`❌ ${err.message}`, "error");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
 
   // Step 1: Request password change (validates old password, sends email)
   const handleRequestPasswordChange = async () => {
@@ -147,110 +129,7 @@ export default function Settings({ teacher, setTeacher }) {
   };
 
   return (
-    <div className={`settings-container ${darkMode ? "dark" : ""}`}>
-      {/* <style>{`
-        .settings-container {
-          max-width: 800px;
-          margin: 0 auto;
-          padding: 20px;
-        }
-        .settings-section {
-          background: white;
-          padding: 20px;
-          margin-bottom: 20px;
-          border-radius: 8px;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .settings-item {
-          margin-bottom: 15px;
-        }
-        .settings-item label {
-          display: block;
-          margin-bottom: 5px;
-          font-weight: 600;
-        }
-        .settings-item input {
-          width: 100%;
-          padding: 10px;
-          border: 1px solid #ddd;
-          border-radius: 4px;
-          font-size: 14px;
-        }
-        .save-btn, .cancel-btn, .logout-btn {
-          padding: 10px 20px;
-          border: none;
-          border-radius: 4px;
-          cursor: pointer;
-          font-weight: 600;
-        }
-        .save-btn {
-          background: #4CAF50;
-          color: white;
-        }
-        .save-btn:hover:not(:disabled) {
-          background: #45a049;
-        }
-        .cancel-btn {
-          background: #f44336;
-          color: white;
-        }
-        .cancel-btn:hover:not(:disabled) {
-          background: #da190b;
-        }
-        .logout-btn {
-          background: #ff5722;
-          color: white;
-        }
-        .logout-btn:hover {
-          background: #e64a19;
-        }
-        .save-btn:disabled, .cancel-btn:disabled {
-          opacity: 0.5;
-          cursor: not-allowed;
-        }
-        .status-message {
-          padding: 15px;
-          border-radius: 4px;
-          margin-bottom: 20px;
-          font-weight: 500;
-        }
-        .status-message.success {
-          background: #d4edda;
-          color: #155724;
-          border: 1px solid #c3e6cb;
-        }
-        .status-message.error {
-          background: #f8d7da;
-          color: #721c24;
-          border: 1px solid #f5c6cb;
-        }
-        .verification-notice {
-          background: #fff3cd;
-          padding: 15px;
-          border-radius: 4px;
-          margin-bottom: 15px;
-          border: 1px solid #ffeaa7;
-        }
-        .verification-notice p {
-          margin: 5px 0;
-          color: #856404;
-        }
-        .help-text {
-          font-size: 12px;
-          color: #666;
-          margin-top: 5px;
-        }
-        .password-section {
-          border-left: 4px solid #ff9800;
-        }
-        .danger-zone {
-          border-left: 4px solid #f44336;
-        }
-        .button-group {
-          display: flex;
-          gap: 10px;
-        }
-      `}</style> */}
+    <div className={"settings-container"}>
 
       <h2>⚙️ Teacher Settings</h2>
 
@@ -369,20 +248,6 @@ export default function Settings({ teacher, setTeacher }) {
         )}
       </section>
 
-      {/* Preferences */}
-      <section className="settings-section">
-        <h3>Preferences</h3>
-        <div className="settings-item">
-          <label>
-            <input
-              type="checkbox"
-              checked={darkMode}
-              onChange={() => setDarkMode(!darkMode)}
-            />
-            {" "}Enable Dark Mode
-          </label>
-        </div>
-      </section>
 
       {/* Logout */}
       <section className="settings-section danger-zone">
