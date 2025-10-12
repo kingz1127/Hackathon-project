@@ -10,7 +10,6 @@ import process from "process";
 import { fileURLToPath } from "url";
 import Admin from "./models/Admin.js";
 import attendanceRoutes from "./routes/attendance.js";
-// import registerRoutes from "./models/registerRoutes.js";
 import Student from "./models/Student.js";
 import Teacher from "./models/Teacher.js";
 import eventRoutes from "./routes/eventRoutes.js";
@@ -404,6 +403,7 @@ mongoose
 
         console.log("Total admins in database:", adminCount);
         console.log("Total teachers in Teacher collection:", teacherCount);
+        console.log("Total student in the Student collection: ", studentCount);
 
         const defaultAdmin = await Admin.findOne({ username: "admin" });
         if (defaultAdmin) {
@@ -414,6 +414,10 @@ mongoose
           console.log(
             "Teachers in admin array:",
             defaultAdmin.teachers?.length || 0
+          );
+          console.log(
+            "Students in admin array:",
+            defaultAdmin.students?.length || 0
           );
         } else {
           console.log("No default admin found with username 'admin'");
