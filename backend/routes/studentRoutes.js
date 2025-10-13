@@ -55,7 +55,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({
   storage: storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+  limits: { fileSize: 10 * 1024 * 1024 }, // 5MB
   fileFilter: function (req, file, cb) {
     if (file.mimetype.startsWith("image/")) {
       cb(null, true);
@@ -539,4 +539,212 @@ router.delete("/messages/:id", async (req, res) => {
 });
 
 
+// ============================
+// TEMP STORAGE FOR VERIFICATION CODES
+// ============================
+// Store verification codes temporarily (in production, use Redis or database)
+const verificationCodes = new Map();
+
+// ============================
+// REQUEST VERIFICATION CODE
+// ============================
+router.post("/password/request-verification", async (req, res) => {
+  try {
+    const { studentId } = req.body;
+
+    if (!studentId) {
+      return res.status(400).json({ message: "Missing student ID" });
+    }
+
+    // Find student
+    const student = await Student.findOne({ studentId });
+    if (!student) {
+      return res.status(404).json({ message: "Student not found" });
+    }
+
+    // Generate 6-digit verification code
+    const verificationCode = Math.floor(100000 + Math.random() * 900000);
+
+    // Store code with expiration (10 minutes)
+    verificationCodes.set(studentId, {
+      code: verificationCode,
+      expiresAt: Date.now() + 10 * 60 * 1000, // 10 minutes
+    });
+
+    // Send verification email
+    if (transporter) {
+      try {
+        const mailOptions = {
+          from: `"Learner Admin" <${process.env.EMAIL_USER}>`,
+          to: student.email,
+          subject: "Password Change Verification Code",
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <h2 style="color: #4CAF50;">Password Change Request</h2>
+              <p>Hello <strong>${student.fullName}</strong>,</p>
+              <p>You have requested to change your password. Please use the verification code below to complete the process:</p>
+              
+              <div style="background-color: #f5f5f5; padding: 20px; margin: 20px 0; border-radius: 8px; text-align: center; border-left: 4px solid #4CAF50;">
+                <h1 style="margin: 0; color: #4CAF50; font-size: 36px; letter-spacing: 8px;">${verificationCode}</h1>
+                <p style="margin: 10px 0 0 0; color: #666; font-size: 14px;">This code will expire in 10 minutes</p>
+              </div>
+              
+              <div style="background-color: #fff3cd; padding: 15px; margin: 20px 0; border-radius: 5px; border: 1px solid #ffeaa7;">
+                <p style="margin: 0; color: #856404;"><strong>Security Notice:</strong> If you did not request this password change, please ignore this email or contact support immediately.</p>
+              </div>
+              
+              <hr style="margin: 30px 0; border: none; border-top: 1px solid #ddd;">
+              <p style="color: #666; font-size: 12px; text-align: center;">This is an automated message. Please do not reply to this email.</p>
+            </div>
+          `,
+          text: `Hello ${student.fullName},\n\nYou have requested to change your password.\n\nVerification Code: ${verificationCode}\n\nThis code will expire in 10 minutes.\n\nIf you did not request this, please ignore this email.\n\nThis is an automated message.`,
+        };
+
+        await transporter.sendMail(mailOptions);
+
+        res.json({
+          message: "Verification code sent to your email",
+          emailSent: true,
+        });
+      } catch (emailError) {
+        console.error("Email error:", emailError);
+        res.status(500).json({ message: "Failed to send verification email" });
+      }
+    } else {
+      res.status(500).json({ message: "Email service not configured" });
+    }
+  } catch (err) {
+    console.error("Error requesting verification:", err);
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+});
+
+// ============================
+// VERIFY CODE AND CHANGE PASSWORD
+// ============================
+router.post("/password/verify-and-change", async (req, res) => {
+  try {
+    const { studentId, verificationCode, newPassword } = req.body;
+
+    if (!studentId || !verificationCode || !newPassword) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
+
+    // Check if verification code exists
+    const storedData = verificationCodes.get(studentId);
+    if (!storedData) {
+      return res
+        .status(400)
+        .json({ message: "No verification code found. Please request a new one." });
+    }
+
+    // Check if code expired
+    if (Date.now() > storedData.expiresAt) {
+      verificationCodes.delete(studentId);
+      return res
+        .status(400)
+        .json({ message: "Verification code has expired. Please request a new one." });
+    }
+
+    // Verify code
+    if (storedData.code.toString() !== verificationCode.toString()) {
+      return res.status(400).json({ message: "Invalid verification code" });
+    }
+
+    // Find student
+    const student = await Student.findOne({ studentId });
+    if (!student) {
+      return res.status(404).json({ message: "Student not found" });
+    }
+
+    // Validate new password
+    if (newPassword.length < 6) {
+      return res.status(400).json({ message: "Password must be at least 6 characters" });
+    }
+
+    // Hash new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Update password
+    student.password = hashedPassword;
+    student.updatedAt = new Date();
+    await student.save();
+
+    // Delete used verification code
+    verificationCodes.delete(studentId);
+
+    // Send confirmation email
+    if (transporter) {
+      try {
+        const mailOptions = {
+          from: `"Learner Admin" <${process.env.EMAIL_USER}>`,
+          to: student.email,
+          subject: "Password Changed Successfully",
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <h2 style="color: #4CAF50;">Password Changed Successfully</h2>
+              <p>Hello <strong>${student.fullName}</strong>,</p>
+              <p>Your password has been successfully changed.</p>
+              
+              <div style="background-color: #d4edda; padding: 15px; margin: 20px 0; border-radius: 5px; border: 1px solid #c3e6cb;">
+                <p style="margin: 0; color: #155724;">✓ Your account is now secured with your new password.</p>
+              </div>
+              
+              <div style="background-color: #fff3cd; padding: 15px; margin: 20px 0; border-radius: 5px; border: 1px solid #ffeaa7;">
+                <p style="margin: 0; color: #856404;"><strong>Security Notice:</strong> If you did not make this change, please contact support immediately.</p>
+              </div>
+              
+              <hr style="margin: 30px 0; border: none; border-top: 1px solid #ddd;">
+              <p style="color: #666; font-size: 12px; text-align: center;">This is an automated message. Please do not reply to this email.</p>
+            </div>
+          `,
+          text: `Hello ${student.fullName},\n\nYour password has been successfully changed.\n\nIf you did not make this change, please contact support immediately.\n\nThis is an automated message.`,
+        };
+
+        await transporter.sendMail(mailOptions);
+      } catch (emailError) {
+        console.error("Confirmation email error:", emailError);
+      }
+    }
+
+    res.json({
+      message: "Password changed successfully",
+      success: true,
+    });
+  } catch (err) {
+    console.error("Error changing password:", err);
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+});
+
+// ============================
+// AUTO-CLEAR EXPIRED CODES
+// ============================
+setInterval(() => {
+  const now = Date.now();
+  for (const [studentId, data] of verificationCodes.entries()) {
+    if (now > data.expiresAt) {
+      verificationCodes.delete(studentId);
+    }
+  }
+}, 10 * 60 * 1000); // Run every 10 minutes
+
+
+// ✅ Get student profile by studentId
+router.get("/profile/:studentId", async (req, res) => {
+  try {
+    const { studentId } = req.params;
+    console.log("🔍 Fetching student with ID:", studentId);
+
+    const student = await Student.findOne({ studentId });
+    if (!student) {
+      return res.status(404).json({ error: "Student not found" });
+    }
+
+    res.status(200).json(student);
+  } catch (error) {
+    console.error("❌ Error fetching student:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+});
 export default router;

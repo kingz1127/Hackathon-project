@@ -74,7 +74,7 @@ export default function Login() {
     <>
       <header className={styles.header}>
         {/* Top bar */}
-        <div className={styles.topBar}>
+        <div className={styles.topBar}> 
           <div className={styles.contactInfo}>
             <span>
               <AiOutlineQuestionCircle /> Have a question?

@@ -443,5 +443,6 @@ app.use("/", studentRoutes);
 app.use("/api", registerRoutes);
 app.use("/", messageRoutes);
 app.use("/api/resources", resourceRoutes);
+app.use("/api/students", studentRoutes);
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
