@@ -575,7 +575,7 @@ router.post("/password/request-verification", async (req, res) => {
     if (transporter) {
       try {
         const mailOptions = {
-          from: `"Learner Admin" <${process.env.EMAIL_USER}>`,
+          from: `"Learner Security" <${process.env.EMAIL_USER}>`,
           to: student.email,
           subject: "Password Change Verification Code",
           html: `
@@ -677,7 +677,7 @@ router.post("/password/verify-and-change", async (req, res) => {
     if (transporter) {
       try {
         const mailOptions = {
-          from: `"Learner Admin" <${process.env.EMAIL_USER}>`,
+          from: `"Learner Security" <${process.env.EMAIL_USER}>`,
           to: student.email,
           subject: "Password Changed Successfully",
           html: `
