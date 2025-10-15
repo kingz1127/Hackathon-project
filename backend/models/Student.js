@@ -28,7 +28,7 @@ const studentSchema = new mongoose.Schema({
   // ✅ Add this field to link student → teacher
   teacherId: {
     type: String,
-    required: true, // you can make it optional if needed
+    // required: true, // you can make it optional if needed
   },
 
   gradeLevel: {

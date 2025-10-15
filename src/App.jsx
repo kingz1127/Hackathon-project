@@ -33,6 +33,7 @@ import EventsPage from "./Components/AdminDashboard/EventPage";
 import AnnouncementStudent from "./Components/Student/AnnoucementStudent";
 import FinancePage from "./Components/AdminDashboard/FinancePage";
 import StudentResources from "./Components/Student/StudentResources";
+import StudentSettings from "./Components/Student/StudentSettings";
 
 export default function App() {
   return (
@@ -81,7 +82,7 @@ export default function App() {
           <Route path="studentassignments" element={<Assignments />} />
           <Route path="studentresources" element={<StudentResources />} />
           <Route path="studentAnnoucement" element={<AnnouncementStudent />} />
-          <Route path="studentsettings" element={<Settings />} />
+          <Route path="studentsettings" element={<StudentSettings />} />
         </Route>
       </Routes>
     </BrowserRouter>
