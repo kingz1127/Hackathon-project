@@ -25,19 +25,19 @@ const HomePage = () => {
 
       <div className="quick-links">
         <div className="link-item">
-          <span>Reset Your Password</span>
+          <a href="studentsettings"><span>Reset Your Password</span></a>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <polyline points="9 18 15 12 9 6"></polyline>
           </svg>
         </div>
         <div className="link-item">
-          <span>Download PDFs / lecture notes / slides</span>
+          <a href="studentresources"><span>Download PDFs / lecture notes / slides</span></a>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <polyline points="9 18 15 12 9 6"></polyline>
           </svg>
         </div>
         <div className="link-item">
-          <span>Check grades / exam results</span>
+          <a href="studentgrades"><span>Check grades / exam results</span></a>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <polyline points="9 18 15 12 9 6"></polyline>
           </svg>
