@@ -1,0 +1,1458 @@
+/* Full Screen Container */
+.fullScreenContainer {
+  width: 83vw;
+  height: 100vh;
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--neutral-50) 0%, var(--neutral-100) 100%);
+}
+
+.studentFinancePage {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Header */
+.header {
+  background: var(--neutral-white);
+  padding: 1.5rem 2rem;
+  box-shadow: var(--shadow);
+  border-bottom: 1px solid var(--neutral-200);
+  flex-shrink: 0;
+}
+
+.headerContent {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 100%;
+}
+
+.headerText {
+  flex: 1;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--navy) 0%, var(--sapphire) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 0.25rem;
+}
+
+.subtitle {
+  font-size: 1rem;
+  color: var(--neutral-600);
+  margin: 0;
+}
+
+.studentInfo {
+  display: flex;
+  align-items: center;
+}
+
+.studentBadge {
+  background: var(--neutral-100);
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--border-radius);
+  border: 1px solid var(--neutral-200);
+  text-align: right;
+}
+
+.studentName {
+  display: block;
+  font-weight: 600;
+  color: var(--navy);
+  font-size: 1rem;
+}
+
+.studentId {
+  display: block;
+  font-size: 0.875rem;
+  color: var(--neutral-600);
+  margin-top: 0.25rem;
+}
+
+/* Stats Grid */
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  padding: 1.5rem 2rem;
+  flex-shrink: 0;
+}
+
+.statCard {
+  background: var(--neutral-white);
+  padding: 1.5rem;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  transition: all 0.3s ease;
+  border: 1px solid var(--neutral-200);
+}
+
+.statCard:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.statIcon {
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  color: var(--neutral-white);
+  flex-shrink: 0;
+}
+
+.statContent {
+  flex: 1;
+}
+
+.statLabel {
+  font-size: 0.875rem;
+  color: var(--neutral-600);
+  margin: 0 0 0.5rem 0;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.statValue {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--neutral-900);
+  margin: 0 0 0.25rem 0;
+}
+
+.statTrend {
+  font-size: 0.875rem;
+  color: var(--neutral-500);
+  margin: 0;
+}
+
+/* Tabs */
+.tabContainer {
+  display: flex;
+  background: var(--neutral-white);
+  padding: 0 2rem;
+  border-bottom: 1px solid var(--neutral-200);
+  flex-shrink: 0;
+  overflow-x: auto;
+}
+
+.tab {
+  padding: 1rem 1.5rem;
+  border: none;
+  background: transparent;
+  color: var(--neutral-600);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-bottom: 3px solid transparent;
+  white-space: nowrap;
+}
+
+.tab:hover {
+  color: var(--sapphire);
+  background: var(--neutral-50);
+}
+
+.tabActive {
+  color: var(--sapphire);
+  border-bottom-color: var(--sapphire);
+  background: var(--neutral-50);
+}
+
+/* Tab Content */
+.tabContent {
+  flex: 1;
+  padding: 2rem;
+  overflow-y: auto;
+  background: transparent;
+}
+
+/* Overview Grid */
+.overviewGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto;
+  gap: 2rem;
+  height: 100%;
+}
+
+@media (max-width: 1200px) {
+  .overviewGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Sections */
+.section {
+  background: var(--neutral-white);
+  border-radius: var(--border-radius);
+  padding: 1.5rem;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--neutral-200);
+  height: fit-content;
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.sectionTitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--navy);
+  margin: 0;
+}
+
+.sectionSubtitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--navy);
+  margin: 0 0 1rem 0;
+  border-bottom: 2px solid var(--neutral-200);
+  padding-bottom: 0.5rem;
+}
+
+.viewAllButton {
+  background: transparent;
+  color: var(--sapphire);
+  border: 1px solid var(--sapphire);
+  padding: 0.5rem 1rem;
+  border-radius: var(--border-radius);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.875rem;
+}
+
+.viewAllButton:hover {
+  background: var(--sapphire);
+  color: var(--neutral-white);
+}
+
+/* Payment List */
+.paymentList {
+  space-y: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.paymentItem {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: var(--border-radius);
+  background: var(--neutral-50);
+  transition: all 0.2s ease;
+}
+
+.paymentItem:hover {
+  background: var(--neutral-100);
+  transform: translateX(4px);
+}
+
+.paymentIcon {
+  font-size: 1.5rem;
+  width: 3rem;
+  height: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--neutral-100);
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.paymentInfo {
+  flex: 1;
+}
+
+.paymentDescription {
+  font-weight: 600;
+  color: var(--neutral-800);
+  margin: 0 0 0.25rem 0;
+}
+
+.paymentDueDate {
+  font-size: 0.875rem;
+  color: var(--neutral-600);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dueBadge {
+  background: var(--ruby);
+  color: var(--neutral-white);
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.paymentAmount {
+  font-weight: 700;
+  color: var(--ruby);
+  font-size: 1.125rem;
+}
+
+.payNowButton {
+  background: var(--sapphire);
+  color: var(--neutral-white);
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: var(--border-radius);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  font-size: 0.875rem;
+}
+
+.payNowButton:hover {
+  background: var(--navy);
+}
+
+/* Buttons */
+.primaryButton {
+  background: var(--sapphire);
+  color: var(--neutral-white);
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--border-radius);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+.primaryButton:hover {
+  background: var(--navy);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.secondaryButton {
+  background: transparent;
+  color: var(--sapphire);
+  border: 1px solid var(--sapphire);
+  padding: 0.5rem 1rem;
+  border-radius: var(--border-radius);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.875rem;
+}
+
+.secondaryButton:hover {
+  background: var(--sapphire);
+  color: var(--neutral-white);
+}
+
+/* Transaction List */
+.transactionList {
+  space-y: 0.75rem;
+}
+
+.transactionItem {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  border-radius: var(--border-radius);
+  background: var(--neutral-white);
+  border: 1px solid var(--neutral-200);
+  transition: all 0.2s ease;
+  gap: 1rem;
+}
+
+.transactionItem:hover {
+  border-color: var(--sky);
+  box-shadow: var(--shadow-sm);
+}
+
+.transactionIcon {
+  font-size: 1.25rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--neutral-100);
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.transactionInfo {
+  flex: 1;
+}
+
+.transactionDescription {
+  font-weight: 600;
+  color: var(--neutral-800);
+  margin: 0 0 0.25rem 0;
+}
+
+.transactionDate {
+  font-size: 0.875rem;
+  color: var(--neutral-600);
+  margin: 0;
+}
+
+.transactionAmount {
+  font-weight: 700;
+  font-size: 1.125rem;
+  margin-right: 1rem;
+}
+
+.debit {
+  color: var(--ruby);
+}
+
+.credit {
+  color: var(--emerald);
+}
+
+.receiptButton {
+  background: transparent;
+  border: 1px solid var(--neutral-300);
+  padding: 0.5rem;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.receiptButton:hover {
+  background: var(--gold);
+  border-color: var(--gold);
+  transform: scale(1.1);
+}
+
+/* Aid Summary */
+.aidSummary {
+  space-y: 1rem;
+}
+
+.aidItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--neutral-200);
+}
+
+.aidLabel {
+  font-weight: 500;
+  color: var(--neutral-700);
+}
+
+.aidAmount {
+  font-weight: 600;
+  color: var(--neutral-800);
+}
+
+.aidTotal {
+  font-weight: 700;
+  color: var(--emerald);
+  font-size: 1.125rem;
+}
+
+/* Plan Summary */
+.planSummary {
+  space-y: 1rem;
+}
+
+.planItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background: var(--neutral-50);
+  border-radius: var(--border-radius);
+}
+
+.planLabel {
+  font-weight: 500;
+  color: var(--neutral-700);
+}
+
+.planValue {
+  font-weight: 600;
+  color: var(--neutral-800);
+}
+
+/* Payment Section */
+.paymentSection {
+  background: var(--neutral-white);
+  border-radius: var(--border-radius);
+  padding: 1.5rem;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--neutral-200);
+  height: 100%;
+  overflow-y: auto;
+}
+
+.paymentLayout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+@media (max-width: 1200px) {
+  .paymentLayout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Payment Form */
+.paymentForm {
+  space-y: 1.5rem;
+}
+
+.formGroup {
+  space-y: 0.5rem;
+}
+
+.formLabel {
+  display: block;
+  font-weight: 600;
+  color: var(--neutral-700);
+  margin-bottom: 0.5rem;
+}
+
+.amountInputContainer {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.currencySymbol {
+  position: absolute;
+  left: 1rem;
+  font-weight: 600;
+  color: var(--neutral-600);
+  z-index: 1;
+}
+
+.formInput {
+  width: 100%;
+  padding: 0.75rem 0.75rem 0.75rem 2rem;
+  border: 1px solid var(--neutral-300);
+  border-radius: var(--border-radius);
+  font-size: 1rem;
+  transition: border-color 0.2s ease;
+}
+
+.formInput:focus {
+  outline: none;
+  border-color: var(--sky);
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.formSelect {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--neutral-300);
+  border-radius: var(--border-radius);
+  font-size: 1rem;
+  background: var(--neutral-white);
+  transition: border-color 0.2s ease;
+}
+
+.formSelect:focus {
+  outline: none;
+  border-color: var(--sky);
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.paymentSummary {
+  background: var(--neutral-50);
+  padding: 1rem;
+  border-radius: var(--border-radius);
+  border: 1px solid var(--neutral-200);
+}
+
+.summaryItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--neutral-200);
+}
+
+.summaryTotal {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0 0 0;
+  font-weight: 700;
+  font-size: 1.125rem;
+  color: var(--navy);
+}
+
+/* Quick Pay */
+.quickPayOptions {
+  space-y: 0.75rem;
+}
+
+.quickPayButton {
+  width: 100%;
+  background: var(--neutral-50);
+  border: 1px solid var(--neutral-300);
+  padding: 1rem;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.quickPayButton:hover {
+  background: var(--neutral-100);
+  border-color: var(--sapphire);
+  transform: translateX(4px);
+}
+
+.quickPayDescription {
+  font-weight: 500;
+  color: var(--neutral-800);
+}
+
+.quickPayAmount {
+  font-weight: 700;
+  color: var(--ruby);
+}
+
+/* Payment Methods */
+.paymentMethodsList {
+  space-y: 1rem;
+}
+
+.paymentMethodCard {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--neutral-200);
+  border-radius: var(--border-radius);
+  background: var(--neutral-white);
+  transition: all 0.2s ease;
+}
+
+.paymentMethodCard:hover {
+  border-color: var(--sky);
+  box-shadow: var(--shadow-sm);
+}
+
+.methodIcon {
+  font-size: 1.5rem;
+  width: 3rem;
+  height: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--neutral-100);
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.methodInfo {
+  flex: 1;
+}
+
+.methodType {
+  font-weight: 600;
+  color: var(--neutral-800);
+  margin: 0 0 0.25rem 0;
+}
+
+.methodDetails {
+  color: var(--neutral-600);
+  margin: 0;
+  font-size: 0.875rem;
+}
+
+.methodActions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.defaultBadge {
+  background: var(--emerald);
+  color: var(--neutral-white);
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.editButton {
+  background: transparent;
+  color: var(--sapphire);
+  border: 1px solid var(--sapphire);
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--border-radius);
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.editButton:hover {
+  background: var(--sapphire);
+  color: var(--neutral-white);
+}
+
+/* History Section */
+.historySection, .receiptsSection, .financialAidSection, .paymentPlanSection {
+  background: var(--neutral-white);
+  border-radius: var(--border-radius);
+  padding: 1.5rem;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--neutral-200);
+  height: 100%;
+  overflow-y: auto;
+}
+
+.historyFilters, .receiptFilters {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.filterSelect {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--neutral-300);
+  border-radius: var(--border-radius);
+  background: var(--neutral-white);
+  color: var(--neutral-700);
+}
+
+/* History Table */
+.historyTable {
+  border: 1px solid var(--neutral-200);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  margin-top: 1.5rem;
+}
+
+.tableHeader {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+  background: var(--neutral-100);
+  padding: 1rem;
+  font-weight: 600;
+  color: var(--neutral-700);
+  border-bottom: 1px solid var(--neutral-200);
+}
+
+.tableRow {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+  padding: 1rem;
+  border-bottom: 1px solid var(--neutral-200);
+  transition: background-color 0.2s ease;
+}
+
+.tableRow:hover {
+  background-color: var(--neutral-50);
+}
+
+.tableRow:last-child {
+  border-bottom: none;
+}
+
+.tableCell {
+  display: flex;
+  align-items: center;
+}
+
+.receiptLink {
+  background: transparent;
+  color: var(--sapphire);
+  border: 1px solid var(--sapphire);
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--border-radius);
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.receiptLink:hover {
+  background: var(--sapphire);
+  color: var(--neutral-white);
+}
+
+/* Status Badges */
+.statusBadge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.statusCompleted, .statusApproved {
+  background: var(--emerald);
+  color: var(--neutral-white);
+}
+
+.statusPending {
+  background: var(--gold);
+  color: var(--neutral-800);
+}
+
+.statusDue {
+  background: var(--ruby);
+  color: var(--neutral-white);
+}
+
+.statusUpcoming {
+  background: var(--sky);
+  color: var(--neutral-white);
+}
+
+.statusDenied {
+  background: var(--ruby);
+  color: var(--neutral-white);
+}
+
+/* Receipts Grid */
+.receiptsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.receiptCard {
+  background: var(--neutral-white);
+  border: 1px solid var(--neutral-200);
+  border-radius: var(--border-radius);
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-sm);
+}
+
+.receiptCard:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--sky);
+}
+
+.receiptCardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--neutral-200);
+}
+
+.receiptCardId {
+  font-weight: 600;
+  color: var(--navy);
+  font-size: 0.875rem;
+}
+
+.receiptCardBody {
+  margin-bottom: 1.5rem;
+}
+
+.receiptCardDate {
+  font-size: 0.875rem;
+  color: var(--neutral-600);
+  margin-bottom: 0.5rem;
+}
+
+.receiptCardAmount {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.receiptCardItems {
+  space-y: 0.5rem;
+}
+
+.receiptCardItem {
+  font-size: 0.875rem;
+  color: var(--neutral-700);
+  padding: 0.25rem 0;
+}
+
+.receiptCardMore {
+  font-size: 0.75rem;
+  color: var(--neutral-500);
+  font-style: italic;
+}
+
+.receiptCardFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.receiptCardMethod {
+  font-size: 0.875rem;
+  color: var(--neutral-600);
+}
+
+.viewReceiptButton {
+  background: var(--sapphire);
+  color: var(--neutral-white);
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: var(--border-radius);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.viewReceiptButton:hover {
+  background: var(--navy);
+}
+
+/* Financial Aid Section */
+.aidLayout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+@media (max-width: 1200px) {
+  .aidLayout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.aidList {
+  space-y: 1rem;
+}
+
+.aidItemDetailed {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--neutral-200);
+  border-radius: var(--border-radius);
+  background: var(--neutral-white);
+  transition: all 0.2s ease;
+}
+
+.aidItemDetailed:hover {
+  border-color: var(--sky);
+  box-shadow: var(--shadow-sm);
+}
+
+.aidInfo {
+  flex: 1;
+}
+
+.aidName {
+  font-weight: 600;
+  color: var(--neutral-800);
+  margin: 0 0 0.25rem 0;
+}
+
+.aidTerm {
+  font-size: 0.875rem;
+  color: var(--neutral-600);
+  margin: 0;
+}
+
+.aidAmountDetailed {
+  font-weight: 700;
+  color: var(--emerald);
+  font-size: 1.125rem;
+}
+
+.aidSummaryDetailed {
+  background: var(--neutral-50);
+  padding: 1.5rem;
+  border-radius: var(--border-radius);
+  border: 1px solid var(--neutral-200);
+}
+
+.summaryItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--neutral-200);
+}
+
+.summaryTotal {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 0 0 0;
+  font-weight: 700;
+  font-size: 1.125rem;
+  color: var(--navy);
+  border-top: 2px solid var(--neutral-300);
+}
+
+/* Payment Plan Section */
+.planDetails {
+  space-y: 2rem;
+}
+
+.planOverview {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+@media (max-width: 1200px) {
+  .planOverview {
+    grid-template-columns: 1fr;
+  }
+}
+
+.planCard {
+  background: linear-gradient(135deg, var(--sapphire) 0%, var(--navy) 100%);
+  color: var(--neutral-white);
+  padding: 2rem;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-lg);
+}
+
+.planName {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 1.5rem 0;
+  text-align: center;
+}
+
+.planStats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.planStat {
+  text-align: center;
+}
+
+.planStatLabel {
+  display: block;
+  font-size: 0.875rem;
+  opacity: 0.9;
+  margin-bottom: 0.5rem;
+}
+
+.planStatValue {
+  display: block;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.paymentSchedule {
+  space-y: 1rem;
+}
+
+.scheduleItem {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr 1fr;
+  gap: 1rem;
+  align-items: center;
+  padding: 1rem;
+  border: 1px solid var(--neutral-200);
+  border-radius: var(--border-radius);
+  background: var(--neutral-white);
+  transition: all 0.2s ease;
+}
+
+.scheduleItem:hover {
+  border-color: var(--sky);
+  box-shadow: var(--shadow-sm);
+}
+
+.scheduleDate {
+  font-weight: 600;
+  color: var(--neutral-800);
+}
+
+.scheduleDescription {
+  color: var(--neutral-700);
+}
+
+.scheduleAmount {
+  font-weight: 700;
+  color: var(--ruby);
+  text-align: right;
+}
+
+.scheduleStatus {
+  text-align: center;
+}
+
+/* Modal styles (same as admin version) */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 2rem;
+}
+
+.modalContent {
+  background: var(--neutral-white);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-lg);
+  width: 90%;
+  max-width: 800px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid var(--neutral-200);
+  background: var(--neutral-50);
+  border-radius: var(--border-radius) var(--border-radius) 0 0;
+}
+
+.modalHeader h2 {
+  margin: 0;
+  color: var(--navy);
+  font-size: 1.5rem;
+}
+
+.modalActions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.downloadButton {
+  background: var(--sapphire);
+  color: var(--neutral-white);
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: var(--border-radius);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.downloadButton:hover {
+  background: var(--navy);
+}
+
+.closeButton {
+  background: var(--neutral-300);
+  color: var(--neutral-700);
+  border: none;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.25rem;
+  transition: all 0.2s ease;
+}
+
+.closeButton:hover {
+  background: var(--ruby);
+  color: var(--neutral-white);
+}
+
+.receiptContainer {
+  padding: 2rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.receipt {
+  max-width: 100%;
+  background: var(--neutral-white);
+}
+
+.receiptHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+  padding-bottom: 2rem;
+  border-bottom: 2px solid var(--neutral-300);
+}
+
+.receiptLogo {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.logoIcon {
+  font-size: 3rem;
+}
+
+.receiptLogo h3 {
+  margin: 0;
+  color: var(--navy);
+  font-size: 1.5rem;
+}
+
+.receiptLogo p {
+  margin: 0.25rem 0 0 0;
+  color: var(--neutral-600);
+  font-size: 0.875rem;
+}
+
+.receiptTitle {
+  text-align: right;
+}
+
+.receiptTitle h1 {
+  margin: 0;
+  color: var(--navy);
+  font-size: 1.75rem;
+  font-weight: 700;
+}
+
+.receiptId {
+  color: var(--neutral-600);
+  font-size: 0.875rem;
+  margin: 0.25rem 0 0 0;
+}
+
+.receiptInfo {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.infoSection h4 {
+  color: var(--navy);
+  margin: 0 0 1rem 0;
+  font-size: 1rem;
+  border-bottom: 1px solid var(--neutral-200);
+  padding-bottom: 0.5rem;
+}
+
+.infoSection p {
+  margin: 0.5rem 0;
+  color: var(--neutral-700);
+}
+
+.receiptItems {
+  margin-bottom: 2rem;
+}
+
+.receiptItems h4 {
+  color: var(--navy);
+  margin: 0 0 1rem 0;
+  font-size: 1rem;
+  border-bottom: 1px solid var(--neutral-200);
+  padding-bottom: 0.5rem;
+}
+
+.itemsHeader {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--neutral-300);
+  font-weight: 600;
+  color: var(--neutral-700);
+}
+
+.itemRow {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--neutral-200);
+}
+
+.receiptTotals {
+  border-top: 2px solid var(--neutral-300);
+  padding-top: 1rem;
+  margin-bottom: 2rem;
+}
+
+.totalRow {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  font-size: 1.125rem;
+}
+
+.totalRow:last-child {
+  border-top: 1px solid var(--neutral-300);
+  padding-top: 1rem;
+  margin-top: 0.5rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.receiptFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding-top: 2rem;
+  border-top: 2px solid var(--neutral-300);
+  margin-bottom: 2rem;
+}
+
+.paymentMethod {
+  color: var(--neutral-700);
+}
+
+.paymentMethod p {
+  margin: 0.5rem 0;
+}
+
+.receiptStamp {
+  text-align: center;
+}
+
+.stamp {
+  background: var(--emerald);
+  color: var(--neutral-white);
+  padding: 1rem 2rem;
+  border-radius: var(--border-radius);
+  font-weight: 700;
+  font-size: 1.25rem;
+  transform: rotate(5deg);
+  box-shadow: var(--shadow);
+}
+
+.receiptNote {
+  background: var(--neutral-50);
+  padding: 1rem;
+  border-radius: var(--border-radius);
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--neutral-600);
+  border: 1px solid var(--neutral-200);
+}
+
+.receiptNote p {
+  margin: 0.25rem 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .fullScreenContainer {
+    height: auto;
+    min-height: 100vh;
+    overflow-y: auto;
+  }
+
+  .header {
+    padding: 1rem;
+  }
+  
+  .headerContent {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+  
+  .studentBadge {
+    text-align: center;
+  }
+  
+  .statsGrid {
+    padding: 1rem;
+    grid-template-columns: 1fr;
+  }
+  
+  .tabContainer {
+    padding: 0 1rem;
+    overflow-x: auto;
+  }
+  
+  .tab {
+    padding: 1rem;
+    white-space: nowrap;
+  }
+  
+  .tabContent {
+    padding: 1rem;
+  }
+  
+  .overviewGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .sectionHeader {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+  
+  .paymentLayout, .aidLayout, .planOverview {
+    grid-template-columns: 1fr;
+  }
+  
+  .receiptsGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .tableHeader, .tableRow {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .scheduleItem {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+    text-align: center;
+  }
+
+  .modalContent {
+    width: 95%;
+    margin: 1rem;
+  }
+
+  .receiptHeader {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+  }
+
+  .receiptTitle {
+    text-align: center;
+  }
+}
