@@ -33,7 +33,7 @@ router.get("/teacher/:teacherId", async (req, res) => {
     console.error(err);
     res.status(500).json({ message: "Server error" });
   }
-
+});
 // CREATE a new course
 router.post('/', async (req, res) => {
   const { id, title, description, instructor, classes, grades, category, status, technologies } = req.body;

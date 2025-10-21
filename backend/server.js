@@ -9,15 +9,16 @@ import path from "path";
 import process from "process";
 import { fileURLToPath } from "url";
 import Admin from "./models/Admin.js";
-import attendanceRoutes from "./routes/attendance.js";
 import Student from "./models/Student.js";
 import Teacher from "./models/Teacher.js";
+import attendanceRoutes from "./routes/attendance.js";
+import coursesRoutes from "./routes/coursesRoutes.js";
 import eventRoutes from "./routes/eventRoutes.js";
 import messageRoutes from "./routes/message.js";
 import registerRoutes from "./routes/registerRoutes.js";
+import resourceRoutes from "./routes/resourceRoutes.js";
 import teacherRoutes from "./routes/router.js";
 import studentRoutes from "./routes/studentRoutes.js";
-import resourceRoutes from "./routes/resourceRoutes.js";
 
 dotenv.config();
 
@@ -75,7 +76,7 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 
 app.use("/attendance", attendanceRoutes);
-
+app.use('/', coursesRoutes);
 
 // Enhanced Admin login route - checks both Admin collection and Teacher collection
 app.post("/admin/login", async (req, res) => {
