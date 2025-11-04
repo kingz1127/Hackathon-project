@@ -1013,6 +1013,28 @@
   margin: 0.25rem 0;
 }
 
+
+/* Add to your FinancePage.module.css */
+.refreshButton {
+  padding: 8px 16px;
+  background: #10b981;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.refreshButton:hover {
+  background: #059669;
+}
+
+.paymentCount {
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin-top: 4px;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .fullScreenContainer {

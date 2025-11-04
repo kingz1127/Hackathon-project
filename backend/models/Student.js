@@ -30,7 +30,7 @@ const studentSchema = new mongoose.Schema({
     type: String,
     // required: true, // you can make it optional if needed
   },
-
+ 
   gradeLevel: {
     type: String,
     required: true,
@@ -83,6 +83,21 @@ const studentSchema = new mongoose.Schema({
     type: Date,
     default: null,
   },
+
+  // Financial fields
+  accountBalance: {
+    type: Number,
+    default: 0,
+  },
+  financialHold: {
+    type: Boolean,
+    default: false,
+  },
+  semester: {
+    type: String,
+    default: 'Spring 2024',
+  },
+  
   createdAt: {
     type: Date,
     default: Date.now,
@@ -111,6 +126,8 @@ const studentSchema = new mongoose.Schema({
     },
   ],
 });
+
+
 
 studentSchema.pre("save", function (next) {
   this.updatedAt = Date.now();
