@@ -35,6 +35,7 @@ import FinancePage from "./Components/AdminDashboard/FinancePage";
 import StudentResources from "./Components/Student/StudentResources";
 import StudentSettings from "./Components/Student/StudentSettings";
 import StudentFinancePage from "./Components/Student/StudentFinancePage";
+import AdminSettings from "./Components/AdminDashboard/AdminSettings";
 
 export default function App() {
   return (
@@ -59,6 +60,7 @@ export default function App() {
           <Route path="adminteacher" element={<AdminTeacher />} />
           <Route path="adminFinance" element={<FinancePage />} />
           <Route path="adminmessages" element={<EventsPage />} />
+          <Route path="adminSettings" element={<AdminSettings />} />
           <Route path="*" element={<p>Invalid route (404 Not Found)!!!</p>} />
         </Route>
 

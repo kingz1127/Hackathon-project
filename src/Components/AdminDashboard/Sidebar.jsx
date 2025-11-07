@@ -96,7 +96,7 @@ export default function Sidebar() {
         
         
         <NavLink 
-          to="adminsettings" 
+          to="adminSettings" 
           className={({ isActive }) => 
             isActive ? `${styles.navLink} ${styles.active}` : styles.navLink
           }
