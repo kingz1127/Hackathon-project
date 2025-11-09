@@ -36,9 +36,12 @@ import StudentResources from "./Components/Student/StudentResources";
 import StudentSettings from "./Components/Student/StudentSettings";
 import StudentFinancePage from "./Components/Student/StudentFinancePage";
 import AdminSettings from "./Components/AdminDashboard/AdminSettings";
+import AdminNotification from "./Components/AdminDashboard/AdminNotification";
+import { NotificationProvider } from './context/NotificationContext.jsx'; 
 
 export default function App() {
   return (
+    <NotificationProvider>
     <BrowserRouter>
       <Routes>
         {/* This is the Landing Page Route */}
@@ -61,6 +64,7 @@ export default function App() {
           <Route path="adminFinance" element={<FinancePage />} />
           <Route path="adminmessages" element={<EventsPage />} />
           <Route path="adminSettings" element={<AdminSettings />} />
+          <Route path="adminNotify" element={<AdminNotification />} />
           <Route path="*" element={<p>Invalid route (404 Not Found)!!!</p>} />
         </Route>
 
@@ -90,5 +94,6 @@ export default function App() {
         </Route>
       </Routes>
     </BrowserRouter>
+    </NotificationProvider>
   );
 }

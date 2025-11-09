@@ -10,8 +10,6 @@ const FinancePage = () => {
   const [error, setError] = useState(null);
   const [transactions, setTransactions] = useState([]);
   const [payments, setPayments] = useState([]);
-
-  // New state for admin payment management
   const [students, setStudents] = useState([]);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -24,7 +22,314 @@ const FinancePage = () => {
     type: "tuition",
   });
 
-  // Fetch financial data from API
+  const [showPaymentsModal, setShowPaymentsModal] = useState(false);
+const [selectedStudentPayments, setSelectedStudentPayments] = useState([]);
+
+  const [receipts, setReceipts] = useState([]);
+  const [receiptFilters, setReceiptFilters] = useState({
+    period: 'all',
+    search: ''
+  });
+  const [receiptsLoading, setReceiptsLoading] = useState(false);
+
+     // Add this modal component before your existing modals
+const PaymentsModal = ({ isOpen, onClose, payments, student }) => {
+  if (!isOpen || !payments.length) return null;
+
+  const handleEditPayment = (payment) => {
+    const totalDue = payment.amount || payment.totalAmount || 0;
+    const amountPaid = payment.amountPaid || 0;
+    
+    setEditingPayment({
+      id: payment.id,
+      studentId: student.id,
+      studentName: student.name,
+      description: payment.description || "Payment",
+      totalAmount: totalDue,
+      amountPaid: amountPaid,
+      status: payment.status || "pending",
+      dueDate: payment.dueDate || "",
+      type: payment.type || "tuition"
+    });
+    setShowPaymentsModal(false);
+    setShowEditModal(true);
+  };
+
+  const getPaymentStatus = (payment) => {
+    const total = payment.amount || payment.totalAmount || 0;
+    const paid = payment.amountPaid || 0;
+    const remaining = total - paid;
+    
+    if (remaining <= 0) return "Completed";
+    if (remaining < total) return "Partial";
+    return "Pending";
+  };
+
+  return (
+    <div className={styles.modalOverlay} onClick={onClose}>
+      <div
+        className={styles.modalContent}
+        onClick={(e) => e.stopPropagation()}
+        style={{ maxWidth: '800px' }}
+      >
+        <div className={styles.modalHeader}>
+          <h2>Select Payment to Edit - {student.name}</h2>
+          <button className={styles.closeButton} onClick={onClose}>
+            ×
+          </button>
+        </div>
+
+        <div className={styles.paymentsList} style={{ padding: "20px" }}>
+          <div className={styles.paymentsTable}>
+            <div className={styles.paymentsHeader}>
+              <div className={styles.paymentCell}>Description</div>
+              <div className={styles.paymentCell}>Due Date</div>
+              <div className={styles.paymentCell}>Total Amount</div>
+              <div className={styles.paymentCell}>Amount Paid</div>
+              <div className={styles.paymentCell}>Status</div>
+              <div className={styles.paymentCell}>Action</div>
+            </div>
+            
+            {payments.map((payment, index) => {
+              const status = getPaymentStatus(payment);
+              
+              return (
+                <div key={payment.id || index} className={styles.paymentRow}>
+                  <div className={styles.paymentCell}>
+                    <strong>{payment.description || "Payment"}</strong>
+                    <div style={{ fontSize: '12px', color: '#6b7280' }}>
+                      Type: {payment.type || "tuition"}
+                    </div>
+                  </div>
+                  <div className={styles.paymentCell}>
+                    {payment.dueDate ? formatDate(payment.dueDate) : "Not set"}
+                  </div>
+                  <div className={styles.paymentCell}>
+                    {formatCurrency(payment.amount || payment.totalAmount || 0)}
+                  </div>
+                  <div className={styles.paymentCell}>
+                    {formatCurrency(payment.amountPaid || 0)}
+                  </div>
+                  <div className={styles.paymentCell}>
+                    <span
+                      className={`${styles.statusBadge} ${
+                        status === "Completed"
+                          ? styles.statusCompleted
+                          : status === "Partial"
+                          ? styles.statusPartial
+                          : styles.statusPending
+                      }`}
+                    >
+                      {payment.status || status}
+                    </span>
+                  </div>
+                  <div className={styles.paymentCell}>
+                    <button
+                      className={styles.editButton}
+                      onClick={() => handleEditPayment(payment)}
+                    >
+                      Edit
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        <div style={{ padding: "0 20px 20px", textAlign: "center" }}>
+          <button
+            onClick={onClose}
+            style={{
+              padding: "10px 20px",
+              borderRadius: "6px",
+              border: "1px solid #e2e8f0",
+              background: "white",
+              cursor: "pointer",
+            }}
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+  // Helper functions for analytics charts
+  const generateRevenueBars = () => {
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const currentData = [12000, 19000, 15000, 18000, 16000, 19500, 21000, 18500, 22000, 24000, 23000, 25000];
+    const previousData = [11000, 17000, 14000, 16000, 15000, 18000, 19000, 17000, 20000, 22000, 21000, 23000];
+
+    return months.map((month, index) => (
+      <div key={month} className={styles.barGroup}>
+        <div className={styles.bars}>
+          <div 
+            className={styles.barPrevious} 
+            style={{ height: `${(previousData[index] / 30000) * 100}%` }}
+          ></div>
+          <div 
+            className={styles.barCurrent} 
+            style={{ height: `${(currentData[index] / 30000) * 100}%` }}
+          ></div>
+        </div>
+        <span className={styles.barLabel}>{month}</span>
+      </div>
+    ));
+  };
+
+  const renderPaymentMethods = () => {
+    if (!financialData?.paymentDistribution) return null;
+    
+    const total = financialData.paymentDistribution.reduce((sum, method) => sum + method.percentage, 0);
+    let currentAngle = 0;
+
+    return financialData.paymentDistribution.map((method, index) => {
+      const angle = (method.percentage / total) * 360;
+      const slice = (
+        <div
+          key={method.category}
+          className={styles.pieSlice}
+          style={{
+            backgroundColor: method.color,
+            transform: `rotate(${currentAngle}deg)`,
+            clipPath: `conic-gradient(from 0deg at 50% 50%, ${method.color} 0deg ${angle}deg, transparent ${angle}deg)`
+          }}
+        ></div>
+      );
+      currentAngle += angle;
+      return slice;
+    });
+  };
+
+  const renderBalanceTrend = () => {
+    if (!financialData?.outstandingBalance) return null;
+    
+    const data = [45000, 42000, 38000, 35000, 32000, 30000, 28000, 25000, 22000, 20000, 18000, financialData.outstandingBalance];
+    const maxValue = Math.max(...data);
+    
+    return data.map((value, index) => (
+      <div key={index} className={styles.linePoint}>
+        <div 
+          className={styles.lineDot}
+          style={{ bottom: `${(value / maxValue) * 100}%` }}
+        ></div>
+        {index < data.length - 1 && (
+          <div 
+            className={styles.lineConnector}
+            style={{ 
+              height: `${Math.abs((data[index + 1] / maxValue) * 100 - (value / maxValue) * 100)}%`,
+              bottom: `${(value / maxValue) * 100}%`
+            }}
+          ></div>
+        )}
+      </div>
+    ));
+  };
+
+  const renderPaymentStatus = () => {
+    const statusData = [
+      { status: 'Completed', value: 65, color: '#10b981' },
+      { status: 'Partial', value: 20, color: '#f59e0b' },
+      { status: 'Pending', value: 10, color: '#3b82f6' },
+      { status: 'Overdue', value: 5, color: '#ef4444' }
+    ];
+
+    return (
+      <div className={styles.statusBars}>
+        {statusData.map((item) => (
+          <div key={item.status} className={styles.statusBar}>
+            <div className={styles.statusLabel}>{item.status}</div>
+            <div className={styles.statusBarContainer}>
+              <div 
+                className={styles.statusBarFill}
+                style={{ 
+                  width: `${item.value}%`,
+                  backgroundColor: item.color
+                }}
+              ></div>
+            </div>
+            <div className={styles.statusValue}>{item.value}%</div>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
+  const getStatusClass = (status) => {
+    switch (status?.toLowerCase()) {
+      case 'overdue': return styles.statusOverdue;
+      case 'due soon': return styles.statusDueSoon;
+      default: return styles.statusCurrent;
+    }
+  };
+
+  const exportAnalyticsData = () => {
+    const dataStr = JSON.stringify(financialData, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `analytics_${new Date().toISOString().split('T')[0]}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const fetchReceipts = async (filters = {}) => {
+    try {
+      setReceiptsLoading(true);
+      
+      const params = new URLSearchParams();
+      if (filters.period && filters.period !== 'all') {
+        params.append('period', filters.period);
+      }
+      if (filters.search) {
+        params.append('search', filters.search);
+      }
+      
+      const url = `http://localhost:5000/api/finance/admin/receipts?${params.toString()}`;
+      console.log('Fetching receipts from:', url);
+      
+      const response = await fetch(url);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      if (data.success && data.receipts) {
+        setReceipts(data.receipts);
+        console.log(`Loaded ${data.receipts.length} receipts`);
+      } else {
+        console.error('Failed to fetch receipts:', data.message);
+        setReceipts([]);
+      }
+    } catch (err) {
+      console.error('Error fetching receipts:', err);
+      setReceipts([]);
+    } finally {
+      setReceiptsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === "receipts") {
+      console.log("Receipts tab activated, fetching receipts...");
+      fetchReceipts(receiptFilters);
+    }
+  }, [activeTab]);
+
+  useEffect(() => {
+    if (activeTab === "receipts") {
+      const timeoutId = setTimeout(() => {
+        fetchReceipts(receiptFilters);
+      }, 300);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [receiptFilters.period, receiptFilters.search]);
+
   useEffect(() => {
     fetchFinancialData();
     fetchAllStudents();
@@ -33,7 +338,6 @@ const FinancePage = () => {
   const fetchFinancialData = async () => {
     try {
       setLoading(true);
-      // Use admin overview endpoint instead of student endpoint
       const url = `http://localhost:5000/api/finance/admin/overview`;
       console.log("Fetching admin financial data from:", url);
 
@@ -61,6 +365,8 @@ const FinancePage = () => {
           : [],
         receipts: Array.isArray(data.receipts) ? data.receipts : [],
       });
+      
+      setTransactions(Array.isArray(data.recentTransactions) ? data.recentTransactions : []);
     } catch (err) {
       console.error("Error fetching financial data:", err);
       setError("Failed to load financial data.");
@@ -69,7 +375,6 @@ const FinancePage = () => {
     }
   };
 
-  // Function to fetch actual payments for a student
   const fetchStudentPayments = async (studentId) => {
     try {
       const response = await fetch(
@@ -77,7 +382,7 @@ const FinancePage = () => {
       );
       if (response.ok) {
         const data = await response.json();
-        return data.payments || []; // Now returns the payments array directly
+        return data.payments || [];
       }
       return [];
     } catch (err) {
@@ -86,23 +391,17 @@ const FinancePage = () => {
     }
   };
 
-  // Fetch all students with payment data
-  // In your fetchAllStudents function, ensure it calculates from actual payments
   const fetchAllStudents = async () => {
     try {
       const response = await fetch(
         "http://localhost:5000/api/finance/admin/students"
       );
       if (!response.ok) {
-        console.log(
-          "Admin students endpoint not available, using fallback data"
-        );
-        // Use fallback with 0 balances
+        console.log("Admin students endpoint not available, using fallback data");
         if (financialData && financialData.topStudents) {
           const mockStudents = await Promise.all(
             financialData.topStudents.map(async (student) => {
               const payments = await fetchStudentPayments(student.id);
-              // Calculate from actual payments only
               const totalAmount = payments.reduce(
                 (sum, payment) => sum + (payment.amount || 0),
                 0
@@ -115,8 +414,8 @@ const FinancePage = () => {
               return {
                 id: student.id,
                 name: student.name,
-                totalAmount: totalAmount, // Only payments you set
-                amountPaid: amountPaid, // Only actual payments
+                totalAmount: totalAmount,
+                amountPaid: amountPaid,
                 description: "Tuition Fee",
                 payments: payments,
               };
@@ -128,11 +427,9 @@ const FinancePage = () => {
       }
       const data = await response.json();
 
-      // Enhance with actual payment data - calculate from payments only
       const studentsWithPayments = await Promise.all(
         data.map(async (student) => {
           const payments = await fetchStudentPayments(student.id);
-          // Calculate totals from payments only, not from student.accountBalance
           const totalAmount = payments.reduce(
             (sum, payment) => sum + (payment.amount || 0),
             0
@@ -144,8 +441,8 @@ const FinancePage = () => {
 
           return {
             ...student,
-            totalAmount: totalAmount, // From payments only
-            amountPaid: amountPaid, // From payments only
+            totalAmount: totalAmount,
+            amountPaid: amountPaid,
             payments: payments,
           };
         })
@@ -154,13 +451,12 @@ const FinancePage = () => {
       setStudents(studentsWithPayments);
     } catch (err) {
       console.error("Error fetching students:", err);
-      // Fallback with 0 balances
       if (financialData && financialData.topStudents) {
         const mockStudents = financialData.topStudents.map((student) => ({
           id: student.id,
           name: student.name,
-          totalAmount: 0, // Start with 0
-          amountPaid: 0, // Start with 0
+          totalAmount: 0,
+          amountPaid: 0,
           description: "No payments set",
           payments: [],
         }));
@@ -169,58 +465,6 @@ const FinancePage = () => {
     }
   };
 
-  const handleGenerateReceipt = async (studentId) => {
-    try {
-      // First, get the student's payments
-      const payments = await fetchStudentPayments(studentId);
-      const completedPayment = payments.find(
-        (p) => p.status === "completed" || p.status === "paid"
-      );
-
-      if (completedPayment) {
-        const response = await fetch(
-          `http://localhost:5000/api/finance/admin/generate-receipt/${completedPayment.id}`,
-          {
-            method: "POST",
-          }
-        );
-
-        if (response.ok) {
-          const result = await response.json();
-          alert("Receipt generated successfully!");
-          // Refresh data
-          fetchFinancialData();
-          fetchAllStudents();
-        } else {
-          alert("Failed to generate receipt.");
-        }
-      } else {
-        alert("No completed payments found for this student.");
-      }
-    } catch (err) {
-      console.error("Error generating receipt:", err);
-      alert("Failed to generate receipt. Please try again.");
-    }
-  };
-
-  const handleViewPayments = async (studentId) => {
-    try {
-      const payments = await fetchStudentPayments(studentId);
-      if (payments.length > 0) {
-        console.log("Student payments:", payments);
-        alert(
-          `Found ${payments.length} payment(s) for this student. Check console for details.`
-        );
-      } else {
-        alert("No payments found for this student.");
-      }
-    } catch (err) {
-      console.error("Error fetching payments:", err);
-      alert("Failed to fetch payments.");
-    }
-  };
-
-  // Handler for setting payment for a student
   const handleSetPayment = async (e) => {
     e.preventDefault();
 
@@ -262,7 +506,6 @@ const FinancePage = () => {
         const errorText = await response.text();
         console.error("Backend error response:", errorText);
 
-        // Try to parse as JSON if possible
         try {
           const errorData = JSON.parse(errorText);
           alert(
@@ -288,7 +531,6 @@ const FinancePage = () => {
         type: "tuition",
       });
 
-      // Refresh data
       fetchFinancialData();
       fetchAllStudents();
     } catch (err) {
@@ -299,7 +541,6 @@ const FinancePage = () => {
     }
   };
 
-  // Handler for editing payment details with receipt generation - FIXED SYNTAX
   const handleEditPayment = async (e) => {
     e.preventDefault();
 
@@ -326,7 +567,6 @@ const FinancePage = () => {
 
       const result = await response.json();
 
-      // Generate receipt if payment is completed
       if (
         editingPayment.status === "completed" ||
         editingPayment.status === "paid"
@@ -356,7 +596,7 @@ const FinancePage = () => {
       console.error("Error updating payment:", err);
       alert("Failed to update payment. Please try again.");
     }
-  }; // <-- This was the missing closing brace
+  };
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat("en-US", {
@@ -375,15 +615,45 @@ const FinancePage = () => {
 
   const getReceiptById = async (receiptId) => {
     try {
+      if (!receiptId) {
+        console.error('No receipt ID provided');
+        return;
+      }
+      
       const response = await fetch(
-        `http://localhost:5000/api/finance/finance/receipt/${receiptId}`
+        `http://localhost:5000/api/finance/receipt/${receiptId}`
       );
+      
       if (response.ok) {
         const receipt = await response.json();
         setSelectedReceipt(receipt);
+      } else {
+        console.error('Failed to fetch receipt:', response.status);
+        setSelectedReceipt({
+          id: receiptId,
+          student: 'Unknown Student',
+          studentId: 'N/A',
+          date: new Date(),
+          items: [{ description: 'Payment', amount: 0 }],
+          subtotal: 0,
+          tax: 0,
+          total: 0,
+          status: 'completed'
+        });
       }
     } catch (err) {
-      console.error("Error fetching receipt:", err);
+      console.error('Error fetching receipt:', err);
+      setSelectedReceipt({
+        id: receiptId || 'N/A',
+        student: 'Unknown Student',
+        studentId: 'N/A',
+        date: new Date(),
+        items: [{ description: 'Payment', amount: 0 }],
+        subtotal: 0,
+        tax: 0,
+        total: 0,
+        status: 'completed'
+      });
     }
   };
 
@@ -433,7 +703,6 @@ const FinancePage = () => {
     return [headers, ...rows].map((row) => row.join(",")).join("\n");
   };
 
-  // Loading state
   if (loading) {
     return (
       <div className={styles.fullScreenContainer}>
@@ -445,7 +714,6 @@ const FinancePage = () => {
     );
   }
 
-  // Error state
   if (error) {
     return (
       <div className={styles.fullScreenContainer}>
@@ -462,9 +730,15 @@ const FinancePage = () => {
 
   if (!financialData) return null;
 
-  // Payment Modal Component
   const PaymentModal = ({ isOpen, onClose }) => {
     if (!isOpen) return null;
+
+    const handleInputChange = (field, value) => {
+      setPaymentForm(prev => ({
+        ...prev,
+        [field]: value
+      }));
+    };
 
     return (
       <div className={styles.modalOverlay} onClick={onClose}>
@@ -480,7 +754,6 @@ const FinancePage = () => {
           </div>
 
           <form onSubmit={handleSetPayment} style={{ padding: "20px" }}>
-            {/* Student Selection */}
             <div style={{ marginBottom: "16px" }}>
               <label
                 style={{
@@ -527,9 +800,7 @@ const FinancePage = () => {
               </label>
               <select
                 value={paymentForm.type}
-                onChange={(e) =>
-                  setPaymentForm({ ...paymentForm, type: e.target.value })
-                }
+                onChange={(e) => handleInputChange('type', e.target.value)}
                 style={{
                   width: "100%",
                   padding: "10px",
@@ -558,12 +829,7 @@ const FinancePage = () => {
               <input
                 type="text"
                 value={paymentForm.description}
-                onChange={(e) =>
-                  setPaymentForm({
-                    ...paymentForm,
-                    description: e.target.value,
-                  })
-                }
+                onChange={(e) => handleInputChange('description', e.target.value)}
                 placeholder="e.g., Fall 2024 Tuition"
                 required
                 style={{
@@ -575,7 +841,6 @@ const FinancePage = () => {
               />
             </div>
 
-            {/* // In your PaymentModal component - FIX THE AMOUNT INPUT */}
             <div style={{ marginBottom: "16px" }}>
               <label
                 style={{
@@ -589,12 +854,10 @@ const FinancePage = () => {
               <input
                 type="number"
                 value={paymentForm.amount}
-                onChange={(e) =>
-                  setPaymentForm({ ...paymentForm, amount: e.target.value })
-                }
+                onChange={(e) => handleInputChange('amount', e.target.value)}
                 placeholder="0.00"
-                step="0.01" // ⚠️ UNCOMMENT THIS LINE
-                min="0" // ⚠️ CHANGE FROM min="15" to min="0"
+                step="0.01"
+                min="0"
                 required
                 style={{
                   width: "100%",
@@ -618,9 +881,7 @@ const FinancePage = () => {
               <input
                 type="date"
                 value={paymentForm.dueDate}
-                onChange={(e) =>
-                  setPaymentForm({ ...paymentForm, dueDate: e.target.value })
-                }
+                onChange={(e) => handleInputChange('dueDate', e.target.value)}
                 required
                 style={{
                   width: "100%",
@@ -671,12 +932,18 @@ const FinancePage = () => {
     );
   };
 
-  // Edit Payment Modal Component
   const EditPaymentModal = ({ isOpen, onClose }) => {
     if (!isOpen || !editingPayment) return null;
 
     const amountRemaining =
       editingPayment.totalAmount - editingPayment.amountPaid;
+
+    const handleInputChange = (field, value) => {
+      setEditingPayment(prev => ({
+        ...prev,
+        [field]: value
+      }));
+    };
 
     return (
       <div className={styles.modalOverlay} onClick={onClose}>
@@ -728,13 +995,9 @@ const FinancePage = () => {
               </label>
               <input
                 type="text"
-                value={editingPayment.description}
-                onChange={(e) =>
-                  setEditingPayment({
-                    ...editingPayment,
-                    description: e.target.value,
-                  })
-                }
+                value={editingPayment.description || ""}
+                onChange={(e) => handleInputChange('description', e.target.value)}
+                placeholder="Enter payment description"
                 style={{
                   width: "100%",
                   padding: "10px",
@@ -756,15 +1019,10 @@ const FinancePage = () => {
               </label>
               <input
                 type="number"
-                value={editingPayment.totalAmount}
-                onChange={(e) =>
-                  setEditingPayment({
-                    ...editingPayment,
-                    totalAmount: e.target.value,
-                  })
-                }
-                step="0.01" // ⚠️ UNCOMMENT THIS
-                min="0" // ⚠️ UNCOMMENT THIS
+                value={editingPayment.totalAmount || ""}
+                onChange={(e) => handleInputChange('totalAmount', e.target.value)}
+                step="0.01"
+                min="0"
                 style={{
                   width: "100%",
                   padding: "10px",
@@ -786,15 +1044,10 @@ const FinancePage = () => {
               </label>
               <input
                 type="number"
-                value={editingPayment.amountPaid}
-                onChange={(e) =>
-                  setEditingPayment({
-                    ...editingPayment,
-                    amountPaid: e.target.value,
-                  })
-                }
-                step="0.01" // ⚠️ UNCOMMENT THIS
-                min="0" // ⚠️ UNCOMMENT THIS
+                value={editingPayment.amountPaid || ""}
+                onChange={(e) => handleInputChange('amountPaid', e.target.value)}
+                step="0.01"
+                min="0"
                 max={editingPayment.totalAmount}
                 style={{
                   width: "100%",
@@ -813,30 +1066,6 @@ const FinancePage = () => {
                 borderRadius: "6px",
               }}
             >
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  marginBottom: "8px",
-                }}
-              >
-                <span>Total Amount:</span>
-                <strong>
-                  {formatCurrency(parseFloat(editingPayment.totalAmount) || 0)}
-                </strong>
-              </div>
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  marginBottom: "8px",
-                }}
-              >
-                <span>Amount Paid:</span>
-                <strong style={{ color: "#10b981" }}>
-                  {formatCurrency(parseFloat(editingPayment.amountPaid) || 0)}
-                </strong>
-              </div>
               <div
                 style={{
                   display: "flex",
@@ -871,13 +1100,8 @@ const FinancePage = () => {
                 Status
               </label>
               <select
-                value={editingPayment.status}
-                onChange={(e) =>
-                  setEditingPayment({
-                    ...editingPayment,
-                    status: e.target.value,
-                  })
-                }
+                value={editingPayment.status || "pending"}
+                onChange={(e) => handleInputChange('status', e.target.value)}
                 style={{
                   width: "100%",
                   padding: "10px",
@@ -935,6 +1159,13 @@ const FinancePage = () => {
   const ReceiptModal = ({ receipt, onClose }) => {
     if (!receipt) return null;
 
+    const receiptItems = receipt.items || [];
+    const balanceInfo = receipt.balanceInfo || {
+      totalDue: 0,
+      totalPaid: 0,
+      balanceRemaining: 0
+    };
+
     const handlePrint = () => {
       const receiptContent = document.getElementById("receipt-content");
       const originalContents = document.body.innerHTML;
@@ -975,7 +1206,7 @@ const FinancePage = () => {
                 </div>
                 <div className={styles.receiptTitle}>
                   <h1>PAYMENT RECEIPT</h1>
-                  <p className={styles.receiptId}>{receipt.id}</p>
+                  <p className={styles.receiptId}>{receipt.receiptNumber || receipt.id}</p>
                 </div>
               </div>
 
@@ -983,10 +1214,16 @@ const FinancePage = () => {
                 <div className={styles.infoSection}>
                   <h4>Student Information</h4>
                   <p>
-                    <strong>Name:</strong> {receipt.student}
+                    <strong>Name:</strong> {receipt.student || 'N/A'}
                   </p>
                   <p>
-                    <strong>Student ID:</strong> {receipt.studentId}
+                    <strong>Student ID:</strong> {receipt.studentId || 'N/A'}
+                  </p>
+                  <p>
+                    <strong>Email:</strong> {receipt.studentEmail || 'N/A'}
+                  </p>
+                  <p>
+                    <strong>Course:</strong> {receipt.studentCourse || 'N/A'}
                   </p>
                 </div>
                 <div className={styles.infoSection}>
@@ -995,10 +1232,13 @@ const FinancePage = () => {
                     <strong>Date:</strong> {formatDate(receipt.date)}
                   </p>
                   <p>
-                    <strong>Time:</strong> {receipt.time}
+                    <strong>Time:</strong> {receipt.time || new Date(receipt.date).toLocaleTimeString()}
                   </p>
                   <p>
-                    <strong>Transaction ID:</strong> {receipt.transactionId}
+                    <strong>Transaction ID:</strong> {receipt.transactionId || 'N/A'}
+                  </p>
+                  <p>
+                    <strong>Payment Method:</strong> {receipt.paymentMethod || 'Online'}
                   </p>
                 </div>
               </div>
@@ -1009,33 +1249,60 @@ const FinancePage = () => {
                   <span>Description</span>
                   <span>Amount</span>
                 </div>
-                {receipt.items.map((item, index) => (
+                {receiptItems.map((item, index) => (
                   <div key={index} className={styles.itemRow}>
-                    <span>{item.description}</span>
+                    <span>{item.description || 'Payment'}</span>
                     <span
                       className={item.amount < 0 ? styles.credit : styles.debit}
                     >
-                      {formatCurrency(item.amount)}
+                      {formatCurrency(item.amount || 0)}
                     </span>
                   </div>
                 ))}
+                {receiptItems.length === 0 && (
+                  <div className={styles.itemRow}>
+                    <span>No items available</span>
+                    <span>{formatCurrency(0)}</span>
+                  </div>
+                )}
               </div>
 
               <div className={styles.receiptTotals}>
                 <div className={styles.totalRow}>
                   <span>Subtotal:</span>
-                  <span>{formatCurrency(receipt.subtotal)}</span>
+                  <span>{formatCurrency(receipt.subtotal || 0)}</span>
                 </div>
                 <div className={styles.totalRow}>
                   <span>Tax:</span>
-                  <span>{formatCurrency(receipt.tax)}</span>
+                  <span>{formatCurrency(receipt.tax || 0)}</span>
                 </div>
                 <div className={styles.totalRow}>
                   <span>
                     <strong>Total Amount:</strong>
                   </span>
                   <span>
-                    <strong>{formatCurrency(receipt.total)}</strong>
+                    <strong>{formatCurrency(receipt.total || 0)}</strong>
+                  </span>
+                </div>
+              </div>
+
+              <div className={styles.balanceSection}>
+                <h4>Account Summary</h4>
+                <div className={styles.balanceRow}>
+                  <span>Total Due:</span>
+                  <span>{formatCurrency(balanceInfo.totalDue)}</span>
+                </div>
+                <div className={styles.balanceRow}>
+                  <span>Total Paid:</span>
+                  <span style={{ color: '#10b981' }}>{formatCurrency(balanceInfo.totalPaid)}</span>
+                </div>
+                <div className={styles.balanceRow}>
+                  <span><strong>Balance Remaining:</strong></span>
+                  <span style={{ 
+                    color: balanceInfo.balanceRemaining > 0 ? '#ef4444' : '#10b981',
+                    fontWeight: 'bold'
+                  }}>
+                    {formatCurrency(balanceInfo.balanceRemaining)}
                   </span>
                 </div>
               </div>
@@ -1043,19 +1310,21 @@ const FinancePage = () => {
               <div className={styles.receiptFooter}>
                 <div className={styles.paymentMethod}>
                   <p>
-                    <strong>Payment Method:</strong> {receipt.paymentMethod}
+                    <strong>Payment Method:</strong> {receipt.paymentMethod || 'Online'}
                   </p>
                   <p>
                     <strong>Status:</strong>{" "}
                     <span
                       className={`${styles.statusBadge} ${styles.statusCompleted}`}
                     >
-                      {receipt.status}
+                      {receipt.status || 'Completed'}
                     </span>
                   </p>
                 </div>
                 <div className={styles.receiptStamp}>
-                  <div className={styles.stamp}>PAID</div>
+                  <div className={styles.stamp}>
+                    Balance: {formatCurrency(balanceInfo.balanceRemaining)}
+                  </div>
                 </div>
               </div>
 
@@ -1207,14 +1476,7 @@ const FinancePage = () => {
           >
             💳 Transactions
           </button>
-          <button
-            className={`${styles.tab} ${
-              activeTab === "receipts" ? styles.tabActive : ""
-            }`}
-            onClick={() => setActiveTab("receipts")}
-          >
-            🧾 Receipts
-          </button>
+          
           <button
             className={`${styles.tab} ${
               activeTab === "analytics" ? styles.tabActive : ""
@@ -1275,7 +1537,7 @@ const FinancePage = () => {
                     Top Outstanding Balances
                   </h2>
                   <button className={styles.viewAllButton}>
-                    View All Students
+                     Students
                   </button>
                 </div>
                 <div className={styles.studentsList}>
@@ -1309,7 +1571,7 @@ const FinancePage = () => {
                 <div className={styles.sectionHeader}>
                   <h2 className={styles.sectionTitle}>Recent Transactions</h2>
                   <button className={styles.viewAllButton}>
-                    View All Transactions
+                     Transactions
                   </button>
                 </div>
                 <div className={styles.transactionList}>
@@ -1342,13 +1604,18 @@ const FinancePage = () => {
                           {transaction.amount > 0 ? "+" : ""}
                           {formatCurrency(transaction.amount)}
                         </div>
+                       
                         <button
                           className={styles.receiptButton}
-                          onClick={() =>
-                            setSelectedReceipt(
-                              getReceiptById(transaction.receiptId)
-                            )
-                          }
+                          onClick={() => {
+                            console.log('Transaction clicked:', transaction);
+                            if (transaction.id) {
+                              getReceiptById(transaction.id);
+                            } else {
+                              console.warn('No transaction ID available');
+                              alert('No receipt available for this transaction');
+                            }
+                          }}
                           title="View Receipt"
                         >
                           🧾
@@ -1361,325 +1628,332 @@ const FinancePage = () => {
           )}
 
           {activeTab === "students" && (
-            <div className={styles.transactionsSection}>
-              <div className={styles.sectionHeader}>
-                <h2 className={styles.sectionTitle}>
-                  Student Payment Management
-                </h2>
-                <div className={styles.transactionFilters}>
-                  <input
-                    type="text"
-                    placeholder="Search students..."
-                    className={styles.searchInput}
-                    onChange={(e) => {
-                      // Add search functionality here if needed
-                    }}
-                  />
-                  <button
-                    className={styles.exportButton}
-                    onClick={() => {
-                      console.log("Opening payment modal for new payment");
-                      setShowPaymentModal(true);
-                    }}
-                  >
-                    + Add Payment
-                  </button>
-                  <button
-                    className={styles.refreshButton}
-                    onClick={() => {
-                      console.log("Refreshing student data...");
-                      fetchAllStudents();
-                      fetchFinancialData();
-                    }}
-                    style={{ marginLeft: "10px", background: "#10b981" }}
-                  >
-                    🔄 Refresh
-                  </button>
-                </div>
-              </div>
+  <div className={styles.transactionsSection}>
+    <div className={styles.sectionHeader}>
+      <h2 className={styles.sectionTitle}>
+        Student Payment Management
+      </h2>
+      <div className={styles.transactionFilters}>
+        <input
+          type="text"
+          placeholder="Search by student name or ID..."
+          className={styles.searchInput}
+          onChange={(e) => {
+            const searchTerm = e.target.value.toLowerCase().trim();
+            
+            if (searchTerm === "") {
+              fetchAllStudents();
+              return;
+            }
+            
+            const filteredStudents = students.filter(student => 
+              student.name?.toLowerCase().includes(searchTerm) ||
+              student.id?.toLowerCase().includes(searchTerm)
+            );
+            
+            setStudents(filteredStudents);
+          }}
+        />
+        <button
+          className={styles.exportButton}
+          onClick={() => {
+            console.log("Opening payment modal for new payment");
+            setShowPaymentModal(true);
+          }}
+        >
+          + Add Payment
+        </button>
+        <button
+          className={styles.refreshButton}
+          onClick={() => {
+            console.log("Refreshing student data...");
+            fetchAllStudents();
+            fetchFinancialData();
+          }}
+          style={{ marginLeft: "10px", background: "#10b981" }}
+        >
+          🔄 Refresh
+        </button>
+      </div>
+    </div>
 
-              {/* Add a debug info section */}
-              <div
-                style={{
-                  background: "#f3f4f6",
-                  padding: "10px",
-                  marginBottom: "15px",
-                  borderRadius: "5px",
-                  fontSize: "14px",
-                }}
-              >
-                <strong>Debug Info:</strong> Found {students.length} students.
-                Check browser console for endpoint status.
-              </div>
+    <div style={{ 
+      background: '#f8fafc', 
+      padding: '8px 16px', 
+      marginBottom: '15px', 
+      borderRadius: '5px',
+      fontSize: '14px',
+      color: '#6b7280'
+    }}>
+      {students.length === 0 && ' - No students match your search criteria'}
+    </div>
 
-              <div className={styles.transactionTable}>
-                <div className={styles.tableHeader}>
-                  <div className={styles.tableCell}>Student</div>
-                  <div className={styles.tableCell}>Total Due</div>
-                  <div className={styles.tableCell}>Amount Paid</div>
-                  <div className={styles.tableCell}>Remaining</div>
-                  <div className={styles.tableCell}>Status</div>
-                  <div className={styles.tableCell}>Actions</div>
-                </div>
+    <div className={styles.transactionTable}>
+      <div className={styles.tableHeader}>
+        <div className={styles.tableCell}>Student</div>
+        <div className={styles.tableCell}>Total Due</div>
+        <div className={styles.tableCell}>Amount Paid</div>
+        <div className={styles.tableCell}>Remaining</div>
+        <div className={styles.tableCell}>Status</div>
+        <div className={styles.tableCell}>Actions</div>
+      </div>
 
-                {students.length > 0 ? (
-                  students.map((student) => {
-                    const totalDue = student.totalAmount || 0;
-                    const amountPaid = student.amountPaid || 0;
-                    const remaining = totalDue - amountPaid;
-                    const status =
-                      remaining <= 0
-                        ? "Completed"
-                        : remaining < totalDue
-                        ? "Partial"
-                        : "Pending";
+      {students.length > 0 ? (
+        students.map((student) => {
+          const totalDue = student.totalAmount || 0;
+          const amountPaid = student.amountPaid || 0;
+          const remaining = totalDue - amountPaid;
+          const status =
+            remaining <= 0
+              ? "Completed"
+              : remaining < totalDue
+              ? "Partial"
+              : "Pending";
 
-                    return (
-                      <div key={student.id} className={styles.tableRow}>
-                        <div className={styles.tableCell}>
-                          <div>
-                            <div className={styles.studentName}>
-                              {student.name}
-                            </div>
-                            <div className={styles.studentId}>
-                              ID: {student.id}
-                            </div>
-                            {student.payments &&
-                              student.payments.length > 0 && (
-                                <div className={styles.paymentCount}>
-                                  {student.payments.length} payment(s)
-                                </div>
-                              )}
-                            {student.payments &&
-                              student.payments.length === 0 && (
-                                <div
-                                  className={styles.paymentCount}
-                                  style={{ color: "#ef4444" }}
-                                >
-                                  No payments set
-                                </div>
-                              )}
-                          </div>
-                        </div>
-                        <div className={styles.tableCell}>
-                          {formatCurrency(totalDue)}
-                        </div>
-                        <div className={`${styles.tableCell} ${styles.credit}`}>
-                          {formatCurrency(amountPaid)}
-                        </div>
-                        <div
-                          className={`${styles.tableCell} ${
-                            remaining > 0 ? styles.debit : styles.credit
-                          }`}
-                        >
-                          {formatCurrency(remaining)}
-                        </div>
-                        <div className={styles.tableCell}>
-                          <span
-                            className={`${styles.statusBadge} ${
-                              status === "Completed"
-                                ? styles.statusCompleted
-                                : status === "Partial"
-                                ? styles.statusPartial
-                                : styles.statusPending
-                            }`}
-                          >
-                            {status}
-                          </span>
-                        </div>
-                        <div className={styles.tableCell}>
-                          <button
-                            className={styles.receiptLink}
-                            onClick={() => {
-                              console.log("Setting payment for:", student.name);
-                              setSelectedStudent(student);
-                              setShowPaymentModal(true);
-                            }}
-                            style={{ marginRight: "8px" }}
-                          >
-                            Set Payment
-                          </button>
-                          <button
-                            className={styles.receiptLink}
-                            onClick={async () => {
-                              console.log("Editing payment for:", student.name);
-                              const payments = student.payments || [];
-                              if (payments.length > 0) {
-                                setEditingPayment({
-                                  id: payments[0].id,
-                                  studentId: student.id,
-                                  studentName: student.name,
-                                  description:
-                                    payments[0].description || "Payment",
-                                  totalAmount:
-                                    payments[0].totalAmount || totalDue,
-                                  amountPaid:
-                                    payments[0].amountPaid || amountPaid,
-                                  status:
-                                    payments[0].status || status.toLowerCase(),
-                                });
-                              } else {
-                                alert(
-                                  "No payments found for this student. Please set a payment first."
-                                );
-                                return;
-                              }
-                              setShowEditModal(true);
-                            }}
-                          >
-                            Edit Payment
-                          </button>
-                          <button
-                            className={styles.receiptLink}
-                            onClick={() => handleViewPayments(student.id)}
-                            style={{ marginLeft: "8px" }}
-                          >
-                            View Payments
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })
-                ) : (
-                  <div className={styles.tableRow}>
-                    <div
-                      className={styles.tableCell}
-                      colSpan="6"
-                      style={{ textAlign: "center", padding: "20px" }}
-                    >
-                      {financialData &&
-                      financialData.topStudents &&
-                      financialData.topStudents.length > 0 ? (
-                        <div>
-                          <p>
-                            No student data from admin endpoint. Using fallback
-                            data.
-                          </p>
-                          <p>Check if backend endpoints are implemented.</p>
-                          <button
-                            onClick={testEndpoints}
-                            style={{
-                              marginTop: "10px",
-                              padding: "8px 16px",
-                              background: "#3b82f6",
-                              color: "white",
-                              border: "none",
-                              borderRadius: "4px",
-                              cursor: "pointer",
-                            }}
-                          >
-                            Test Backend Endpoints
-                          </button>
-                        </div>
-                      ) : (
-                        <p>
-                          No student data available. Please check backend
-                          connection.
-                        </p>
-                      )}
-                    </div>
+          return (
+            <div key={student.id} className={styles.tableRow}>
+              <div className={styles.tableCell}>
+                <div>
+                  <div className={styles.studentName}>
+                    {student.name}
                   </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {activeTab === "receipts" && (
-            <div className={styles.receiptsSection}>
-              <div className={styles.sectionHeader}>
-                <h2 className={styles.sectionTitle}>Payment Receipts</h2>
-                <div className={styles.receiptFilters}>
-                  <select className={styles.filterSelect}>
-                    <option>All Receipts</option>
-                    <option>This Month</option>
-                    <option>Last 3 Months</option>
-                    <option>This Year</option>
-                  </select>
-                  <input
-                    type="text"
-                    placeholder="Search receipts..."
-                    className={styles.searchInput}
-                  />
-                </div>
-              </div>
-
-              <div className={styles.receiptsGrid}>
-                {financialData.receipts.map((receipt) => (
-                  <div key={receipt.id} className={styles.receiptCard}>
-                    <div className={styles.receiptCardHeader}>
-                      <div className={styles.receiptCardId}>{receipt.id}</div>
-                      <div className={styles.receiptCardStatus}>
-                        <span
-                          className={`${styles.statusBadge} ${styles.statusCompleted}`}
-                        >
-                          {receipt.status}
-                        </span>
+                  <div className={styles.studentId}>
+                    ID: {student.id}
+                  </div>
+                  {student.payments &&
+                    student.payments.length > 0 && (
+                      <div className={styles.paymentCount}>
+                        {student.payments.length} payment(s)
                       </div>
-                    </div>
-
-                    <div className={styles.receiptCardBody}>
-                      <div className={styles.receiptCardStudent}>
-                        <strong>{receipt.student}</strong>
-                        <span>{receipt.studentId}</span>
-                      </div>
-                      <div className={styles.receiptCardDate}>
-                        {formatDate(receipt.date)} at {receipt.time}
-                      </div>
+                    )}
+                  {student.payments &&
+                    student.payments.length === 0 && (
                       <div
-                        className={`${styles.receiptCardAmount} ${
-                          receipt.total < 0 ? styles.credit : styles.debit
-                        }`}
+                        className={styles.paymentCount}
+                        style={{ color: "#ef4444" }}
                       >
-                        {formatCurrency(receipt.total)}
+                        No payments set
                       </div>
-                      <div className={styles.receiptCardItems}>
-                        {receipt.items.slice(0, 2).map((item, index) => (
-                          <div key={index} className={styles.receiptCardItem}>
-                            {item.description}
-                          </div>
-                        ))}
-                        {receipt.items.length > 2 && (
-                          <div className={styles.receiptCardMore}>
-                            +{receipt.items.length - 2} more items
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className={styles.receiptCardFooter}>
-                      <div className={styles.receiptCardMethod}>
-                        {receipt.paymentMethod}
-                      </div>
-                      <button
-                        className={styles.viewReceiptButton}
-                        onClick={() => setSelectedReceipt(receipt)}
-                      >
-                        View Full Receipt
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                    )}
+                </div>
+              </div>
+              <div className={styles.tableCell}>
+                {formatCurrency(totalDue)}
+              </div>
+              <div className={`${styles.tableCell} ${styles.credit}`}>
+                {formatCurrency(amountPaid)}
+              </div>
+              <div
+                className={`${styles.tableCell} ${
+                  remaining > 0 ? styles.debit : styles.credit
+                }`}
+              >
+                {formatCurrency(remaining)}
+              </div>
+              <div className={styles.tableCell}>
+                <span
+                  className={`${styles.statusBadge} ${
+                    status === "Completed"
+                      ? styles.statusCompleted
+                      : status === "Partial"
+                      ? styles.statusPartial
+                      : styles.statusPending
+                  }`}
+                >
+                  {status}
+                </span>
+              </div>
+              <div className={styles.tableCell}>
+                <button
+                  className={styles.receiptLink}
+                  onClick={() => {
+                    console.log("Setting payment for:", student.name);
+                    setSelectedStudent(student);
+                    setShowPaymentModal(true);
+                  }}
+                  style={{ marginRight: "8px" }}
+                >
+                  Set Payment
+                </button>
+                
+                {/* Updated Edit Payment Button */}
+                <button
+                  className={styles.receiptLink}
+                  onClick={async () => {
+                    console.log("Viewing payments for:", student.name);
+                    const payments = student.payments || [];
+                    
+                    if (payments.length === 0) {
+                      alert("No payments found for this student. Please set a payment first.");
+                      return;
+                    }
+                    
+                    if (payments.length === 1) {
+                      // If only one payment, edit it directly
+                      const paymentToEdit = payments[0];
+                      setEditingPayment({
+                        id: paymentToEdit.id,
+                        studentId: student.id,
+                        studentName: student.name,
+                        description: paymentToEdit.description || "Payment",
+                        totalAmount: paymentToEdit.amount || paymentToEdit.totalAmount || totalDue,
+                        amountPaid: paymentToEdit.amountPaid || amountPaid,
+                        status: paymentToEdit.status || status.toLowerCase(),
+                        dueDate: paymentToEdit.dueDate || "",
+                        type: paymentToEdit.type || "tuition"
+                      });
+                      setShowEditModal(true);
+                    } else {
+                      // If multiple payments, show selection modal
+                      setSelectedStudentPayments(payments);
+                      setSelectedStudent(student);
+                      setShowPaymentsModal(true);
+                    }
+                  }}
+                >
+                  {student.payments?.length === 1 ? "Edit Payment" : "View Payments"}
+                </button>
               </div>
             </div>
-          )}
+          );
+        })
+      ) : (
+        <div className={styles.tableRow}>
+          <div
+            className={styles.tableCell}
+            style={{ textAlign: "center", padding: "20px", gridColumn: "1 / -1" }}
+          >
+            <div className={styles.noResults}>
+              <div className={styles.noResultsIcon}>🔍</div>
+              <h4>No Students Found</h4>
+              <p>No students match your search criteria. Try a different name or student ID.</p>
+              <button
+                className={styles.clearButton}
+                onClick={() => {
+                  const searchInput = document.querySelector(`.${styles.searchInput}`);
+                  if (searchInput) searchInput.value = "";
+                  fetchAllStudents();
+                }}
+                style={{ marginTop: "10px" }}
+              >
+                Show All Students
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  </div>
+)}
 
           {activeTab === "transactions" && (
             <div className={styles.transactionsSection}>
               <div className={styles.sectionHeader}>
                 <h2 className={styles.sectionTitle}>All Transactions</h2>
                 <div className={styles.transactionFilters}>
-                  <select className={styles.filterSelect}>
-                    <option>All Transactions</option>
-                    <option>Payments Only</option>
-                    <option>Credits Only</option>
-                  </select>
-                  <input
-                    type="text"
-                    placeholder="Search transactions..."
-                    className={styles.searchInput}
-                  />
+                  <div className={styles.searchContainer}>
+                    <input
+                      type="text"
+                      placeholder="Search by student name, ID, or description..."
+                      className={styles.searchInput}
+                      onChange={(e) => {
+                        const searchTerm = e.target.value.toLowerCase().trim();
+                        
+                        if (searchTerm === '') {
+                          setTransactions(financialData.recentTransactions);
+                          return;
+                        }
+                        
+                        const filtered = financialData.recentTransactions.filter(transaction => 
+                          transaction.student?.toLowerCase().includes(searchTerm) ||
+                          transaction.id?.toLowerCase().includes(searchTerm) ||
+                          transaction.studentId?.toLowerCase().includes(searchTerm) ||
+                          transaction.description?.toLowerCase().includes(searchTerm)
+                        );
+                        
+                        setTransactions(filtered);
+                      }}
+                    />
+                    {transactions.length !== financialData.recentTransactions.length && (
+                      <button
+                        className={styles.clearSearchButton}
+                        onClick={() => {
+                          const searchInput = document.querySelector(`.${styles.searchInput}`);
+                          if (searchInput) searchInput.value = '';
+                          setTransactions(financialData.recentTransactions);
+                        }}
+                        title="Clear search"
+                      >
+                        ✕
+                      </button>
+                    )}
+                  </div>
+                  
+                  <div className={styles.filterControls}>
+                    <select 
+                      className={styles.filterSelect}
+                      onChange={(e) => {
+                        const filterType = e.target.value;
+                        let filtered = financialData.recentTransactions;
+                        
+                        if (filterType === 'payment') {
+                          filtered = filtered.filter(t => t.amount > 0);
+                        } else if (filterType === 'credit') {
+                          filtered = filtered.filter(t => t.amount < 0);
+                        } else if (filterType === 'completed') {
+                          filtered = filtered.filter(t => t.status === 'completed');
+                        } else if (filterType === 'pending') {
+                          filtered = filtered.filter(t => t.status === 'pending');
+                        }
+                        
+                        setTransactions(filtered);
+                        
+                        const searchInput = document.querySelector(`.${styles.searchInput}`);
+                        if (searchInput) searchInput.value = '';
+                      }}
+                    >
+                      <option value="all">All Transactions</option>
+                      <option value="completed">Completed</option>
+                      <option value="pending">Pending</option>
+                    </select>
+                    
+                    <button
+                      className={styles.refreshButton}
+                      onClick={() => {
+                        fetchFinancialData();
+                        setTransactions(financialData.recentTransactions);
+                        const searchInput = document.querySelector(`.${styles.searchInput}`);
+                        const filterSelect = document.querySelector(`.${styles.filterSelect}`);
+                        if (searchInput) searchInput.value = '';
+                        if (filterSelect) filterSelect.value = 'all';
+                      }}
+                    >
+                      🔄 Refresh
+                    </button>
+                  </div>
                 </div>
               </div>
+              
+              <div className={styles.searchInfo}>
+                <div className={styles.resultsCount}>
+                  Showing {transactions.length} of {financialData.recentTransactions.length} transactions
+                  {transactions.length !== financialData.recentTransactions.length && (
+                    <button
+                      className={styles.showAllButton}
+                      onClick={() => {
+                        setTransactions(financialData.recentTransactions);
+                        const searchInput = document.querySelector(`.${styles.searchInput}`);
+                        const filterSelect = document.querySelector(`.${styles.filterSelect}`);
+                        if (searchInput) searchInput.value = '';
+                        if (filterSelect) filterSelect.value = 'all';
+                      }}
+                    >
+                      Show All
+                    </button>
+                  )}
+                </div>
+              </div>
+              
               <div className={styles.transactionTable}>
                 <div className={styles.tableHeader}>
                   <div className={styles.tableCell}>Student</div>
@@ -1689,57 +1963,88 @@ const FinancePage = () => {
                   <div className={styles.tableCell}>Status</div>
                   <div className={styles.tableCell}>Receipt</div>
                 </div>
-                {financialData.recentTransactions.map((transaction) => (
-                  <div key={transaction.id} className={styles.tableRow}>
-                    <div className={styles.tableCell}>
-                      <div>
-                        <div className={styles.studentName}>
-                          {transaction.student}
-                        </div>
-                        <div className={styles.studentId}>
-                          ID: {transaction.id}
+                
+                {transactions.length > 0 ? (
+                  transactions.map((transaction) => (
+                    <div key={transaction.id} className={styles.tableRow}>
+                      <div className={styles.tableCell}>
+                        <div>
+                          <div className={styles.studentName}>
+                            {transaction.student}
+                          </div>
+                          <div className={styles.studentId}>
+                            ID: {transaction.studentId || transaction.id}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    <div className={styles.tableCell}>
-                      {transaction.description}
-                    </div>
-                    <div className={styles.tableCell}>
-                      {formatDate(transaction.date)}
-                    </div>
-                    <div
-                      className={`${styles.tableCell} ${
-                        transaction.amount > 0 ? styles.debit : styles.credit
-                      }`}
-                    >
-                      {transaction.amount > 0 ? "+" : ""}
-                      {formatCurrency(transaction.amount)}
-                    </div>
-                    <div className={styles.tableCell}>
-                      <span
-                        className={`${styles.statusBadge} ${
-                          transaction.status === "completed"
-                            ? styles.statusCompleted
-                            : styles.statusPending
+                      <div className={styles.tableCell}>
+                        {transaction.description}
+                      </div>
+                      <div className={styles.tableCell}>
+                        {formatDate(transaction.date)}
+                      </div>
+                      <div
+                        className={`${styles.tableCell} ${
+                          transaction.amount > 0 ? styles.debit : styles.credit
                         }`}
                       >
-                        {transaction.status}
-                      </span>
+                        {transaction.amount > 0 ? "+" : ""}
+                        {formatCurrency(transaction.amount)}
+                      </div>
+                      <div className={styles.tableCell}>
+                        <span
+                          className={`${styles.statusBadge} ${
+                            transaction.status === "completed"
+                              ? styles.statusCompleted
+                              : transaction.status === "pending"
+                              ? styles.statusPending
+                              : styles.statusPartial
+                          }`}
+                        >
+                          {transaction.status}
+                        </span>
+                      </div>
+                      <div className={styles.tableCell}>
+                        <button
+                          className={styles.receiptLink}
+                          onClick={() => {
+                            console.log('Transaction receipt clicked:', transaction);
+                            if (transaction.id) {
+                              getReceiptById(transaction.id);
+                            } else {
+                              console.warn('No transaction ID available');
+                              alert('No receipt available for this transaction');
+                            }
+                          }}
+                        >
+                          View Receipt
+                        </button>
+                      </div>
                     </div>
-                    <div className={styles.tableCell}>
-                      <button
-                        className={styles.receiptLink}
-                        onClick={() =>
-                          setSelectedReceipt(
-                            getReceiptById(transaction.receiptId)
-                          )
-                        }
-                      >
-                        View Receipt
-                      </button>
+                  ))
+                ) : (
+                  <div className={styles.tableRow}>
+                    <div className={styles.tableCell} style={{ textAlign: "center", padding: "40px", gridColumn: "1 / -1" }}>
+                      <div className={styles.noResults}>
+                        <div className={styles.noResultsIcon}>🔍</div>
+                        <h3>No Transactions Found</h3>
+                        <p>No transactions match your current search criteria.</p>
+                        <button
+                          className={styles.clearFiltersButton}
+                          onClick={() => {
+                            setTransactions(financialData.recentTransactions);
+                            const searchInput = document.querySelector(`.${styles.searchInput}`);
+                            const filterSelect = document.querySelector(`.${styles.filterSelect}`);
+                            if (searchInput) searchInput.value = '';
+                            if (filterSelect) filterSelect.value = 'all';
+                          }}
+                        >
+                          Clear All Filters
+                        </button>
+                      </div>
                     </div>
                   </div>
-                ))}
+                )}
               </div>
             </div>
           )}
@@ -1749,36 +2054,184 @@ const FinancePage = () => {
               <div className={styles.sectionHeader}>
                 <h2 className={styles.sectionTitle}>Financial Analytics</h2>
                 <div className={styles.analyticsFilters}>
-                  <select className={styles.filterSelect}>
-                    <option>Monthly View</option>
-                    <option>Quarterly View</option>
-                    <option>Yearly View</option>
+                  <select 
+                    className={styles.filterSelect}
+                    onChange={(e) => {
+                      const viewType = e.target.value;
+                      console.log("View type changed to:", viewType);
+                    }}
+                  >
+                    <option value="monthly">Monthly View</option>
+                    <option value="quarterly">Quarterly View</option>
+                    <option value="yearly">Yearly View</option>
                   </select>
+                  <button 
+                    className={styles.exportButton}
+                    onClick={() => exportAnalyticsData()}
+                  >
+                    📊 Export Analytics
+                  </button>
                 </div>
               </div>
+
+              <div className={styles.analyticsSummary}>
+                <div className={styles.summaryCard}>
+                  <div className={styles.summaryIcon} style={{ background: '#10b981' }}>💰</div>
+                  <div className={styles.summaryContent}>
+                    <h4>Total Revenue</h4>
+                    <p className={styles.summaryValue}>{formatCurrency(financialData.totalRevenue)}</p>
+                    <p className={styles.summaryTrend} style={{ color: '#10b981' }}>
+                      ↑ {financialData.revenueTrend}% from last period
+                    </p>
+                  </div>
+                </div>
+                
+                <div className={styles.summaryCard}>
+                  <div className={styles.summaryIcon} style={{ background: '#3b82f6' }}>📈</div>
+                  <div className={styles.summaryContent}>
+                    <h4>Collection Rate</h4>
+                    <p className={styles.summaryValue}>{financialData.collectionRate}%</p>
+                    <p className={styles.summaryTrend}>Overall performance</p>
+                  </div>
+                </div>
+                
+                <div className={styles.summaryCard}>
+                  <div className={styles.summaryIcon} style={{ background: '#ef4444' }}>⚖️</div>
+                  <div className={styles.summaryContent}>
+                    <h4>Outstanding Balance</h4>
+                    <p className={styles.summaryValue}>{formatCurrency(financialData.outstandingBalance)}</p>
+                    <p className={styles.summaryTrend}>{financialData.topStudents.length} students</p>
+                  </div>
+                </div>
+                
+                <div className={styles.summaryCard}>
+                  <div className={styles.summaryIcon} style={{ background: '#f59e0b' }}>🔄</div>
+                  <div className={styles.summaryContent}>
+                    <h4>Pending Payments</h4>
+                    <p className={styles.summaryValue}>{formatCurrency(financialData.pendingPayments)}</p>
+                    <p className={styles.summaryTrend}>Awaiting processing</p>
+                  </div>
+                </div>
+              </div>
+
               <div className={styles.analyticsGrid}>
                 <div className={styles.analyticsCard}>
-                  <h3>Revenue Trend</h3>
-                  <div className={styles.placeholderChart}>
-                    <p>Revenue chart visualization would appear here</p>
+                  <div className={styles.chartHeader}>
+                    <h3>Revenue Trend</h3>
+                    <div className={styles.chartLegend}>
+                      <span className={styles.legendItem}>
+                        <span className={styles.legendColor} style={{ background: '#3b82f6' }}></span>
+                        Current Period
+                      </span>
+                      <span className={styles.legendItem}>
+                        <span className={styles.legendColor} style={{ background: '#d1d5db' }}></span>
+                        Previous Period
+                      </span>
+                    </div>
+                  </div>
+                  <div className={styles.chartContainer}>
+                    <div className={styles.barChart}>
+                      {generateRevenueBars()}
+                    </div>
                   </div>
                 </div>
+
                 <div className={styles.analyticsCard}>
-                  <h3>Collection Performance</h3>
-                  <div className={styles.placeholderChart}>
-                    <p>Collection rate chart would appear here</p>
+                  <div className={styles.chartHeader}>
+                    <h3>Collection Performance</h3>
+                    <div className={styles.chartStats}>
+                      <span className={styles.stat}>Target: 95%</span>
+                      <span className={styles.stat}>Current: {financialData.collectionRate}%</span>
+                    </div>
+                  </div>
+                  <div className={styles.chartContainer}>
+                    <div className={styles.gaugeChart}>
+                      <div 
+                        className={styles.gaugeFill}
+                        style={{ height: `${financialData.collectionRate}%` }}
+                      ></div>
+                      <div className={styles.gaugeLabel}>
+                        {financialData.collectionRate}%
+                      </div>
+                    </div>
+                    <div className={styles.gaugeMarks}>
+                      <span>0%</span>
+                      <span>50%</span>
+                      <span>100%</span>
+                    </div>
                   </div>
                 </div>
+
                 <div className={styles.analyticsCard}>
-                  <h3>Payment Methods Distribution</h3>
-                  <div className={styles.placeholderChart}>
-                    <p>Payment methods pie chart would appear here</p>
+                  <div className={styles.chartHeader}>
+                    <h3>Payment Methods Distribution</h3>
+                  </div>
+                  <div className={styles.chartContainer}>
+                    <div className={styles.pieChart}>
+                      {renderPaymentMethods()}
+                    </div>
+                    <div className={styles.pieLegend}>
+                      {financialData.paymentDistribution.map((method, index) => (
+                        <div key={method.category} className={styles.legendItem}>
+                          <span 
+                            className={styles.legendColor} 
+                            style={{ background: method.color }}
+                          ></span>
+                          <span className={styles.legendText}>{method.category}</span>
+                          <span className={styles.legendValue}>{method.percentage}%</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
+
                 <div className={styles.analyticsCard}>
-                  <h3>Outstanding Balances Trend</h3>
-                  <div className={styles.placeholderChart}>
-                    <p>Balances over time chart would appear here</p>
+                  <div className={styles.chartHeader}>
+                    <h3>Outstanding Balances Trend</h3>
+                    <select className={styles.miniFilter}>
+                      <option>Last 6 Months</option>
+                      <option>Last Year</option>
+                      <option>All Time</option>
+                    </select>
+                  </div>
+                  <div className={styles.chartContainer}>
+                    <div className={styles.lineChart}>
+                      {renderBalanceTrend()}
+                    </div>
+                  </div>
+                </div>
+
+                <div className={styles.analyticsCard}>
+                  <div className={styles.chartHeader}>
+                    <h3>Top Students by Outstanding Balance</h3>
+                  </div>
+                  <div className={styles.studentsRanking}>
+                    {financialData.topStudents.slice(0, 5).map((student, index) => (
+                      <div key={student.id} className={styles.rankingItem}>
+                        <div className={styles.rank}>#{index + 1}</div>
+                        <div className={styles.studentInfo}>
+                          <div className={styles.studentName}>{student.name}</div>
+                          <div className={styles.studentId}>{student.id}</div>
+                        </div>
+                        <div className={styles.balanceAmount}>
+                          {formatCurrency(student.balance)}
+                        </div>
+                        <div className={`${styles.status} ${getStatusClass(student.status)}`}>
+                          {student.status}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className={styles.analyticsCard}>
+                  <div className={styles.chartHeader}>
+                    <h3>Payment Status Overview</h3>
+                  </div>
+                  <div className={styles.chartContainer}>
+                    <div className={styles.statusChart}>
+                      {renderPaymentStatus()}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1786,36 +2239,75 @@ const FinancePage = () => {
           )}
         </div>
 
+     
+
         {/* Modals */}
-        <PaymentModal
-          isOpen={showPaymentModal}
-          onClose={() => {
-            setShowPaymentModal(false);
-            setSelectedStudent(null);
-            setPaymentForm({
-              amount: "",
-              description: "",
-              dueDate: "",
-              type: "tuition",
-            });
-          }}
-        />
+<PaymentModal
+  isOpen={showPaymentModal}
+  onClose={() => {
+    setShowPaymentModal(false);
+    setSelectedStudent(null);
+    setPaymentForm({
+      amount: "",
+      description: "",
+      dueDate: "",
+      type: "tuition",
+    });
+  }}
+/>
 
-        <EditPaymentModal
-          isOpen={showEditModal}
-          onClose={() => {
-            setShowEditModal(false);
-            setEditingPayment(null);
-          }}
-        />
+{/* Add this new modal */}
+<PaymentsModal
+  isOpen={showPaymentsModal}
+  onClose={() => {
+    setShowPaymentsModal(false);
+    setSelectedStudentPayments([]);
+    setSelectedStudent(null);
+  }}
+  payments={selectedStudentPayments}
+  student={selectedStudent}
+/>
 
-        <ReceiptModal
-          receipt={selectedReceipt}
-          onClose={() => setSelectedReceipt(null)}
-        />
+<EditPaymentModal
+  isOpen={showEditModal}
+  onClose={() => {
+    setShowEditModal(false);
+    setEditingPayment(null);
+  }}
+/>
+
+<ReceiptModal
+  receipt={selectedReceipt}
+  onClose={() => setSelectedReceipt(null)}
+/>
       </div>
     </div>
   );
 };
 
 export default FinancePage;
+                    
+              //     display: "flex",
+              //     justifyContent: "space-between",
+              //     marginBottom: "8px",
+              //   }}
+              // >
+              //   <span>Total Amount:</span>
+              //   <strong>
+              //     {formatCurrency(parseFloat(editingPayment.totalAmount) || 0)}
+              //   </strong>
+              // </div>
+              // <div
+              //   style={{
+              //     display: "flex",
+              //     justifyContent: "space-between",
+              //     marginBottom: "8px",
+              //   }}
+              // >
+              //   <span>Amount Paid:</span>
+              //   <strong style={{ color: "#10b981" }}>
+              //     {formatCurrency(parseFloat(editingPayment.amountPaid) || 0)}
+              //   </strong>
+              // </div>
+              // <div
+              //   style={{
