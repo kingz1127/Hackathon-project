@@ -1141,3 +1141,466 @@
     box-shadow: none;
   }
 }
+
+/* Balance Section Styles */
+.balanceSection {
+  margin: 20px 0;
+  padding: 15px;
+  background: #f8fafc;
+  border-radius: 8px;
+  border-left: 4px solid #3b82f6;
+}
+
+.balanceSection h4 {
+  margin: 0 0 12px 0;
+  color: #1f2937;
+  font-size: 16px;
+}
+
+.balanceRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.balanceRow:last-child {
+  border-bottom: none;
+  font-weight: bold;
+  padding-top: 12px;
+  border-top: 2px solid #e5e7eb;
+}
+
+/* Update Stamp Style */
+.stamp {
+  transform: rotate(-15deg);
+  border: 3px solid #ef4444;
+  color: #ef4444;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-weight: bold;
+  font-size: 14px;
+  background: white;
+  text-align: center;
+  min-width: 120px;
+}
+
+/* Analytics Section */
+.analyticsSection {
+  padding: 20px;
+}
+
+.analyticsSummary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.summaryCard {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.summaryIcon {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+
+.summaryContent h4 {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.summaryValue {
+  margin: 0 0 4px 0;
+  font-size: 24px;
+  font-weight: bold;
+  color: #1f2937;
+}
+
+.summaryTrend {
+  margin: 0;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+/* Analytics Grid */
+.analyticsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 20px;
+}
+
+.analyticsCard {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.chartHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.chartHeader h3 {
+  margin: 0;
+  font-size: 16px;
+  color: #1f2937;
+}
+
+.chartLegend {
+  display: flex;
+  gap: 16px;
+  font-size: 12px;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legendColor {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+}
+
+.chartStats {
+  display: flex;
+  gap: 12px;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+/* Bar Chart */
+.barChart {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  height: 200px;
+  padding: 0 20px;
+}
+
+.barGroup {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+
+.bars {
+  position: relative;
+  width: 30px;
+  height: 150px;
+  margin-bottom: 8px;
+}
+
+.barPrevious {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 12px;
+  background: #d1d5db;
+  border-radius: 2px 2px 0 0;
+}
+
+.barCurrent {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 12px;
+  background: #3b82f6;
+  border-radius: 2px 2px 0 0;
+}
+
+.barLabel {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+/* Gauge Chart */
+.gaugeChart {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 20px;
+  border-radius: 50%;
+  background: conic-gradient(
+    #10b981 0% 65%,
+    #f59e0b 65% 85%,
+    #ef4444 85% 100%
+  );
+  mask: radial-gradient(circle at center, transparent 50%, black 51%);
+}
+
+.gaugeFill {
+  position: absolute;
+  bottom: 0;
+  left: 10%;
+  right: 10%;
+  background: #3b82f6;
+  border-radius: 4px 4px 0 0;
+}
+
+.gaugeLabel {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 24px;
+  font-weight: bold;
+  color: #1f2937;
+}
+
+.gaugeMarks {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #6b7280;
+  padding: 0 20px;
+}
+
+/* Pie Chart */
+.pieChart {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: #f3f4f6;
+  margin: 0 auto;
+}
+
+.pieSlice {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  clip-path: polygon(50% 50%, 50% 0%, 100% 0%, 100% 100%, 50% 100%);
+}
+
+.pieLegend {
+  margin-top: 20px;
+}
+
+.legendText {
+  flex: 1;
+}
+
+.legendValue {
+  font-weight: bold;
+  color: #1f2937;
+}
+
+/* Line Chart */
+.lineChart {
+  position: relative;
+  height: 150px;
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  padding: 0 20px;
+}
+
+.linePoint {
+  position: relative;
+  flex: 1;
+  height: 100%;
+}
+
+.lineDot {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 8px;
+  height: 8px;
+  background: #ef4444;
+  border-radius: 50%;
+  z-index: 2;
+}
+
+.lineConnector {
+  position: absolute;
+  left: 50%;
+  width: 2px;
+  background: #ef4444;
+  transform: translateX(-50%);
+  z-index: 1;
+}
+
+/* Students Ranking */
+.studentsRanking {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.rankingItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: #f8fafc;
+  border-radius: 6px;
+}
+
+.rank {
+  font-weight: bold;
+  color: #3b82f6;
+  min-width: 30px;
+}
+
+.studentInfo {
+  flex: 1;
+}
+
+.studentName {
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+
+.studentId {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.balanceAmount {
+  font-weight: bold;
+  color: #ef4444;
+}
+
+.status {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.statusOverdue {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.statusDueSoon {
+  background: #fffbeb;
+  color: #d97706;
+}
+
+.statusCurrent {
+  background: #f0f9ff;
+  color: #0369a1;
+}
+
+/* Status Chart */
+.statusBars {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.statusBar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.statusLabel {
+  min-width: 80px;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.statusBarContainer {
+  flex: 1;
+  height: 8px;
+  background: #f3f4f6;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.statusBarFill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.statusValue {
+  min-width: 40px;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: right;
+}
+
+.miniFilter {
+  padding: 4px 8px;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  font-size: 12px;
+  background: white;
+}
+
+
+/* payment modal */
+/* Payments Modal Styles */
+.paymentsTable {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr;
+  gap: 1px;
+  background: #e2e8f0;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.paymentsHeader {
+  display: contents;
+}
+
+.paymentCell {
+  background: white;
+  padding: 12px;
+  font-weight: 500;
+  background: #f8fafc;
+}
+
+.paymentRow {
+  display: contents;
+}
+
+.paymentRow > .paymentCell {
+  background: white;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+}
+
+.editButton {
+  background: #3b82f6;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.editButton:hover {
+  background: #2563eb;
+}

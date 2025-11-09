@@ -32,6 +32,8 @@ import PaymentMethod from "./models/PaymentMethod.js";
 import FinancialAid from "./models/FinancialAid.js";
 import PaymentPlan from "./models/PaymentPlan.js";
 
+import paymentSubmissionRoutes from "./routes/paymentSubmissionRoutes.js";
+
 dotenv.config();
 
 const app = express(); 
@@ -40,6 +42,31 @@ const MONGO_URI = process.env.MONGO_URI;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Create uploads directories
+// const uploadsDir = path.join(__dirname, "uploads", "teachers");
+// if (!fs.existsSync(uploadsDir)) {
+//   fs.mkdirSync(uploadsDir, { recursive: true });
+//   console.log("Created uploads/teachers directory");
+// }
+
+// const studentUploadsDir = path.join(__dirname, "uploads", "students");
+// if (!fs.existsSync(studentUploadsDir)) {
+//   fs.mkdirSync(studentUploadsDir, { recursive: true });
+//   console.log("Created uploads/students directory");
+// }
+
+// const paymentUploadsDir = path.join(__dirname, "uploads", "payments");
+// if (!fs.existsSync(paymentUploadsDir)) {
+//   fs.mkdirSync(paymentUploadsDir, { recursive: true });
+//   console.log("Created uploads/payments directory");
+// }
+
+// ✅ ADD THIS - Create passports directory
+const passportUploadsDir = path.join(__dirname, "uploads", "passports");
+if (!fs.existsSync(passportUploadsDir)) {
+  fs.mkdirSync(passportUploadsDir, { recursive: true });
+  console.log("Created uploads/passports directory");
+}
 console.log("Mongo URI:", MONGO_URI);
 
 // ✅ Gmail transporter (App Password required)
@@ -86,9 +113,15 @@ app.use(cors({ origin: "http://localhost:5173", credentials: true }));
 app.use(express.json());
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-
+app.use(express.urlencoded({ extended: true })); // For form data
 app.use("/attendance", attendanceRoutes);
 app.use('/', coursesRoutes);
+
+const paymentUploadsDir = path.join(__dirname, "uploads", "payments");
+if (!fs.existsSync(paymentUploadsDir)) {
+  fs.mkdirSync(paymentUploadsDir, { recursive: true });
+  console.log("Created uploads/payments directory");
+}
 
 // Enhanced Admin login route - checks both Admin collection and Teacher collection
 app.post("/admin/login", async (req, res) => {
@@ -395,6 +428,7 @@ app.get("/health", (req, res) => {
 app.use("/", teacherRoutes);
 app.use("/", studentRoutes);
 app.use("/api/events", eventRoutes);
+app.use("/api/payment-submissions", paymentSubmissionRoutes);
 // Mount the register route
 app.use("/api", registerRoutes);
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
