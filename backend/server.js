@@ -10,15 +10,16 @@ import path from "path";
 import process from "process";
 import { fileURLToPath } from "url";
 import Admin from "./models/Admin.js";
-import attendanceRoutes from "./routes/attendance.js";
 import Student from "./models/Student.js";
 import Teacher from "./models/Teacher.js";
+import attendanceRoutes from "./routes/attendance.js";
+import coursesRoutes from "./routes/coursesRoutes.js";
 import eventRoutes from "./routes/eventRoutes.js";
 import messageRoutes from "./routes/message.js";
 import registerRoutes from "./routes/registerRoutes.js";
+import resourceRoutes from "./routes/resourceRoutes.js";
 import teacherRoutes from "./routes/router.js";
 import studentRoutes from "./routes/studentRoutes.js";
-import resourceRoutes from "./routes/resourceRoutes.js";
 
 // Add this to your existing server.js imports
 import financeRoutes from "./routes/financeRoutes.js";
@@ -95,6 +96,7 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.use(express.urlencoded({ extended: true })); // For form data
 app.use("/attendance", attendanceRoutes);
+app.use('/', coursesRoutes);
 
 const paymentUploadsDir = path.join(__dirname, "uploads", "payments");
 if (!fs.existsSync(paymentUploadsDir)) {

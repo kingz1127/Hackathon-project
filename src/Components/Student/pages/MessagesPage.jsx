@@ -1,140 +1,12 @@
-// import { useEffect, useState } from 'react';
-// import '../Widget.css';
-
-// const MessagesPage = ({ studentId, senderId, senderName }) => {
-//   const [messages, setMessages] = useState([]);
-//   const [newMessage, setNewMessage] = useState('');
-//   const [loading, setLoading] = useState(true);
-
-//   // Fetch messages initially
-//   useEffect(() => {
-//     console.log(studentId, senderId, senderName,receiverId); // ✅ Debug log,
-//     const fetchMessages = async () => {
-//       try {
-//         const res = await fetch(`http://localhost:5000/messages/student/${studentId}`);
-//         const data = await res.json();
-//         setMessages(data);
-//       } catch (err) {
-//         console.error('Error fetching messages:', err);
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
-//     fetchMessages();
-//   }, [studentId]);
-
-//   // Real-time updates via SSE
-//   useEffect(() => {
-//     const evtSource = new EventSource(`http://localhost:5000/messages/stream/${studentId}`);
-//     evtSource.onmessage = e => {
-//       const newMessages = JSON.parse(e.data);
-//       setMessages(newMessages);
-//     };
-//     return () => evtSource.close();
-//   }, [studentId]);
-
-//   // Send a message
-//  const handleSend = async () => {
-//   const senderId = localStorage.getItem("studentId") || senderId;
-//   const senderName = localStorage.getItem("studentName") || senderName;
-//   const receiverId = studentId; // Make sure studentId prop exists
-
-//   console.log({ senderId, senderName, receiverId, content: newMessage }); // ✅ Debug log
-
-//   if (!newMessage.trim()) return;
-//   if (!senderId || !senderName || !receiverId) {
-//     console.error("Missing sender or receiver details!");
-//     alert("Missing sender or receiver details!");
-//     return;
-//   }
-
-//   try {
-//     const res = await fetch("http://localhost:5000/messages/send", {
-//       method: "POST",
-//       headers: { "Content-Type": "application/json" },
-//       body: JSON.stringify({
-//         senderId,
-//         senderName,
-//         receiverId,
-//         content: newMessage,
-//       }),
-//     });
-
-//     if (!res.ok) {
-//       const error = await res.json();
-//       console.error("Server error:", error);
-//       return;
-//     }
-
-//     const data = await res.json();
-//     setMessages((prev) => [...prev, data]);
-//     setNewMessage("");
-//   } catch (err) {
-//     console.error("Error sending message:", err);
-//   }
-// };
-
-
-//   if (loading) return <p>Loading messages...</p>;
-
-//   return (
-//     <div className="page messages-page">
-//       {/* <h3 className="page-title">Messages</h3> */}
-
-//       <div className="messages-list">
-//         {messages.length === 0 && <p>No messages yet.</p>}
-//         {messages.map(msg => (
-//           <div
-//            key={msg._id || `${msg.senderId}-${msg.timestamp}`}
-
-//             className={`message-item ${
-//               msg.senderId === senderId ? 'message-sent' : 'message-received'
-//             } ${!msg.isRead ? 'unread' : ''}`}
-//           >
-//             <div className="message-avatar">
-//               {msg.senderName ? msg.senderName.charAt(0) : 'S'}
-//             </div>
-//             <div className="message-content">
-//               <div className="message-header">
-//                 <span className="message-sender">{msg.senderName || msg.senderId}</span>
-//                 <span className="message-time">{new Date(msg.timestamp).toLocaleString()}</span>
-//               </div>
-//               <p className="message-text">{msg.content}</p>
-//             </div>
-//             {!msg.isRead && <div className="unread-badge"></div>}
-//           </div>
-//         ))}
-//       </div>
-
-//       {/* Message Input */}
-//       <div className="message-input-container">
-//         <input
-//           type="text"
-//           placeholder="Type your message..."
-//           value={newMessage}
-//           onChange={e => setNewMessage(e.target.value)}
-//           onKeyDown={e => e.key === 'Enter' && handleSend()}
-//         />
-//         <button onClick={handleSend}>Send</button>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default MessagesPage;
-
-
-
-
 import { useEffect, useState } from "react";
 import "../Widget.css";
 
-const MessagesPage = ({ studentId, senderId: propSenderId, senderName: propSenderName }) => {
+const MessagesPage = ({ studentId }) => {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(true);
+  const [teacher, setTeacher] = useState(null); // { id, name }
 
-  // Helper to get initials safely
   const getInitials = (name) => {
     if (!name) return "S";
     return name
@@ -143,13 +15,36 @@ const MessagesPage = ({ studentId, senderId: propSenderId, senderName: propSende
       .join("");
   };
 
-  // Fetch messages initially
+  // Step 1: Fetch the teacher for this student
   useEffect(() => {
-    if (!studentId) return;
+    if (!studentId) {
+      console.error("❌ studentId missing");
+      setLoading(false);
+      return;
+    }
+
+    const fetchTeacher = async () => {
+      try {
+        const res = await fetch(`http://localhost:5000/students/${studentId}/teacher`);
+        const data = await res.json(); // { teacherId, teacherName }
+        setTeacher(data);
+      } catch (err) {
+        console.error("Error fetching teacher:", err);
+      }
+    };
+
+    fetchTeacher();
+  }, [studentId]);
+
+  // Step 2: Fetch messages once we have teacher
+  useEffect(() => {
+    if (!studentId || !teacher?.teacherId) return;
 
     const fetchMessages = async () => {
       try {
-        const res = await fetch(`http://localhost:5000/messages/student/${studentId}`);
+        const res = await fetch(
+          `http://localhost:5000/messages/conversation?studentId=${studentId}&teacherId=${teacher.teacherId}`
+        );
         const data = await res.json();
         setMessages(data);
       } catch (err) {
@@ -160,37 +55,30 @@ const MessagesPage = ({ studentId, senderId: propSenderId, senderName: propSende
     };
 
     fetchMessages();
-  }, [studentId]);
+  }, [studentId, teacher]);
 
-  // Real-time updates via SSE
+  // Step 3: SSE updates
   useEffect(() => {
-    if (!studentId) return;
+    if (!studentId || !teacher?.teacherId) return;
 
-    const evtSource = new EventSource(`http://localhost:5000/messages/stream/${studentId}`);
+    const evtSource = new EventSource(
+      `http://localhost:5000/messages/stream?studentId=${studentId}&teacherId=${teacher.teacherId}`
+    );
     evtSource.onmessage = (e) => {
       const newMessages = JSON.parse(e.data);
       setMessages(newMessages);
     };
     return () => evtSource.close();
-  }, [studentId]);
+  }, [studentId, teacher]);
 
-  // Send a message
+  // Step 4: Send message
   const handleSend = async () => {
-    const senderId = localStorage.getItem("studentId") || propSenderId;
-    const senderName = localStorage.getItem("studentName") || propSenderName;
-    const receiverId = studentId;
-
-    if (!newMessage.trim()) return;
-    if (!senderId || !senderName || !receiverId) {
-      console.error("Missing sender or receiver details!");
-      alert("Missing sender or receiver details!");
-      return;
-    }
+    if (!newMessage.trim() || !teacher?.teacherId) return;
 
     const payload = {
-      senderId,
-      senderName,
-      receiverId,
+      senderId: studentId,
+      senderName: localStorage.getItem("studentName") || "Student",
+      receiverId: teacher.teacherId,
       content: newMessage,
     };
 
@@ -200,13 +88,10 @@ const MessagesPage = ({ studentId, senderId: propSenderId, senderName: propSende
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-
       if (!res.ok) {
-        const error = await res.json();
-        console.error("Server error:", error);
+        console.error("Server error:", await res.json());
         return;
       }
-
       const data = await res.json();
       setMessages((prev) => [...prev, data]);
       setNewMessage("");
@@ -216,6 +101,7 @@ const MessagesPage = ({ studentId, senderId: propSenderId, senderName: propSende
   };
 
   if (loading) return <p>Loading messages...</p>;
+  if (!teacher) return <p>Fetching teacher info...</p>;
 
   return (
     <div className="page messages-page">
@@ -223,17 +109,15 @@ const MessagesPage = ({ studentId, senderId: propSenderId, senderName: propSende
         {messages.length === 0 && <p>No messages yet.</p>}
         {messages.map((msg, index) => (
           <div
-            key={msg._id || `${msg.senderId ?? "unknown"}-${msg.timestamp ?? index}`}
+            key={msg._id || index}
             className={`message-item ${
-              msg.senderId === (localStorage.getItem("studentId") || propSenderId)
-                ? "message-sent"
-                : "message-received"
+              msg.senderId === studentId ? "message-sent" : "message-received"
             } ${!msg.isRead ? "unread" : ""}`}
           >
             <div className="message-avatar">{getInitials(msg.senderName)}</div>
             <div className="message-content">
               <div className="message-header">
-                <span className="message-sender">{msg.senderName || msg.senderId}</span>
+                <span className="message-sender">{msg.senderName}</span>
                 <span className="message-time">
                   {new Date(msg.timestamp).toLocaleString()}
                 </span>
@@ -245,7 +129,6 @@ const MessagesPage = ({ studentId, senderId: propSenderId, senderName: propSende
         ))}
       </div>
 
-      {/* Message Input */}
       <div className="message-input-container">
         <input
           type="text"
