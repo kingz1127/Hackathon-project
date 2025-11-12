@@ -1,11 +1,11 @@
 // Enhanced financeRoutes.js with proper database operations and receipts
 
 import express from 'express';
+import rateLimit from 'express-rate-limit';
 import Payment from '../models/Payment.js';
-import Transaction from '../models/Transaction.js';
 import Receipt from '../models/Receipt.js';
 import Student from '../models/Student.js';
-import rateLimit from 'express-rate-limit';
+import Transaction from '../models/Transaction.js';
 
 const router = express.Router();
 
