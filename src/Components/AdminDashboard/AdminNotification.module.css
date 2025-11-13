@@ -1,0 +1,673 @@
+/* AdminNotification.module.css */
+.container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.header h1 {
+  margin: 0 0 8px 0;
+  color: #1f2937;
+}
+
+.header p {
+  margin: 0;
+  color: #6b7280;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.statCard {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.statIcon {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  background: #f3f4f6;
+}
+
+.statContent h3 {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.statValue {
+  margin: 0 0 4px 0;
+  font-size: 24px;
+  font-weight: bold;
+  color: #1f2937;
+}
+
+.statNote {
+  margin: 0;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.tabContainer {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 8px;
+}
+
+.tab {
+  padding: 12px 20px;
+  border: none;
+  background: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  color: #6b7280;
+  transition: all 0.2s;
+}
+
+.tabActive {
+  background: #3b82f6;
+  color: white;
+}
+
+.content {
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  padding: 24px;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.emptyIcon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+.emptyState h3 {
+  margin: 0 0 8px 0;
+  color: #374151;
+}
+
+.emptyState p {
+  margin: 0;
+  color: #6b7280;
+}
+
+.submissionsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  gap: 20px;
+}
+
+.submissionCard {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 20px;
+  background: white;
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.studentInfo h3 {
+  margin: 0 0 4px 0;
+  color: #1f2937;
+}
+
+.studentInfo p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.submissionMeta {
+  text-align: right;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.submissionDate {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.referenceId {
+  display: block;
+  font-family: monospace;
+  background: #f3f4f6;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.paymentDetails {
+  margin-bottom: 16px;
+}
+
+.detailRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #f8fafc;
+}
+
+.detailRow:last-child {
+  border-bottom: none;
+}
+
+.amount {
+  font-weight: bold;
+  color: #059669;
+}
+
+.receiptSection {
+  margin-bottom: 16px;
+}
+
+.receiptSection h4 {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  color: #374151;
+}
+
+.receiptPreview {
+  text-align: center;
+}
+
+.receiptPreview img {
+  max-width: 200px;
+  max-height: 200px;
+  border-radius: 4px;
+  border: 1px solid #e2e8f0;
+}
+
+.cardActions {
+  display: flex;
+  gap: 8px;
+}
+
+.approveButton {
+  flex: 1;
+  padding: 10px 16px;
+  background: #10b981;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.approveButton:hover {
+  background: #059669;
+}
+
+/* Table Styles */
+.submissionsTable {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1px;
+  background: #e2e8f0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.tableHeader {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 2fr 1.5fr 1fr 1fr;
+  gap: 1px;
+  background: #f8fafc;
+  font-weight: 600;
+  color: #374151;
+}
+
+.tableHeader > div {
+  padding: 12px 16px;
+  background: white;
+}
+
+.tableRow {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 2fr 1.5fr 1fr 1fr;
+  gap: 1px;
+  background: #f8fafc;
+}
+
+.tableRow > div {
+  padding: 12px 16px;
+  background: white;
+  display: flex;
+  align-items: center;
+}
+
+.studentCell {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.studentCell strong {
+  margin-bottom: 2px;
+}
+
+.studentCell small {
+  color: #6b7280;
+  font-size: 12px;
+}
+
+.statusBadge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.statusPending {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.statusApproved {
+  background: #d1fae5;
+  color: #059669;
+}
+
+.statusDeclined {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.viewButton {
+  padding: 6px 12px;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.viewButton:hover {
+  background: #2563eb;
+}
+
+/* Modal Styles */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modalContent {
+  background: white;
+  border-radius: 12px;
+  max-width: 800px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.modalHeader h2 {
+  margin: 0;
+  color: #1f2937;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #6b7280;
+  padding: 4px;
+  border-radius: 4px;
+}
+
+.closeButton:hover {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.modalBody {
+  padding: 24px;
+}
+
+.reviewSection {
+  margin-bottom: 24px;
+}
+
+.reviewSection h3 {
+  margin: 0 0 16px 0;
+  color: #374151;
+  font-size: 18px;
+  border-bottom: 2px solid #3b82f6;
+  padding-bottom: 8px;
+}
+
+.infoGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+}
+
+.infoItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.infoItem label {
+  font-weight: 500;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.infoItem span {
+  color: #1f2937;
+}
+
+.notesTextarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  resize: vertical;
+}
+
+.notesTextarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.receiptPreviewLarge {
+  text-align: center;
+}
+
+.receiptPreviewLarge img {
+  max-width: 300px;
+  max-height: 300px;
+  border-radius: 4px;
+  border: 1px solid #e2e8f0;
+}
+
+.modalActions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  padding: 24px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.declineButton {
+  padding: 12px 24px;
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.declineButton:hover {
+  background: #dc2626;
+}
+
+.approveButton {
+  padding: 12px 24px;
+  background: #10b981;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.approveButton:hover {
+  background: #059669;
+}
+
+/* Passport Photo Preview Styles */
+.passportPreview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  background: #f9fafb;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.passportPreview img {
+  max-width: 300px;
+  max-height: 400px;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  border-radius: 8px;
+  border: 2px solid #d1d5db;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.passportActions {
+  display: flex;
+  gap: 12px;
+}
+
+.viewFullButton {
+  padding: 8px 16px;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.viewFullButton:hover {
+  background: #2563eb;
+  transform: translateY(-1px);
+}
+
+/* Receipt Preview Large */
+.receiptPreviewLarge {
+  max-width: 100%;
+  overflow: auto;
+  padding: 12px;
+  background: #f9fafb;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.receiptPreviewLarge img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Statistics Grid */
+.statisticsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+/* Empty State */
+.emptyState {
+  text-align: center;
+  padding: 60px 20px;
+  background: white;
+  border-radius: 12px;
+  border: 2px dashed #d1d5db;
+}
+
+.emptyIcon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.emptyState h3 {
+  font-size: 20px;
+  color: #1f2937;
+  margin: 0 0 8px 0;
+}
+
+.emptyState p {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0;
+}
+
+/* Registration Cards Grid */
+.registrationsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 20px;
+}
+
+.registrationCard {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s;
+}
+
+.registrationCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.registrationDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 16px 0;
+}
+
+.studentId {
+  font-weight: 600;
+  color: #3b82f6;
+}
+.reviewButton{
+  background-color: #0363fd;
+  color: white;
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+}
+.reviewButton:hover{
+  background-color: #3486e9;
+}
+
+.filtersContainer {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.searchBox {
+  margin-bottom: 15px;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+.filterGroup {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.filterSelect {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: white;
+  min-width: 150px;
+}
+
+.clearFilters {
+  padding: 10px 15px;
+  background: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.clearFilters:hover {
+  background: #5a6268;
+}
+
+.resultsInfo {
+  margin-bottom: 15px;
+  color: #6c757d;
+  font-size: 14px;
+}

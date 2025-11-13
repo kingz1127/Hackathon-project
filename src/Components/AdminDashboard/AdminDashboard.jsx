@@ -7,10 +7,10 @@ export default function AdminDashboard() {
     <>
     
       <div className={styles.back}>
-        <div>
+        <div className={styles.side}>
           <Sidebar />
         </div>
-        <div>
+        <div className={styles.out}>
           <Outlet />
         </div>
       </div>

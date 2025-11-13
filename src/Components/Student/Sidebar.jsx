@@ -100,6 +100,18 @@ export default function Sidebar() {
             <span className="icon">✅</span> Attendance
           </NavLink>
         </li>
+
+        <li>
+          <NavLink
+            to="studentFinance"
+            className={({ isActive }) =>
+              isActive ? "sidebar-btn active" : "sidebar-btn"
+            }
+          >
+            <span className="icon">💵</span> Finance
+          </NavLink>
+        </li>
+        
         <li>
           <NavLink
             to="studentresources"

@@ -1,38 +1,58 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const { Schema } = mongoose;
 
-// Grade schema for each student in the course
+// Grade for a student
 const gradeSchema = new Schema({
-  studentId: { type: String, required: true }, // student ID as string
-  grade: { type: String, enum: ['A', 'B', 'C', 'D', 'F', 'Incomplete'], default: 'Incomplete' },
-  score: { type: Number, min: 0, max: 100 }, // optional numeric score
+  studentId: { type: String, required: true },
+  grade: { type: String, enum: ['A','B','C','D','F','Incomplete'], default: 'Incomplete' },
+  score: { type: Number, min: 0, max: 100 },
 });
 
-// Subject/Class schema
+// Submission for an assignment
+const submissionSchema = new Schema({
+  studentId: { type: String, required: true },
+  grade: { type: String, enum: ['A','B','C','D','F','Incomplete'], default: 'Incomplete' },
+  score: { type: Number, min: 0, max: 100 },
+  fileUrl: { type: String }, // optional
+});
+
+// Assignment schema
+const assignmentSchema = new Schema({
+  title: { type: String, required: true },
+  description: String,
+  dueDate: Date,
+  submissions: [submissionSchema],
+});
+
+// Class/Subject schema (inside a section)
 const subjectSchema = new Schema({
-  name: { type: String, required: true },
+  name: { type: String, required: true },      // class name
   modules: { type: Number, default: 0 },
   hours: { type: Number, default: 0 },
-  description: { type: String },
+  description: String,
+  date: Date,                                   // class date
+  time: String,                                 // class time
+  assignments: [assignmentSchema],
+});
+
+// Section schema
+const sectionSchema = new Schema({
+  name: { type: String, required: true },     // section/branch name
+  subjects: [subjectSchema],
 });
 
 // Main Course schema
 const courseSchema = new Schema({
   title: { type: String, required: true },
-  description: { type: String },
-  level: { type: String, enum: ['Beginner', 'Intermediate', 'Advanced'], default: 'Beginner' },
-  duration: { type: String }, // e.g., "6 months"
-  progress: { type: Number, default: 0 }, // overall course progress in %
-  status: { type: String, enum: ['Not Started', 'In Progress', 'Completed'], default: 'Not Started' },
-  instructor: { type: String, required: true }, // teacher linked by course
-  category: { type: String },
-  technologies: [String], // optional list of skills/technologies
-  subjects: [subjectSchema], // array of classes/subjects
-  grades: [gradeSchema], // array of student grades
-  enrolledStudents: [String], // student IDs as strings
+  description: String,
+  level: { type: String, enum: ['Beginner','Intermediate','Advanced'], default: 'Beginner' },
+  instructor: { type: String, required: true }, // teacher id
+  sections: [sectionSchema],
+  grades: [gradeSchema],
+  enrolledStudents: [String],                  // student IDs
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });
 
-export default mongoose.model('Course', courseSchema);
+export default mongoose.model("Course", courseSchema);

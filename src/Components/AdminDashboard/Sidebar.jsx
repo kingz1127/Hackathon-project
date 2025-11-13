@@ -1,3 +1,4 @@
+import { IoIosNotifications } from "react-icons/io"; 
 import { GiMoneyStack } from "react-icons/gi"; 
 import { useState, useEffect } from "react";
 import { FaBook, FaCog, FaEnvelope, FaTachometerAlt, FaUsers, FaSignOutAlt } from "react-icons/fa";
@@ -93,10 +94,23 @@ export default function Sidebar() {
           <div className={styles.activeIndicator}></div>
         </NavLink>
 
+         <NavLink 
+          to="adminNotify" 
+          className={({ isActive }) => 
+            isActive ? `${styles.navLink} ${styles.active}` : styles.navLink
+          }
+        >
+          <div className={styles.navContent}>
+            <IoIosNotifications  className={styles.navIcon} />
+            <span className={styles.navText}>Notifications</span>
+          </div>
+          <div className={styles.activeIndicator}></div>
+        </NavLink>
+
         
         
         <NavLink 
-          to="adminsettings" 
+          to="adminSettings" 
           className={({ isActive }) => 
             isActive ? `${styles.navLink} ${styles.active}` : styles.navLink
           }

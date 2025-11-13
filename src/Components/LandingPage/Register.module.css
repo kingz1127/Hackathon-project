@@ -449,3 +449,178 @@
     font-size: 0.9rem;
   }
 }
+
+
+
+
+/* Photo Upload Styles */
+.photoUploadSection {
+  margin: 20px 0;
+}
+
+.uploadLabel {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: bold;
+  color: #333;
+}
+
+.uploadArea {
+  border: 2px dashed #ddd;
+  border-radius: 8px;
+  padding: 30px;
+  text-align: center;
+  transition: border-color 0.3s ease;
+  background: #fafafa;
+  cursor: pointer;
+}
+
+.uploadArea:hover {
+  border-color: #007bff;
+  background: #f0f8ff;
+}
+
+.uploadArea.uploadError {
+  border-color: #dc3545;
+  background: #f8d7da;
+}
+
+.fileInput {
+  display: none;
+}
+
+.uploadButton {
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.uploadIcon {
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+
+.uploadButton strong {
+  color: #333;
+  font-size: 1.1rem;
+}
+
+.uploadButton p {
+  margin: 5px 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.fileError {
+  color: #dc3545;
+  margin-top: 10px;
+  padding: 10px;
+  background: #f8d7da;
+  border-radius: 4px;
+  border: 1px solid #f5c6cb;
+}
+
+.photoPreview {
+  margin-top: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.previewHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  background: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.previewHeader span {
+  font-weight: bold;
+  color: #333;
+}
+
+.removePhoto {
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.removePhoto:hover {
+  background: #c82333;
+}
+
+.previewImage {
+  padding: 20px;
+  text-align: center;
+  background: white;
+}
+
+.previewImage img {
+  max-width: 200px;
+  max-height: 200px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+}
+
+.fileInfo {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 15px;
+  background: #f8f9fa;
+  border-top: 1px solid #dee2e6;
+  font-size: 0.9rem;
+}
+
+.fileName {
+  color: #333;
+  font-weight: 500;
+}
+
+.fileSize {
+  color: #666;
+}
+
+.submitButton:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+}
+
+.submitButton:disabled:hover {
+  background: #6c757d;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .uploadArea {
+    padding: 20px;
+  }
+  
+  .uploadButton {
+    gap: 8px;
+  }
+  
+  .uploadIcon {
+    font-size: 1.5rem;
+  }
+  
+  .uploadButton strong {
+    font-size: 1rem;
+  }
+  
+  .uploadButton p {
+    font-size: 0.8rem;
+  }
+  
+  .previewImage img {
+    max-width: 150px;
+    max-height: 150px;
+  }
+}

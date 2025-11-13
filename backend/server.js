@@ -9,15 +9,30 @@ import path from "path";
 import process from "process";
 import { fileURLToPath } from "url";
 import Admin from "./models/Admin.js";
-import attendanceRoutes from "./routes/attendance.js";
 import Student from "./models/Student.js";
 import Teacher from "./models/Teacher.js";
+import attendanceRoutes from "./routes/attendance.js";
+import coursesRoutes from "./routes/coursesRoutes.js";
 import eventRoutes from "./routes/eventRoutes.js";
 import messageRoutes from "./routes/message.js";
 import registerRoutes from "./routes/registerRoutes.js";
+import resourceRoutes from "./routes/resourceRoutes.js";
 import teacherRoutes from "./routes/router.js";
 import studentRoutes from "./routes/studentRoutes.js";
-import resourceRoutes from "./routes/resourceRoutes.js";
+
+
+// Add this to your existing server.js imports
+import financeRoutes from "./routes/financeRoutes.js";
+
+// Add these imports for the new models
+import Payment from "./models/Payment.js";
+import Transaction from "./models/Transaction.js";
+import Receipt from "./models/Receipt.js";
+import PaymentMethod from "./models/PaymentMethod.js";
+import FinancialAid from "./models/FinancialAid.js";
+import PaymentPlan from "./models/PaymentPlan.js";
+
+import paymentSubmissionRoutes from "./routes/paymentSubmissionRoutes.js";
 
 dotenv.config();
 
@@ -27,6 +42,31 @@ const MONGO_URI = process.env.MONGO_URI;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Create uploads directories
+// const uploadsDir = path.join(__dirname, "uploads", "teachers");
+// if (!fs.existsSync(uploadsDir)) {
+//   fs.mkdirSync(uploadsDir, { recursive: true });
+//   console.log("Created uploads/teachers directory");
+// }
+
+// const studentUploadsDir = path.join(__dirname, "uploads", "students");
+// if (!fs.existsSync(studentUploadsDir)) {
+//   fs.mkdirSync(studentUploadsDir, { recursive: true });
+//   console.log("Created uploads/students directory");
+// }
+
+// const paymentUploadsDir = path.join(__dirname, "uploads", "payments");
+// if (!fs.existsSync(paymentUploadsDir)) {
+//   fs.mkdirSync(paymentUploadsDir, { recursive: true });
+//   console.log("Created uploads/payments directory");
+// }
+
+// ✅ ADD THIS - Create passports directory
+const passportUploadsDir = path.join(__dirname, "uploads", "passports");
+if (!fs.existsSync(passportUploadsDir)) {
+  fs.mkdirSync(passportUploadsDir, { recursive: true });
+  console.log("Created uploads/passports directory");
+}
 console.log("Mongo URI:", MONGO_URI);
 
 // ✅ Gmail transporter (App Password required)
@@ -40,7 +80,7 @@ const transporter = nodemailer.createTransport({
     rejectUnauthorized: false, // 🔥 Fix self-signed cert error
   },
 });
-
+ 
 // ✅ Test Gmail connection
 transporter.verify((err, success) => {
   if (err) {
@@ -73,9 +113,15 @@ app.use(cors({ origin: "http://localhost:5173", credentials: true }));
 app.use(express.json());
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-
+app.use(express.urlencoded({ extended: true })); // For form data
 app.use("/attendance", attendanceRoutes);
+app.use('/', coursesRoutes);
 
+const paymentUploadsDir = path.join(__dirname, "uploads", "payments");
+if (!fs.existsSync(paymentUploadsDir)) {
+  fs.mkdirSync(paymentUploadsDir, { recursive: true });
+  console.log("Created uploads/payments directory");
+}
 
 // Enhanced Admin login route - checks both Admin collection and Teacher collection
 app.post("/admin/login", async (req, res) => {
@@ -382,6 +428,7 @@ app.get("/health", (req, res) => {
 app.use("/", teacherRoutes);
 app.use("/", studentRoutes);
 app.use("/api/events", eventRoutes);
+app.use("/api/payment-submissions", paymentSubmissionRoutes);
 // Mount the register route
 app.use("/api", registerRoutes);
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
@@ -395,37 +442,132 @@ mongoose
   .then(() => {
     console.log("MongoDB connected");
     // Check if default admin exists
+    // setTimeout(async () => {
+    //   try {
+    //     const adminCount = await Admin.countDocuments();
+    //     const teacherCount = await Teacher.countDocuments();
+    //     const studentCount = await Student.countDocuments();
+
+    //     console.log("Total admins in database:", adminCount);
+    //     console.log("Total teachers in Teacher collection:", teacherCount);
+    //     console.log("Total student in the Student collection: ", studentCount);
+
+    //     const defaultAdmin = await Admin.findOne({ username: "admin" });
+    //     if (defaultAdmin) {
+    //       console.log(
+    //         "Default admin exists with username:",
+    //         defaultAdmin.username
+    //       );
+    //       console.log(
+    //         "Teachers in admin array:",
+    //         defaultAdmin.teachers?.length || 0
+    //       );
+    //       console.log(
+    //         "Students in admin array:",
+    //         defaultAdmin.students?.length || 0
+    //       );
+    //     } else {
+    //       console.log("No default admin found with username 'admin'");
+    //     }
+    //   } catch (err) {
+    //     console.error("Error checking collections:", err);
+    //   }
+    // }, 1000);
+
     setTimeout(async () => {
-      try {
-        const adminCount = await Admin.countDocuments();
-        const teacherCount = await Teacher.countDocuments();
-        const studentCount = await Student.countDocuments();
+  try {
+    const adminCount = await Admin.countDocuments();
+    const teacherCount = await Teacher.countDocuments();
+    const studentCount = await Student.countDocuments();
+    const paymentCount = await Payment.countDocuments();
+    const transactionCount = await Transaction.countDocuments();
 
-        console.log("Total admins in database:", adminCount);
-        console.log("Total teachers in Teacher collection:", teacherCount);
-        console.log("Total student in the Student collection: ", studentCount);
+    console.log("Total admins in database:", adminCount);
+    console.log("Total teachers in Teacher collection:", teacherCount);
+    console.log("Total students in the Student collection:", studentCount);
+    console.log("Total payments:", paymentCount);
+    console.log("Total transactions:", transactionCount);
 
-        const defaultAdmin = await Admin.findOne({ username: "admin" });
-        if (defaultAdmin) {
-          console.log(
-            "Default admin exists with username:",
-            defaultAdmin.username
-          );
-          console.log(
-            "Teachers in admin array:",
-            defaultAdmin.teachers?.length || 0
-          );
-          console.log(
-            "Students in admin array:",
-            defaultAdmin.students?.length || 0
-          );
-        } else {
-          console.log("No default admin found with username 'admin'");
-        }
-      } catch (err) {
-        console.error("Error checking collections:", err);
-      }
-    }, 1000);
+    // Initialize sample financial data if needed (optional - for testing)
+    if (studentCount > 0 && paymentCount === 0) {
+      console.log("Initializing sample financial data...");
+      await initializeSampleFinanceData();
+    }
+
+    const defaultAdmin = await Admin.findOne({ username: "admin" });
+    if (defaultAdmin) {
+      console.log("Default admin exists with username:", defaultAdmin.username);
+      console.log("Teachers in admin array:", defaultAdmin.teachers?.length || 0);
+      console.log("Students in admin array:", defaultAdmin.students?.length || 0);
+    } else {
+      console.log("No default admin found with username 'admin'");
+    }
+  } catch (err) {
+    console.error("Error checking collections:", err);
+  }
+}, 1000);
+
+// Optional: Sample data initialization function
+// Updated sample data initialization function - NO AUTO BALANCE
+// In your server.js - UPDATED VERSION (no auto-balance)
+async function initializeSampleFinanceData() {
+  try {
+    const students = await Student.find({ isActive: true }).limit(5);
+    
+    for (const student of students) {
+      // Only create payment plans and sample payments
+      // const existingPlan = await PaymentPlan.findOne({ studentId: student.studentId });
+      // if (!existingPlan) {
+      //   const paymentPlan = new PaymentPlan({
+      //     studentId: student.studentId,
+      //     planType: 'standard',
+      //     monthlyAmount: 1250.00,
+      //     totalAmount: 12500.00,
+      //     remainingAmount: 12500.00,
+      //     numberOfPayments: 10,
+      //     remainingPayments: 10,
+      //     nextPaymentDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000),
+      //     startDate: new Date(),
+      //     endDate: new Date(Date.now() + 300 * 24 * 60 * 60 * 1000),
+      //     isActive: true,
+      //     status: 'active'
+      //   });
+      //   await paymentPlan.save();
+      // }
+
+      // // Create sample payments but DON'T set student balance
+      // const existingPayments = await Payment.find({ studentId: student.studentId });
+      // if (existingPayments.length === 0) {
+      //   const payment1 = new Payment({
+      //     studentId: student.studentId,
+      //     amount: 2850.00,
+      //     description: 'Tuition Fee - Spring 2024',
+      //     type: 'tuition',
+      //     dueDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000),
+      //     status: 'due'
+      //   });
+      //   await payment1.save();
+
+      //   const payment2 = new Payment({
+      //     studentId: student.studentId,
+      //     amount: 1200.00,
+      //     description: 'Housing Fee - Spring 2024',
+      //     type: 'housing',
+      //     dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      //     status: 'pending'
+      //   });
+      //   await payment2.save();
+      // }
+
+      // ⚠️ REMOVED: No auto-balance setting
+    }
+
+    console.log("✅ Sample financial data initialization completed");
+  } catch (err) {
+    console.error("Error initializing sample data:", err);
+  }
+}
+
   })
   .catch((err) => {
     console.error("MongoDB connection error:", err.message);
@@ -444,5 +586,48 @@ app.use("/api", registerRoutes);
 app.use("/", messageRoutes);
 app.use("/api/resources", resourceRoutes);
 app.use("/api/students", studentRoutes);
+app.use("/api/finance", financeRoutes);
+// app.use("/api", financeRoutes);
+
+// Add this function to create sample payments
+async function createSamplePayments() {
+  try {
+    const student = await Student.findOne({ studentId: 'STU78280' });
+    if (!student) return;
+
+    // Check if payments already exist
+    const existingPayments = await Payment.find({ studentId: 'STU78280' });
+    if (existingPayments.length === 0) {
+      // Create sample payments
+      const payment1 = new Payment({
+        studentId: 'STU78280',
+        amount: 2850.00,
+        description: 'Tuition Fee - Spring 2024',
+        type: 'tuition',
+        dueDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000), // 15 days from now
+        status: 'due'
+      });
+      await payment1.save();
+
+      const payment2 = new Payment({
+        studentId: 'STU78280',
+        amount: 1200.00,
+        description: 'Housing Fee - Spring 2024',
+        type: 'housing',
+        dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
+        status: 'pending'
+      });
+      await payment2.save();
+
+      console.log('✅ Created sample payments for STU78280');
+    }
+  } catch (err) {
+    console.error('Error creating sample payments:', err);
+  }
+}
+
+// Call this function in your server.js after MongoDB connects
+// Add this line after your existing initialization code:
+setTimeout(createSamplePayments, 2000);
 
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
