@@ -1,4 +1,4 @@
-// models/Receipt.js
+// models/Receipt.js - UPDATED VERSION
 import mongoose from "mongoose";
 
 const receiptItemSchema = new mongoose.Schema({
@@ -10,27 +10,35 @@ const receiptItemSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
+  type: {
+    type: String,
+    default: 'payment'
+  }
 }, { _id: false });
 
 const receiptSchema = new mongoose.Schema({
-  receiptId: {
+  receiptNumber: {  // ✅ Changed from receiptId to match your backend
     type: String,
     required: true,
     unique: true,
   },
-  transactionId: {
-    type: String,
-    required: true,
-    ref: 'Transaction'
-  },
   studentId: {
     type: String,
     required: true,
-    ref: 'Student'
   },
   studentName: {
     type: String,
     required: true,
+  },
+  studentEmail: {  // ✅ ADD THIS
+    type: String,
+  },
+  studentCourse: { // ✅ ADD THIS
+    type: String,
+  },
+  paymentId: {     // ✅ ADD THIS to link to payment
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Payment'
   },
   items: [receiptItemSchema],
   subtotal: {
@@ -51,37 +59,25 @@ const receiptSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['completed', 'cancelled', 'refunded'],
+    enum: ['completed', 'pending', 'cancelled', 'refunded'],
     default: 'completed'
   },
-  issuedDate: {
+  date: {          // ✅ Changed from issuedDate to match your backend
     type: Date,
     default: Date.now,
   },
-  issuedTime: {
-    type: String,
-  },
+  // ✅ REMOVE issuedTime - we'll calculate it when needed
 }, {
   timestamps: true
 });
 
-// Generate receipt ID and time automatically
+// Generate receipt number automatically
 receiptSchema.pre('save', async function(next) {
-  if (!this.receiptId) {
+  if (!this.receiptNumber) {
     const count = await mongoose.model('Receipt').countDocuments();
-    this.receiptId = `RCP-${String(count + 1).padStart(6, '0')}`;
-  }
-  if (!this.issuedTime) {
-    const date = new Date();
-    this.issuedTime = date.toLocaleTimeString('en-US', { 
-      hour: '2-digit', 
-      minute: '2-digit',
-      hour12: false 
-    }); 
+    this.receiptNumber = `RCP-${String(count + 1).padStart(6, '0')}`;
   }
   next();
 });
 
 export default mongoose.model("Receipt", receiptSchema);
-
-

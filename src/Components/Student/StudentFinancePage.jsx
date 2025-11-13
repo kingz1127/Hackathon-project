@@ -1,4 +1,3 @@
-// export default StudentFinancePage;
 import React, { useEffect, useState } from 'react';
 import styles from './StudentFinancePage.module.css';
 
@@ -23,9 +22,18 @@ const StudentFinancePage = () => {
   const [fileUploadError, setFileUploadError] = useState('');
   const [formErrors, setFormErrors] = useState({});
 
+  // New state variables for enhanced receipts
+  const [receipts, setReceipts] = useState([]);
+  const [receiptsLoading, setReceiptsLoading] = useState(false);
+  const [receiptFilters, setReceiptFilters] = useState({
+    period: 'all',
+    search: ''
+  });
+
   useEffect(() => {
     fetchStudentData();
     fetchPaymentDetails();
+    fetchStudentReceipts();
   }, []);
 
   const fetchStudentData = async () => {
@@ -91,7 +99,7 @@ const StudentFinancePage = () => {
           status: rawData.financialSummary?.amountRemaining > 0 ? 'Pending' : 'Completed'
         },
         
-        // Receipts (you'll need to fetch these separately or add to the backend)
+        // Receipts
         receipts: rawData.receipts || []
       };
 
@@ -133,6 +141,138 @@ const StudentFinancePage = () => {
       console.error("Error fetching payment details:", err);
     }
   };
+
+  
+// // ✅ CLEAN VERSION: Sync receipts when admin sends them - SINGLE FUNCTION
+// const syncStudentReceipts = async () => {
+//   try {
+//     const studentId = localStorage.getItem("studentId");
+//     console.log('🔄 Syncing student receipts...');
+    
+//     const response = await fetch(
+//       `http://localhost:5000/api/finance/student/${studentId}/sync-receipts`,
+//       { 
+//         method: 'POST',
+//         headers: {
+//           'Content-Type': 'application/json',
+//         }
+//       }
+//     );
+    
+//     if (response.ok) {
+//       const result = await response.json();
+//       console.log('✅ Receipts synced:', result);
+      
+//       // Refresh the receipts list
+//       fetchStudentReceipts();
+      
+//       return result;
+//     } else {
+//       console.log('⚠️ Sync failed, refreshing normally');
+//       fetchStudentReceipts();
+//     }
+//   } catch (err) {
+//     console.error('Sync error:', err);
+//     // Fallback to normal refresh
+//     fetchStudentReceipts();
+//   }
+// };
+// ✅ ENHANCED SYNC FUNCTION
+const syncStudentReceipts = async () => {
+  try {
+    const studentId = localStorage.getItem("studentId");
+    console.log('🔄 Force syncing student receipts...');
+    
+    const response = await fetch(
+      `http://localhost:5000/api/finance/student/${studentId}/sync-receipts`,
+      { 
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      }
+    );
+    
+    console.log('📡 Sync response status:', response.status);
+    
+    if (response.ok) {
+      const result = await response.json();
+      console.log('✅ Sync completed:', result);
+      
+      if (result.success && result.data?.receipts) {
+        console.log(`✅ Sync found ${result.data.receipts.length} receipts`);
+        setReceipts(result.data.receipts);
+        setStudentData(prev => ({
+          ...prev,
+          receipts: result.data.receipts
+        }));
+      } else {
+        // If sync doesn't return receipts, try normal fetch
+        console.log('🔄 Sync successful but no receipts returned, fetching normally...');
+        fetchStudentReceipts();
+      }
+      
+      return result;
+    } else {
+      console.log('⚠️ Sync failed with status:', response.status);
+      // Fallback to normal refresh
+      fetchStudentReceipts();
+    }
+  } catch (err) {
+    console.error('❌ Sync error:', err);
+    // Fallback to normal refresh
+    fetchStudentReceipts();
+  }
+};
+
+//new guy 5
+
+// ✅ CLEAN VERSION: Generate receipts from payment data - SINGLE FUNCTION
+const generateReceiptsFromPayments = async (studentId) => {
+  try {
+    const paymentsResponse = await fetch(
+      `http://localhost:5000/api/finance/student/${studentId}/payments`
+    );
+    
+    if (paymentsResponse.ok) {
+      const paymentsData = await paymentsResponse.json();
+      const payments = paymentsData.payments || [];
+      
+      // Create receipts from completed payments
+      const generatedReceipts = payments
+        .filter(payment => payment.amountPaid > 0)
+        .map(payment => ({
+          id: payment._id || payment.id,
+          receiptNumber: `RCP-${(payment._id || payment.id).toString().slice(-8).toUpperCase()}`,
+          student: payment.studentName || 'Student',
+          studentId: payment.studentId,
+          description: payment.description,
+          date: payment.updatedAt || payment.createdAt || new Date(),
+          total: payment.amountPaid,
+          status: 'completed',
+          paymentMethod: 'Payment',
+          items: [{
+            description: payment.description,
+            amount: payment.amountPaid
+          }],
+          subtotal: payment.amountPaid,
+          tax: 0,
+          balanceInfo: {
+            totalDue: payment.amount,
+            totalPaid: payment.amountPaid,
+            balanceRemaining: Math.max(0, payment.amount - payment.amountPaid)
+          }
+        }));
+      
+      console.log('🔄 Generated receipts from payments:', generatedReceipts);
+      return generatedReceipts;
+    }
+  } catch (err) {
+    console.error('Error generating receipts from payments:', err);
+  }
+  
+  return [];
+};
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-US', {
@@ -251,10 +391,6 @@ const StudentFinancePage = () => {
       errors.amount = 'Please enter a valid amount';
     }
     
-    // if (!paymentForm.transactionId.trim()) {
-    //   errors.transactionId = 'Transaction ID is required';
-    // }
-    
     if (!paymentForm.receiptFile) {
       errors.receiptFile = 'Please upload a receipt';
     }
@@ -263,84 +399,468 @@ const StudentFinancePage = () => {
     return Object.keys(errors).length === 0;
   };
 
- // In StudentFinancePage.jsx - Update the handleSubmitPayment function
-
-const handleSubmitPayment = async (e) => {
-  e.preventDefault();
-  
-  if (!selectedPayment) return;
-
-  // Validate form
-  if (!validateForm()) {
-    return;
-  }
-
-  try {
-    setUploading(true);
-
-    const formData = new FormData();
-    formData.append('paymentId', selectedPayment.id);
-    formData.append('studentId', localStorage.getItem("studentId"));
-    formData.append('amount', paymentForm.amount);
-    formData.append('paymentMethod', paymentForm.paymentMethod);
-    formData.append('transactionId', paymentForm.transactionId || '');
-    formData.append('notes', paymentForm.notes);
+  // Handle payment submission
+  const handleSubmitPayment = async (e) => {
+    e.preventDefault();
     
-    if (paymentForm.receiptFile) {
-      formData.append('receipt', paymentForm.receiptFile);
+    if (!selectedPayment) return;
+
+    // Validate form
+    if (!validateForm()) {
+      return;
     }
 
-    console.log('Submitting payment to backend...');
+    try {
+      setUploading(true);
 
-    // Use the NEW endpoint
-    const response = await fetch('http://localhost:5000/api/payment-submissions/submit-payment', {
-      method: 'POST',
-      body: formData,
-    });
-
-    console.log('Response status:', response.status);
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Server response:', errorText);
-      throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-
-    const result = await response.json();
-    console.log('Submission result:', result);
-    
-    if (result.success) {
-      alert('Payment submitted successfully! It will be reviewed by the finance department.');
+      const formData = new FormData();
       
-      // Reset form and close modal
-      setShowPaymentModal(false);
-      setSelectedPayment(null);
-      setPaymentForm({
-        amount: '',
-        paymentMethod: 'bank_transfer',
-        transactionId: '',
-        receiptFile: null,
-        receiptPreview: null,
-        notes: ''
+      // Use the correct payment ID field
+      const paymentId = selectedPayment._id || selectedPayment.id || selectedPayment.paymentId;
+      console.log('Payment ID being sent:', paymentId);
+      console.log('Selected payment object:', selectedPayment);
+      
+      if (!paymentId) {
+        alert('Error: Could not find payment ID. Please try again.');
+        return;
+      }
+
+      formData.append('paymentId', paymentId);
+      formData.append('studentId', localStorage.getItem("studentId"));
+      formData.append('amount', paymentForm.amount);
+      formData.append('paymentMethod', paymentForm.paymentMethod);
+      formData.append('transactionId', paymentForm.transactionId || '');
+      formData.append('notes', selectedPayment.description || 'Payment submission');
+      
+      if (paymentForm.receiptFile) {
+        formData.append('receipt', paymentForm.receiptFile);
+      }
+
+      console.log('Submitting payment with details:', {
+        paymentId: paymentId,
+        studentId: localStorage.getItem("studentId"),
+        amount: paymentForm.amount,
+        description: selectedPayment.description
       });
-      setFileUploadError('');
-      setFormErrors({});
 
-      // Refresh data
-      fetchStudentData();
-      fetchPaymentDetails();
-    } else {
-      throw new Error(result.message || 'Failed to submit payment');
+      const response = await fetch('http://localhost:5000/api/payment-submissions/submit-payment', {
+        method: 'POST',
+        body: formData,
+      });
+
+      console.log('Response status:', response.status);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Server response:', errorText);
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log('Submission result:', result);
+      
+      if (result.success) {
+        alert('Payment submitted successfully! It will be reviewed by the finance department.');
+        
+        // Reset form and close modal
+        setShowPaymentModal(false);
+        setSelectedPayment(null);
+        setPaymentForm({
+          amount: '',
+          paymentMethod: 'bank_transfer',
+          transactionId: '',
+          receiptFile: null,
+          receiptPreview: null,
+          notes: ''
+        });
+        setFileUploadError('');
+        setFormErrors({});
+
+        // Refresh data
+        fetchStudentData(); 
+        fetchPaymentDetails();
+        fetchStudentReceipts(); // Refresh receipts too
+      } else {
+        throw new Error(result.message || 'Failed to submit payment');
+      }
+
+    } catch (err) {
+      console.error('Error submitting payment:', err);
+      
+      // Show user-friendly error message
+      if (err.message.includes('timed out') || err.message.includes('connection')) {
+        alert('Database connection issue. Please try again in a moment.');
+      } else {
+        alert(`Failed to submit payment. Please try again. Error: ${err.message}`);
+      }
+    } finally {
+      setUploading(false);
     }
+  };
 
+
+
+const fetchStudentReceipts = async () => {
+  try {
+    setReceiptsLoading(true);
+    const studentId = localStorage.getItem("studentId");
+    console.log('🔍 Fetching receipts for student:', studentId);
+    
+    // ✅ METHOD 1: Try the dedicated student receipts endpoint first
+    try {
+      console.log('🔄 Trying student receipts endpoint...');
+      const response = await fetch(
+        `http://localhost:5000/api/finance/student/${studentId}/receipts`
+      );
+      
+      console.log('📡 Student receipts response status:', response.status);
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('📄 Received student receipts data:', data);
+        
+        if (data.success && data.receipts && data.receipts.length > 0) {
+          console.log(`✅ Found ${data.receipts.length} receipts via student endpoint`);
+          setReceipts(data.receipts);
+          setStudentData(prev => ({
+            ...prev,
+            receipts: data.receipts
+          }));
+          return;
+        } else {
+          console.log('❌ No receipts found via student endpoint:', data);
+        }
+      } else {
+        console.log('❌ Student receipts endpoint failed with status:', response.status);
+      }
+    } catch (err) {
+      console.log('⚠️ Student receipts endpoint error:', err.message);
+    }
+    
+    // ✅ METHOD 2: Try admin receipts endpoint with student filter
+    try {
+      console.log('🔄 Trying admin receipts endpoint...');
+      const adminResponse = await fetch(
+        `http://localhost:5000/api/finance/admin/receipts?search=${studentId}`
+      );
+      
+      console.log('📡 Admin receipts response status:', adminResponse.status);
+      
+      if (adminResponse.ok) {
+        const adminData = await adminResponse.json();
+        console.log('📄 Received admin receipts data:', adminData);
+        
+        if (adminData.success && adminData.receipts) {
+          // Filter receipts for this specific student
+          const studentReceipts = adminData.receipts.filter(receipt => 
+            receipt.studentId === studentId
+          );
+          console.log(`✅ Found ${studentReceipts.length} receipts via admin endpoint`);
+          
+          if (studentReceipts.length > 0) {
+            setReceipts(studentReceipts);
+            setStudentData(prev => ({
+              ...prev,
+              receipts: studentReceipts
+            }));
+            return;
+          }
+        }
+      }
+    } catch (adminErr) {
+      console.log('⚠️ Admin receipts endpoint error:', adminErr.message);
+    }
+    
+    // ✅ METHOD 3: Check if receipts exist in database directly
+    try {
+      console.log('🔄 Checking receipts in database directly...');
+      const directResponse = await fetch(
+        `http://localhost:5000/api/finance/admin/receipts`
+      );
+      
+      if (directResponse.ok) {
+        const allReceipts = await directResponse.json();
+        console.log('📄 All receipts in database:', allReceipts);
+        
+        if (allReceipts.success && allReceipts.receipts) {
+          const studentReceipts = allReceipts.receipts.filter(receipt => 
+            receipt.studentId === studentId
+          );
+          console.log(`📊 Found ${studentReceipts.length} receipts for student in entire database`);
+          
+          if (studentReceipts.length > 0) {
+            setReceipts(studentReceipts);
+            setStudentData(prev => ({
+              ...prev,
+              receipts: studentReceipts
+            }));
+            return;
+          }
+        }
+      }
+    } catch (directErr) {
+      console.log('⚠️ Direct database check error:', directErr.message);
+    }
+    
+    // ✅ METHOD 4: Final fallback - Generate from payments
+    console.log('🔄 No receipts found, generating from payments...');
+    const generatedReceipts = await generateReceiptsFromPayments(studentId);
+    console.log(`🔄 Generated ${generatedReceipts.length} receipts from payments`);
+    
+    setReceipts(generatedReceipts);
+    setStudentData(prev => ({
+      ...prev,
+      receipts: generatedReceipts
+    }));
+    
   } catch (err) {
-    console.error('Error submitting payment:', err);
-    alert(`Failed to submit payment. Please try again. Error: ${err.message}`);
+    console.error('❌ Error fetching student receipts:', err);
+    setReceipts([]);
   } finally {
-    setUploading(false);
+    setReceiptsLoading(false);
   }
 };
+// new guy 3
 
+  // Download receipt function
+  const downloadReceipt = (receipt) => {
+    const receiptContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Receipt ${receipt.receiptNumber}</title>
+        <style>
+          body { font-family: Arial, sans-serif; margin: 20px; }
+          .receipt { border: 2px solid #333; padding: 20px; max-width: 600px; }
+          .header { text-align: center; border-bottom: 1px solid #333; padding-bottom: 10px; }
+          .info-section { margin: 15px 0; }
+          .item-row { display: flex; justify-content: space-between; margin: 5px 0; }
+          .total-row { border-top: 1px solid #333; padding-top: 10px; font-weight: bold; }
+        </style>
+      </head>
+      <body>
+        <div class="receipt">
+          <div class="header">
+            <h1>PAYMENT RECEIPT</h1>
+            <p>Receipt #: ${receipt.receiptNumber || receipt.id}</p>
+          </div>
+          <div class="info-section">
+            <h3>Student Information</h3>
+            <p><strong>Name:</strong> ${receipt.studentName || studentData?.studentInfo?.name}</p>
+            <p><strong>Student ID:</strong> ${receipt.studentId || studentData?.studentInfo?.id}</p>
+          </div>
+          <div class="info-section">
+            <h3>Payment Details</h3>
+            <p><strong>Date:</strong> ${formatDate(receipt.date)}</p>
+            <p><strong>Description:</strong> ${receipt.description}</p>
+            <p><strong>Amount:</strong> ${formatCurrency(receipt.total)}</p>
+            <p><strong>Status:</strong> ${receipt.status}</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+    
+    const blob = new Blob([receiptContent], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `receipt-${receipt.receiptNumber || receipt.id}.html`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+const ReceiptsTabContent = () => {
+  const [syncing, setSyncing] = useState(false);
+
+  const handleManualSync = async () => {
+    setSyncing(true);
+    try {
+      const studentId = localStorage.getItem("studentId");
+      
+      const syncResponse = await fetch(
+        `http://localhost:5000/api/finance/student/${studentId}/sync-receipts`,
+        { method: 'POST' }
+      );
+      
+      if (syncResponse.ok) {
+        const result = await syncResponse.json();
+        console.log('✅ Sync result:', result);
+        alert('Receipts synchronized successfully!');
+      } else {
+        alert('Sync failed. Please try again.');
+      }
+    } catch (err) {
+      console.error('Sync error:', err);
+      alert('Sync failed. Please try again.');
+    } finally {
+      setSyncing(false);
+      fetchStudentReceipts();
+    }
+  };
+
+  return (
+    <div className={styles.receiptsContent}>
+      <div className={styles.sectionHeader}>
+        <h2 className={styles.sectionTitle}>My Receipts</h2>
+        <div className={styles.receiptFilters}>
+          <select 
+            value={receiptFilters.period}
+            onChange={(e) => setReceiptFilters(prev => ({ ...prev, period: e.target.value }))}
+            className={styles.filterSelect}
+          >
+            <option value="all">All Time</option>
+            <option value="month">This Month</option>
+            <option value="quarter">This Quarter</option>
+            <option value="year">This Year</option>
+          </select>
+          <input
+            type="text"
+            placeholder="Search receipts..."
+            value={receiptFilters.search}
+            onChange={(e) => setReceiptFilters(prev => ({ ...prev, search: e.target.value }))}
+            className={styles.searchInput}
+          />
+          <button 
+            onClick={handleManualSync}
+            className={styles.syncButton}
+            disabled={syncing || receiptsLoading}
+          >
+            {syncing ? '🔄' : '🔄'} {syncing ? 'Syncing...' : 'Sync Receipts'}
+          </button>
+          <button 
+            onClick={fetchStudentReceipts}
+            className={styles.refreshButton}
+            disabled={receiptsLoading}
+          >
+            {receiptsLoading ? '🔄' : '🔃'} Refresh
+          </button>
+        </div>
+      </div>
+
+      {receiptsLoading ? (
+        <div className={styles.loadingState}>
+          <div className={styles.loadingSpinner}></div>
+          <p>Loading receipts...</p>
+        </div>
+      ) : receipts.length > 0 ? (
+        <>
+          <div className={styles.receiptsSummary}>
+            <div className={styles.summaryItem}>
+              <span>Total Receipts:</span>
+              <strong>{receipts.length}</strong>
+            </div>
+            <div className={styles.summaryItem}>
+              <span>Total Amount:</span>
+              <strong>{formatCurrency(receipts.reduce((sum, receipt) => sum + (receipt.total || 0), 0))}</strong>
+            </div>
+            <div className={styles.summaryItem}>
+              <span>Last Receipt:</span>
+              <strong>{formatDate(receipts[0]?.date)}</strong>
+            </div>
+          </div>
+
+          <div className={styles.receiptsGrid}>
+            {receipts
+              .filter(receipt => {
+                if (receiptFilters.search) {
+                  const searchTerm = receiptFilters.search.toLowerCase();
+                  return (
+                    receipt.description?.toLowerCase().includes(searchTerm) ||
+                    receipt.receiptNumber?.toLowerCase().includes(searchTerm) ||
+                    receipt.paymentMethod?.toLowerCase().includes(searchTerm)
+                  );
+                }
+                return true;
+              })
+              .filter(receipt => {
+                if (receiptFilters.period === 'all') return true;
+                
+                const receiptDate = new Date(receipt.date);
+                const now = new Date();
+                
+                switch (receiptFilters.period) {
+                  case 'month':
+                    return receiptDate.getMonth() === now.getMonth() && 
+                           receiptDate.getFullYear() === now.getFullYear();
+                  case 'quarter':
+                    const quarterStart = new Date(now.getFullYear(), Math.floor(now.getMonth() / 3) * 3, 1);
+                    return receiptDate >= quarterStart;
+                  case 'year':
+                    return receiptDate.getFullYear() === now.getFullYear();
+                  default:
+                    return true;
+                }
+              })
+              .map((receipt, index) => (
+                <div key={receipt.id || index} className={styles.receiptCard}>
+                  <div className={styles.receiptCardHeader}>
+                    <h4>{receipt.description || 'Payment Receipt'}</h4>
+                    <span className={getStatusBadgeClass(receipt.status)}>
+                      {receipt.status}
+                    </span>
+                  </div>
+                  
+                  <div className={styles.receiptCardDetails}>
+                    <div className={styles.detailItem}>
+                      <span>Receipt #:</span>
+                      <span>{receipt.receiptNumber || `RCP-${receipt.id?.slice(-8)}`}</span>
+                    </div>
+                    <div className={styles.detailItem}>
+                      <span>Date:</span>
+                      <span>{formatDate(receipt.date)}</span>
+                    </div>
+                    <div className={styles.detailItem}>
+                      <span>Amount:</span>
+                      <span className={styles.amount}>{formatCurrency(receipt.total)}</span>
+                    </div>
+                    <div className={styles.detailItem}>
+                      <span>Method:</span>
+                      <span>{receipt.paymentMethod || 'Online'}</span>
+                    </div>
+                  </div>
+
+                  <div className={styles.receiptCardActions}>
+                    <button 
+                      className={styles.viewButton}
+                      onClick={() => setSelectedReceipt(receipt)}
+                    >
+                      👁️ View Receipt
+                    </button>
+                    <button 
+                      className={styles.downloadButton}
+                      onClick={() => downloadReceipt(receipt)}
+                    >
+                      📥 Download
+                    </button>
+                  </div>
+                </div>
+              ))}
+          </div>
+        </>
+      ) : (
+        <div className={styles.noReceipts}>
+          <div className={styles.noReceiptsIcon}>🧾</div>
+          <h3>No Receipts Found</h3>
+          <p>You don't have any receipts yet. This could be because:</p>
+          <ul className={styles.troubleshootingList}>
+            <li>• No payments have been processed yet</li>
+            <li>• Receipts haven't been sent to you</li>
+            <li>• There's a sync issue with the system</li>
+          </ul>
+          <div className={styles.actionButtons}>
+            <button onClick={fetchStudentReceipts} className={styles.retryButton}>
+              Check Again
+            </button>
+            <button onClick={handleManualSync} className={styles.syncButton}>
+              Sync Receipts
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
   // Loading state
   if (loading) {
     return (
@@ -377,274 +897,392 @@ const handleSubmitPayment = async (e) => {
   }
 
   // Payment Modal Component
-const PaymentModal = ({ isOpen, onClose, payment, student }) => {
-  if (!isOpen || !payment) return null;
+  const PaymentModal = ({ isOpen, onClose, payment, student }) => {
+    if (!isOpen || !payment) return null;
 
-  const amountRemaining = payment.amountRemaining || (payment.amount - (payment.amountPaid || 0));
+    const amountRemaining = payment.amountRemaining || (payment.amount - (payment.amountPaid || 0));
 
-  return (
-    <div className={styles.modalOverlay} onClick={onClose}>
-      <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-        <div className={styles.modalHeader}>
-          <h2>Submit Payment</h2>
-          <button 
-            type="button"
-            className={styles.closeButton} 
-            onClick={onClose}
-            disabled={uploading}
-          >
-            ×
-          </button>
-        </div>
-        
-        <form onSubmit={handleSubmitPayment} className={styles.paymentForm} noValidate>
-          {/* Payment Information */}
-          <div className={styles.formSection}>
-            <h3>Payment Information</h3>
-            <h3>School Account: 6019306025 Keystone</h3>
-            <h3>School Account Name: Oshunyingbo Adedeji</h3>
-            <div className={styles.paymentSummary}>
-              <div className={styles.summaryRow}>
-                <span>Payment Description:</span>
-                <strong>{payment.description}</strong>
-              </div>
-              <div className={styles.summaryRow}>
-                <span>Total Amount:</span>
-                <span>{formatCurrency(payment.amount)}</span>
-              </div>
-              <div className={styles.summaryRow}>
-                <span>Amount Paid:</span>
-                <span style={{ color: '#10b981' }}>{formatCurrency(payment.amountPaid || 0)}</span>
-              </div>
-              <div className={styles.summaryRow}>
-                <span>Amount Remaining:</span>
-                <span style={{ color: '#ef4444', fontWeight: 'bold' }}>
-                  {formatCurrency(amountRemaining)}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Payment Details */}
-          <div className={styles.formSection}>
-            <h3>Payment Details</h3>
-            
-            <div className={styles.formGroup}>
-              <label>Amount to Pay *</label>
-              <input
-                type="number"
-                value={paymentForm.amount}
-                onChange={(e) => handleInputChange('amount', e.target.value)}
-                min="0.01"
-                max={amountRemaining}
-                step="0.01"
-                className={formErrors.amount ? styles.inputError : ''}
-              />
-              {formErrors.amount && (
-                <span className={styles.errorText}>{formErrors.amount}</span>
-              )}
-              <small>Maximum: {formatCurrency(amountRemaining)}</small>
-            </div>
-
-            <div className={styles.formGroup}>
-              <label>Payment Method *</label>
-              <select
-                value={paymentForm.paymentMethod}
-                onChange={(e) => handleInputChange('paymentMethod', e.target.value)}
-              >
-                <option value="bank_transfer">Bank Transfer</option>
-                <option value="credit_card">Credit Card</option>
-                <option value="debit_card">Debit Card</option>
-                <option value="mobile_money">Mobile Money</option>
-                <option value="cash">Cash</option>
-                <option value="other">Other</option>
-              </select>
-            </div>
-
-            {/* Updated Transaction ID field - no longer required */}
-            <div className={styles.formGroup}>
-              <label>Transaction ID/Reference (Optional)</label>
-              <input
-                type="text"
-                value={paymentForm.transactionId}
-                onChange={(e) => handleInputChange('transactionId', e.target.value)}
-                placeholder="Enter transaction reference number (if available)"
-                // Removed error styling and validation
-              />
-              <small>Leave blank if not applicable</small>
-            </div>
-
-            <div className={styles.formGroup}>
-              <label>Additional Notes</label>
-              <textarea
-                value={paymentForm.notes}
-                onChange={(e) => handleInputChange('notes', e.target.value)}
-                placeholder="Any additional information about this payment..."
-                rows="3"
-              />
-            </div>
-          </div>
-
-          {/* Receipt Upload */}
-          <div className={styles.formSection}>
-            <h3>Upload Receipt *</h3>
-            <div className={styles.fileUploadSection}>
-              <div className={`${styles.uploadArea} ${formErrors.receiptFile ? styles.uploadAreaError : ''}`}>
-                <input
-                  type="file"
-                  id="receiptUpload"
-                  onChange={handleFileUpload}
-                  accept=".jpg,.jpeg,.png,.pdf"
-                  className={styles.fileInput}
-                />
-                <label htmlFor="receiptUpload" className={styles.uploadLabel}>
-                  <div className={styles.uploadIcon}>📎</div>
-                  <div>
-                    <strong>Click to upload receipt</strong>
-                    <p>Supported formats: JPG, PNG, PDF (Max 5MB)</p>
-                  </div>
-                </label>
-              </div>
-
-              {fileUploadError && (
-                <div className={styles.fileUploadError}>
-                  {fileUploadError}
-                </div>
-              )}
-
-              {formErrors.receiptFile && (
-                <div className={styles.fileUploadError}>
-                  {formErrors.receiptFile}
-                </div>
-              )}
-
-              {paymentForm.receiptFile && (
-                <div className={styles.filePreview}>
-                  <div className={styles.fileInfo}>
-                    <span className={styles.fileName}>{paymentForm.receiptFile.name}</span>
-                    <span className={styles.fileSize}>
-                      {(paymentForm.receiptFile.size / 1024 / 1024).toFixed(2)} MB
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setPaymentForm(prev => ({
-                          ...prev,
-                          receiptFile: null,
-                          receiptPreview: null
-                        }));
-                        setFileUploadError('');
-                        setFormErrors(prev => ({
-                          ...prev,
-                          receiptFile: ''
-                        }));
-                      }}
-                      className={styles.removeFile}
-                      disabled={uploading}
-                    >
-                      Remove
-                    </button>
-                  </div>
-                  
-                  {paymentForm.receiptPreview && (
-                    <div className={styles.imagePreview}>
-                      <img src={paymentForm.receiptPreview} alt="Receipt preview" />
-                    </div>
-                  )}
-                  
-                  {paymentForm.receiptFile.type === 'application/pdf' && (
-                    <div className={styles.pdfPreview}>
-                      <div className={styles.pdfIcon}>📄</div>
-                      <span>PDF Document</span>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Form Actions */}
-          <div className={styles.formActions}>
-            <button
+    return (
+      <div className={styles.modalOverlay} onClick={onClose}>
+        <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+          <div className={styles.modalHeader}>
+            <h2>Submit Payment</h2>
+            <button 
               type="button"
+              className={styles.closeButton} 
               onClick={onClose}
-              className={styles.cancelButton}
               disabled={uploading}
             >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className={styles.submitButton}
-              disabled={uploading}
-            >
-              {uploading ? 'Submitting...' : 'Submit Payment'}
+              ×
             </button>
           </div>
-        </form>
-      </div>
-    </div>
-  );
-};
+          
+          <form onSubmit={handleSubmitPayment} className={styles.paymentForm} noValidate>
+            {/* Payment Information */}
+            <div className={styles.formSection}>
+              <h3>Payment Information</h3>
+              <h3>School Account: 6019306025 Keystone</h3>
+              <h3>School Account Name: Oshunyingbo Adedeji</h3>
+              <div className={styles.paymentSummary}>
+                <div className={styles.summaryRow}>
+                  <span>Payment Description:</span>
+                  <strong>{payment.description}</strong>
+                </div>
+                <div className={styles.summaryRow}>
+                  <span>Total Amount:</span>
+                  <span>{formatCurrency(payment.amount)}</span>
+                </div>
+                <div className={styles.summaryRow}>
+                  <span>Amount Paid:</span>
+                  <span style={{ color: '#10b981' }}>{formatCurrency(payment.amountPaid || 0)}</span>
+                </div>
+                <div className={styles.summaryRow}>
+                  <span>Amount Remaining:</span>
+                  <span style={{ color: '#ef4444', fontWeight: 'bold' }}>
+                    {formatCurrency(amountRemaining)}
+                  </span>
+                </div>
+              </div>
+            </div>
 
+            {/* Payment Details */}
+            <div className={styles.formSection}>
+              <h3>Payment Details</h3>
+              
+              <div className={styles.formGroup}>
+                <label>Amount to Pay *</label>
+                <input
+                  type="number"
+                  value={paymentForm.amount}
+                  onChange={(e) => handleInputChange('amount', e.target.value)}
+                  min="0.01"
+                  max={amountRemaining}
+                  step="0.01"
+                  className={formErrors.amount ? styles.inputError : ''}
+                />
+                {formErrors.amount && (
+                  <span className={styles.errorText}>{formErrors.amount}</span>
+                )}
+                <small>Maximum: {formatCurrency(amountRemaining)}</small>
+              </div>
+
+              <div className={styles.formGroup}>
+                <label>Payment Method *</label>
+                <select
+                  value={paymentForm.paymentMethod}
+                  onChange={(e) => handleInputChange('paymentMethod', e.target.value)}
+                >
+                  <option value="bank_transfer">Bank Transfer</option>
+                  <option value="credit_card">Credit Card</option>
+                  <option value="debit_card">Debit Card</option>
+                  <option value="mobile_money">Mobile Money</option>
+                  <option value="cash">Cash</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+
+              <div className={styles.formGroup}>
+                <label>Transaction ID/Reference (Optional)</label>
+                <input
+                  type="text"
+                  value={paymentForm.transactionId}
+                  onChange={(e) => handleInputChange('transactionId', e.target.value)}
+                  placeholder="Enter transaction reference number (if available)"
+                />
+                <small>Leave blank if not applicable</small>
+              </div>
+
+              <div className={styles.formGroup}>
+                <label>Additional Notes</label>
+                <textarea
+                  value={paymentForm.notes}
+                  onChange={(e) => handleInputChange('notes', e.target.value)}
+                  placeholder="Any additional information about this payment..."
+                  rows="3"
+                />
+              </div>
+            </div>
+
+            {/* Receipt Upload */}
+            <div className={styles.formSection}>
+              <h3>Upload Receipt *</h3>
+              <div className={styles.fileUploadSection}>
+                <div className={`${styles.uploadArea} ${formErrors.receiptFile ? styles.uploadAreaError : ''}`}>
+                  <input
+                    type="file"
+                    id="receiptUpload"
+                    onChange={handleFileUpload}
+                    accept=".jpg,.jpeg,.png,.pdf"
+                    className={styles.fileInput}
+                  />
+                  <label htmlFor="receiptUpload" className={styles.uploadLabel}>
+                    <div className={styles.uploadIcon}>📎</div>
+                    <div>
+                      <strong>Click to upload receipt</strong>
+                      <p>Supported formats: JPG, PNG, PDF (Max 5MB)</p>
+                    </div>
+                  </label>
+                </div>
+
+                {fileUploadError && (
+                  <div className={styles.fileUploadError}>
+                    {fileUploadError}
+                  </div>
+                )}
+
+                {formErrors.receiptFile && (
+                  <div className={styles.fileUploadError}>
+                    {formErrors.receiptFile}
+                  </div>
+                )}
+
+                {paymentForm.receiptFile && (
+                  <div className={styles.filePreview}>
+                    <div className={styles.fileInfo}>
+                      <span className={styles.fileName}>{paymentForm.receiptFile.name}</span>
+                      <span className={styles.fileSize}>
+                        {(paymentForm.receiptFile.size / 1024 / 1024).toFixed(2)} MB
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setPaymentForm(prev => ({
+                            ...prev,
+                            receiptFile: null,
+                            receiptPreview: null
+                          }));
+                          setFileUploadError('');
+                          setFormErrors(prev => ({
+                            ...prev,
+                            receiptFile: ''
+                          }));
+                        }}
+                        className={styles.removeFile}
+                        disabled={uploading}
+                      >
+                        Remove
+                      </button>
+                    </div>
+                    
+                    {paymentForm.receiptPreview && (
+                      <div className={styles.imagePreview}>
+                        <img src={paymentForm.receiptPreview} alt="Receipt preview" />
+                      </div>
+                    )}
+                    
+                    {paymentForm.receiptFile.type === 'application/pdf' && (
+                      <div className={styles.pdfPreview}>
+                        <div className={styles.pdfIcon}>📄</div>
+                        <span>PDF Document</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Form Actions */}
+            <div className={styles.formActions}>
+              <button
+                type="button"
+                onClick={onClose}
+                className={styles.cancelButton}
+                disabled={uploading}
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className={styles.submitButton}
+                disabled={uploading}
+              >
+                {uploading ? 'Submitting...' : 'Submit Payment'}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    );
+  };
+
+  // Enhanced Receipt Modal Component
   const ReceiptModal = ({ receipt, onClose }) => {
     if (!receipt) return null;
+
+    // Enhanced receipt data handling
+    const receiptItems = receipt.items || [{ 
+      description: receipt.description || 'Payment', 
+      amount: receipt.total || 0 
+    }];
+    
+    const subtotal = receipt.subtotal || receipt.total || 
+                    receiptItems.reduce((sum, item) => sum + (item.amount || 0), 0);
+    const tax = receipt.tax || 0;
+    const total = receipt.total || subtotal + tax;
+    
+    const balanceInfo = receipt.balanceInfo || {
+      totalDue: subtotal,
+      totalPaid: total,
+      balanceRemaining: Math.max(0, subtotal - total)
+    };
+
+    // Student information with better fallbacks
+    const studentName = receipt.student || receipt.studentName || studentData?.studentInfo?.name || 'Student';
+    const studentId = receipt.studentId || studentData?.studentInfo?.id || 'N/A';
+    const studentEmail = receipt.studentEmail || studentData?.studentInfo?.email || 'N/A';
+    const studentCourse = receipt.studentCourse || studentData?.studentInfo?.course || 'N/A';
+
+    // Date handling
+    const receiptDate = receipt.date ? new Date(receipt.date) : new Date();
+    const formattedDate = formatDate(receiptDate);
+    const formattedTime = receipt.time || receiptDate.toLocaleTimeString();
+
+    const handlePrint = () => {
+      const receiptContent = document.getElementById("student-receipt-content");
+      const originalContents = document.body.innerHTML;
+
+      document.body.innerHTML = receiptContent.innerHTML;
+      window.print();
+      document.body.innerHTML = originalContents;
+      window.location.reload();
+    };
+
+    const handleDownload = () => {
+      downloadReceipt(receipt);
+    };
 
     return (
       <div className={styles.modalOverlay} onClick={onClose}>
         <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
           <div className={styles.modalHeader}>
             <h2>Payment Receipt</h2>
-            <button className={styles.closeButton} onClick={onClose}>×</button>
+            <div className={styles.modalActions}>
+              <button className={styles.downloadButton} onClick={handleDownload}>
+                📥 Download
+              </button>
+              <button className={styles.printButton} onClick={handlePrint}>
+                🖨️ Print
+              </button>
+              <button className={styles.closeButton} onClick={onClose}>
+                ×
+              </button>
+            </div>
           </div>
-          
-          <div className={styles.receiptContent}>
-            <div className={styles.receiptHeader}>
-              <h3>Payment Confirmation</h3>
-              <p className={styles.receiptId}>Receipt #: {receipt.id || 'N/A'}</p>
-            </div>
-            
-            <div className={styles.receiptDetails}>
-              <div className={styles.detailRow}>
-                <span>Student:</span>
-                <span>{receipt.student || 'Student'}</span>
-              </div>
-              <div className={styles.detailRow}>
-                <span>Student ID:</span>
-                <span>{receipt.studentId || 'N/A'}</span>
-              </div>
-              <div className={styles.detailRow}>
-                <span>Date:</span>
-                <span>{formatDate(receipt.date)}</span>
-              </div>
-              <div className={styles.detailRow}>
-                <span>Amount:</span>
-                <span className={styles.receiptAmount}>{formatCurrency(receipt.total)}</span>
-              </div>
-              <div className={styles.detailRow}>
-                <span>Status:</span>
-                <span className={getStatusBadgeClass(receipt.status)}>{receipt.status || 'Completed'}</span>
-              </div>
-            </div>
 
-            {receipt.items && receipt.items.length > 0 && (
+          <div className={styles.receiptContainer}>
+            <div id="student-receipt-content" className={styles.receipt}>
+              <div className={styles.receiptHeader}>
+                <div className={styles.receiptLogo}>
+                  <div className={styles.logoIcon}>🏫</div>
+                  <div>
+                    <h3>School Finance System</h3>
+                    <p>Official Payment Receipt</p>
+                  </div>
+                </div>
+                <div className={styles.receiptTitle}>
+                  <h1>PAYMENT RECEIPT</h1>
+                  <p className={styles.receiptId}>
+                    {receipt.receiptNumber || `RCP-${receipt.id}`}
+                  </p>
+                </div>
+              </div>
+
+              <div className={styles.receiptInfo}>
+                <div className={styles.infoSection}>
+                  <h4>Student Information</h4>
+                  <p><strong>Name:</strong> {studentName}</p>
+                  <p><strong>Student ID:</strong> {studentId}</p>
+                  <p><strong>Email:</strong> {studentEmail}</p>
+                  <p><strong>Course:</strong> {studentCourse}</p>
+                </div>
+                <div className={styles.infoSection}>
+                  <h4>Transaction Details</h4>
+                  <p><strong>Date:</strong> {formattedDate}</p>
+                  <p><strong>Time:</strong> {formattedTime}</p>
+                  <p><strong>Transaction ID:</strong> {receipt.transactionId || receipt.id || 'N/A'}</p>
+                  <p><strong>Payment Method:</strong> {receipt.paymentMethod || 'Online'}</p>
+                </div>
+              </div>
+
               <div className={styles.receiptItems}>
-                <h4>Items</h4>
-                {receipt.items.map((item, index) => (
+                <h4>Payment Details</h4>
+                <div className={styles.itemsHeader}>
+                  <span>Description</span>
+                  <span>Amount</span>
+                </div>
+                {receiptItems.map((item, index) => (
                   <div key={index} className={styles.itemRow}>
-                    <span>{item.description}</span>
-                    <span>{formatCurrency(item.amount)}</span>
+                    <span>{item.description || 'Payment'}</span>
+                    <span className={styles.debit}>
+                      {formatCurrency(item.amount || 0)}
+                    </span>
                   </div>
                 ))}
               </div>
-            )}
+
+              <div className={styles.receiptTotals}>
+                <div className={styles.totalRow}>
+                  <span>Subtotal:</span>
+                  <span>{formatCurrency(subtotal)}</span>
+                </div>
+                <div className={styles.totalRow}>
+                  <span>Tax:</span>
+                  <span>{formatCurrency(tax)}</span>
+                </div>
+                <div className={styles.totalRow}>
+                  <span><strong>Total Amount:</strong></span>
+                  <span><strong>{formatCurrency(total)}</strong></span>
+                </div>
+              </div>
+
+              <div className={styles.balanceSection}>
+                <h4>Account Summary</h4>
+                <div className={styles.balanceRow}>
+                  <span>Total Due:</span>
+                  <span>{formatCurrency(balanceInfo.totalDue)}</span>
+                </div>
+                <div className={styles.balanceRow}>
+                  <span>Total Paid:</span>
+                  <span style={{ color: '#10b981' }}>{formatCurrency(balanceInfo.totalPaid)}</span>
+                </div>
+                <div className={styles.balanceRow}>
+                  <span><strong>Balance Remaining:</strong></span>
+                  <span style={{ 
+                    color: balanceInfo.balanceRemaining > 0 ? '#ef4444' : '#10b981',
+                    fontWeight: 'bold'
+                  }}>
+                    {formatCurrency(balanceInfo.balanceRemaining)}
+                  </span>
+                </div>
+              </div>
+
+              <div className={styles.receiptFooter}>
+                <div className={styles.paymentMethod}>
+                  <p><strong>Payment Method:</strong> {receipt.paymentMethod || 'Online'}</p>
+                  <p>
+                    <strong>Status:</strong>{" "}
+                    <span className={`${styles.statusBadge} ${styles.statusCompleted}`}>
+                      {receipt.status || 'Completed'}
+                    </span>
+                  </p>
+                </div>
+                <div className={styles.receiptStamp}>
+                  <div className={styles.stamp}>
+                    PAID
+                  </div>
+                </div>
+              </div>
+
+              <div className={styles.receiptNote}>
+                <p>This is an official receipt. Please retain for your records.</p>
+                <p>For any inquiries, contact the Finance Office at finance@university.edu</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     );
   };
-
- 
 
   return (
     <div className={styles.container}>
@@ -872,7 +1510,38 @@ const PaymentModal = ({ isOpen, onClose, payment, student }) => {
           </div>
         )}
 
-        {/* Rest of your tab content remains the same... */}
+        {activeTab === 'transactions' && (
+          <div className={styles.transactionsContent}>
+            <h2 className={styles.sectionTitle}>Transaction History</h2>
+            <div className={styles.transactionsList}>
+              {studentData.recentTransactions && studentData.recentTransactions.length > 0 ? (
+                studentData.recentTransactions.map((transaction, index) => (
+                  <div key={index} className={styles.transactionItem}>
+                    <div className={styles.transactionInfo}>
+                      <h4>{transaction.description}</h4>
+                      <p>{formatDate(transaction.date)}</p>
+                    </div>
+                    <div className={`${styles.transactionAmount} ${
+                      transaction.amount > 0 ? styles.credit : styles.debit
+                    }`}>
+                      {transaction.amount > 0 ? '+' : ''}{formatCurrency(transaction.amount)}
+                    </div>
+                    <div className={getStatusBadgeClass(transaction.status)}>
+                      {transaction.status}
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className={styles.noTransactions}>
+                  <p>No transactions found.</p>
+                  <p>Transaction history will appear here.</p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'receipts' && <ReceiptsTabContent />}
       </div>
 
       {/* Payment Modal */}

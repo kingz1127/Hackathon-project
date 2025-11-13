@@ -11,7 +11,7 @@ const FinanceSchema = new mongoose.Schema({
 });
 
 FinanceSchema.virtual("amountRemaining").get(function () {
-  return this.totalAmount - this.amountPaid;
+  return this.totalAmount - this.amountPaid; 
 });
 
 FinanceSchema.set("toJSON", { virtuals: true });
