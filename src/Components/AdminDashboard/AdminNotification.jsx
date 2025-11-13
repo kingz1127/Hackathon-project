@@ -63,29 +63,26 @@ function AdminNotification() {
   }, []);
 
   const fetchSubscriptions = async () => {
-    try {
-      setLoading(true);
-      
-      // Fetch payment submissions
-      const allResponse = await fetch('http://localhost:5000/api/payment-submissions/admin/all-submissions');
-      
-      if (allResponse.ok) {
-        const allData = await allResponse.json();
-        if (allData.success) {
-          setFinanceData(allData.submissions || []);
-        }
+  try {
+    setLoading(true);
+    
+    // Fetch payment submissions from database
+    const allResponse = await fetch('http://localhost:5000/api/payment-submissions/admin/all-submissions');
+    
+    if (allResponse.ok) {
+      const allData = await allResponse.json();
+      if (allData.success) {
+        setFinanceData(allData.submissions || []);
       }
-    } catch (error) {
-      console.error('Error fetching submissions:', error);
-      // Use mock data as fallback
-      setFinanceData([
-        { id: 1, studentName: "John Doe", studentId: "S12345", amount: 1500, status: "pending", paymentDescription: "Tuition Fee", submittedAt: new Date().toISOString() },
-        { id: 2, studentName: "Jane Smith", studentId: "S12346", amount: 500, status: "approved", paymentDescription: "Library Fine", submittedAt: new Date().toISOString() }
-      ]);
-    } finally {
-      setLoading(false);
     }
-  };
+  } catch (error) {
+    console.error('Error fetching submissions:', error);
+    // Fallback to empty array instead of mock data
+    setFinanceData([]);
+  } finally {
+    setLoading(false);
+  }
+};
 
   // Fetch registration data
   const fetchRegistrationData = async () => {
@@ -116,7 +113,7 @@ function AdminNotification() {
           StateOfOrigin: "California",
           Address: "123 Main St",
           Gender: "Male",
-          DOfB: "2005-05-15"
+          DOfB: "2005-05-15" 
         },
         { 
           id: 2, 
@@ -185,44 +182,89 @@ function AdminNotification() {
     setShowRegistrationModal(true);
   };
 
-  // Update payment status (approve/decline)
-  const updatePaymentStatus = async (submissionId, status, notes) => {
-    try {
-      const response = await fetch(`http://localhost:5000/api/payment-submissions/admin/update-status/${submissionId}`, {
+  // // Update payment status (approve/decline)
+  // const updatePaymentStatus = async (submissionId, status, notes) => {
+  //   try {
+  //     const response = await fetch(`http://localhost:5000/api/payment-submissions/admin/update-status/${submissionId}`, {
+  //       method: 'PUT',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify({
+  //         status: status,
+  //         adminNotes: notes
+  //       })
+  //     });
+
+  //     const result = await response.json();
+      
+  //     if (result.success) {
+  //       // Refresh the submissions data
+  //       fetchSubscriptions();
+        
+  //       // Show success notification
+  //       addNotification({
+  //         id: Date.now(),
+  //         message: `Payment ${status} successfully`,
+  //         type: status === 'approved' ? 'success' : 'warning'
+  //       });
+  //     } else {
+  //       throw new Error(result.message);
+  //     }
+  //   } catch (error) {
+  //     console.error('Error updating payment status:', error);
+  //     addNotification({
+  //       id: Date.now(),
+  //       message: 'Failed to update payment status',
+  //       type: 'error'
+  //     });
+  //   }
+  // };
+
+
+  // In your AdminNotification.jsx - update the approve function
+const updatePaymentStatus = async (submissionId, status, approvedAmount = null) => {
+  try {
+    console.log(`✅ Approving submission: ${submissionId}`);
+    
+    const requestBody = {
+      status,
+      approvedAmount: approvedAmount || undefined,
+      notes: `Approved by admin on ${new Date().toLocaleDateString()}`
+    };
+
+    // Remove undefined values
+    Object.keys(requestBody).forEach(key => {
+      if (requestBody[key] === undefined) {
+        delete requestBody[key];
+      }
+    });
+
+    const response = await fetch(
+      `http://localhost:5000/api/payment-submissions/admin/update-status/${submissionId}`,
+      {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          status: status,
-          adminNotes: notes
-        })
-      });
-
-      const result = await response.json();
-      
-      if (result.success) {
-        // Refresh the submissions data
-        fetchSubscriptions();
-        
-        // Show success notification
-        addNotification({
-          id: Date.now(),
-          message: `Payment ${status} successfully`,
-          type: status === 'approved' ? 'success' : 'warning'
-        });
-      } else {
-        throw new Error(result.message);
+        body: JSON.stringify(requestBody),
       }
-    } catch (error) {
-      console.error('Error updating payment status:', error);
-      addNotification({
-        id: Date.now(),
-        message: 'Failed to update payment status',
-        type: 'error'
-      });
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
     }
-  };
+
+    const result = await response.json();
+    console.log('✅ Payment status updated successfully:', result);
+    return result;
+  } catch (error) {
+    console.error('Error updating payment status:', error);
+    throw error;
+  }
+};
+
 
   const renderFilters = () => (
     <div className={styles.filtersContainer}>
@@ -315,17 +357,93 @@ function AdminNotification() {
     }
   };
 
+  // ✅ UPDATED: Prevent double approval
   const handleApprove = () => {
-    if (!selectedSubmission) return;
-    updatePaymentStatus(selectedSubmission.id, 'approved', adminNotes);
+    if (!selectedSubmission) {
+      console.error('❌ No selected submission for approval');
+      return;
+    }
+    
+    // ✅ CHECK: Prevent approving already approved submissions
+    if (selectedSubmission.status === 'approved') {
+      addNotification({
+        id: Date.now(),
+        message: 'This payment has already been approved',
+        type: 'warning'
+      });
+      return;
+    }
+
+    // ✅ CHECK: Prevent approving declined submissions
+    if (selectedSubmission.status === 'declined') {
+      addNotification({
+        id: Date.now(),
+        message: 'This payment has been declined and cannot be approved',
+        type: 'warning'
+      });
+      return;
+    }
+    
+    // Use submissionId instead of id
+    const submissionId = selectedSubmission.submissionId || selectedSubmission.id;
+    console.log('✅ Approving submission:', submissionId);
+    
+    if (!submissionId) {
+      addNotification({
+        id: Date.now(),
+        message: 'Error: Cannot find submission ID',
+        type: 'error'
+      });
+      return;
+    }
+    
+    updatePaymentStatus(submissionId, 'approved', adminNotes);
     setShowReviewModal(false);
     setSelectedSubmission(null);
     setAdminNotes('');
   };
 
+  // ✅ UPDATED: Prevent double decline
   const handleDecline = () => {
-    if (!selectedSubmission) return;
-    updatePaymentStatus(selectedSubmission.id, 'declined', adminNotes);
+    if (!selectedSubmission) {
+      console.error('❌ No selected submission for decline');
+      return;
+    }
+    
+    // ✅ CHECK: Prevent declining already declined submissions
+    if (selectedSubmission.status === 'declined') {
+      addNotification({
+        id: Date.now(),
+        message: 'This payment has already been declined',
+        type: 'warning'
+      });
+      return;
+    }
+
+    // ✅ CHECK: Prevent declining approved submissions
+    if (selectedSubmission.status === 'approved') {
+      addNotification({
+        id: Date.now(),
+        message: 'This payment has been approved and cannot be declined',
+        type: 'warning'
+      });
+      return;
+    }
+    
+    // Use submissionId instead of id
+    const submissionId = selectedSubmission.submissionId || selectedSubmission.id;
+    console.log('❌ Declining submission:', submissionId);
+    
+    if (!submissionId) {
+      addNotification({
+        id: Date.now(),
+        message: 'Error: Cannot find submission ID',
+        type: 'error'
+      });
+      return;
+    }
+    
+    updatePaymentStatus(submissionId, 'declined', adminNotes);
     setShowReviewModal(false);
     setSelectedSubmission(null);
     setAdminNotes('');
@@ -506,8 +624,8 @@ function AdminNotification() {
               </div>
             ) : (
               <div className={styles.submissionsGrid}>
-                {financeData.map((submission) => (
-                  <div key={submission.id} className={styles.submissionCard}>
+  {financeData.map((submission) => (
+    <div key={submission.submissionId || submission.id} className={styles.submissionCard}>
                     <div className={styles.cardHeader}>
                       <div className={styles.studentInfo}>
                         <h3>{submission.studentName}</h3>
@@ -544,8 +662,11 @@ function AdminNotification() {
                       <button
                         className={styles.reviewButton}
                         onClick={() => handleReview(submission)}
+                        disabled={submission.status !== 'pending'} // ✅ Disable button for non-pending submissions
                       >
-                        {submission.status === 'pending' ? 'Review Payment' : 'View Details'}
+                        {submission.status === 'pending' ? 'Review Payment' : 
+                         submission.status === 'approved' ? '✅ Approved' : 
+                         submission.status === 'declined' ? '❌ Declined' : 'View Details'}
                       </button>
                     </div>
                   </div>
@@ -643,7 +764,11 @@ function AdminNotification() {
         <div className={styles.modalOverlay}>
           <div className={styles.modalContent}>
             <div className={styles.modalHeader}>
-              <h2>Review Payment Submission</h2>
+              <h2>
+                {selectedSubmission.status === 'approved' ? '✅ Approved Payment' : 
+                 selectedSubmission.status === 'declined' ? '❌ Declined Payment' : 
+                 'Review Payment Submission'}
+              </h2>
               <button
                 className={styles.closeButton}
                 onClick={() => setShowReviewModal(false)}
@@ -668,6 +793,12 @@ function AdminNotification() {
                     <label>Submitted:</label>
                     <span>{formatDate(selectedSubmission.submittedAt)}</span>
                   </div>
+                  {selectedSubmission.reviewedAt && (
+                    <div className={styles.infoItem}>
+                      <label>Reviewed:</label>
+                      <span>{formatDate(selectedSubmission.reviewedAt)}</span>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -724,23 +855,45 @@ function AdminNotification() {
                   placeholder="Add notes for the student (optional)"
                   rows="3"
                   className={styles.notesTextarea}
+                  disabled={selectedSubmission.status !== 'pending'} // ✅ Disable for non-pending submissions
                 />
+                {selectedSubmission.adminNotes && (
+                  <div className={styles.previousNotes}>
+                    <strong>Previous Admin Notes:</strong>
+                    <p>{selectedSubmission.adminNotes}</p>
+                  </div>
+                )}
               </div>
             </div>
 
             <div className={styles.modalActions}>
-              <button
-                className={styles.declineButton}
-                onClick={handleDecline}
-              >
-                ❌ Decline
-              </button>
-              <button
-                className={styles.approveButton}
-                onClick={handleApprove}
-              >
-                ✅ Approve
-              </button>
+              {/* ✅ UPDATED: Show appropriate buttons based on status */}
+              {selectedSubmission.status === 'pending' && (
+                <>
+                  <button
+                    className={styles.declineButton}
+                    onClick={handleDecline}
+                  >
+                    ❌ Decline
+                  </button>
+                  <button
+                    className={styles.approveButton}
+                    onClick={handleApprove}
+                  >
+                    ✅ Approve
+                  </button>
+                </>
+              )}
+              
+              {/* Show only close button for approved/declined submissions */}
+              {(selectedSubmission.status === 'approved' || selectedSubmission.status === 'declined') && (
+                <button
+                  className={styles.closeButton}
+                  onClick={() => setShowReviewModal(false)}
+                >
+                  Close
+                </button>
+              )}
             </div>
           </div>
         </div>

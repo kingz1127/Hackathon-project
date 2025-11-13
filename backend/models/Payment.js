@@ -1,22 +1,23 @@
 import mongoose from 'mongoose';
 
 const paymentSchema = new mongoose.Schema({
-  paymentId: {
-    type: String,
-    unique: true,
-    sparse: true,
-    default: function() {
-      return `PAY${Date.now()}${Math.random().toString(36).substr(2, 9)}`;
-    }
-  },
   studentId: {
     type: String,
-    required: true,
-    index: true
+    required: true
   },
   studentName: {
     type: String,
     required: true
+  },
+  studentEmail: {
+    type: String,
+    required: true,
+    default: 'N/A'
+  },
+  studentCourse: {
+    type: String,
+    required: true,
+    default: 'N/A'
   },
   amount: {
     type: Number,
@@ -30,34 +31,43 @@ const paymentSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  type: {
-    type: String,
-    enum: ['tuition', 'housing', 'meal', 'fees', 'other'],
-    default: 'tuition'
-  },
   dueDate: {
     type: Date,
     required: true
   },
+  type: {
+    type: String,
+    enum: ['tuition', 'housing', 'meal_plan', 'fees', 'other'],
+    default: 'tuition'
+  },
   status: {
     type: String,
-    enum: ['pending', 'due', 'paid', 'completed', 'overdue', 'partial'],
+    enum: ['pending', 'approved', 'rejected', 'completed', 'overdue', 'partial'],
     default: 'pending'
   },
-  createdAt: {
-    type: Date,
-    default: Date.now
+  approvedAt: {
+    type: Date
   },
-  updatedAt: {
-    type: Date,
-    default: Date.now
+  approvedBy: {
+    type: String
+  },
+  notes: {
+    type: String
+  },
+  // ✅ ADD THESE FOR AUTOMATIC RECEIPT TRACKING
+  receiptGenerated: {
+    type: Boolean,
+    default: false
+  },
+  receiptId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Receipt'
+  },
+  lastReceiptUpdate: {
+    type: Date
   }
-});
-
-// Update the updatedAt field before saving
-paymentSchema.pre('save', function(next) {
-  this.updatedAt = Date.now();
-  next();
+}, {
+  timestamps: true
 });
 
 export default mongoose.model('Payment', paymentSchema);
