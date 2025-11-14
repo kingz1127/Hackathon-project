@@ -279,4 +279,4 @@ graph LR
 
 MIT © 2024 Learner School Management System
 
-<div align="center"><b>Made with ❤️ using MERN</b></div>
+<div align="center"><b>Made using MERN(Mongodb, Express.js, React, Node.js)</b></div>
