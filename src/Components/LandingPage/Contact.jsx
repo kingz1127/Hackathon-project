@@ -130,8 +130,8 @@ export default function Contact() {
           <h2>Contact Us</h2>
           <p>
             Another free template by Untree.co. Far far away, behind the word
-            mountains, far from the countries Vokalia and Consonantia, there
-            live.
+            mountains, far
+            <br /> from the countries Vokalia and Consonantia, there live.
           </p>
           <button onClick={() => navigate("/register")}>Explore Courses</button>
         </div>
