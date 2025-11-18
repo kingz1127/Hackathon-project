@@ -29,6 +29,7 @@ import financeRoutes from "./routes/financeRoutes.js";
 import Payment from "./models/Payment.js";
 import Receipt from "./models/Receipt.js";
 import Transaction from "./models/Transaction.js";
+// import coursesRoutes from "./routes/coursesRoutes.js";
 
 import paymentSubmissionRoutes from "./routes/paymentSubmissionRoutes.js";
 
@@ -91,7 +92,7 @@ app.use(express.json());
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use(express.urlencoded({ extended: true })); 
 app.use("/attendance", attendanceRoutes);
-app.use('/', coursesRoutes);
+// app.use('/', coursesRoutes);
 app.use("/", teacherRoutes);
 app.use("/", studentRoutes);
 app.use("/api/events", eventRoutes);
