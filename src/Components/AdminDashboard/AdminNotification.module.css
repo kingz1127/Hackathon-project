@@ -300,7 +300,7 @@
 }
 
 .statusApproved {
-  background: #d1fae5;
+  background: #09a856;
   color: #059669;
 }
 
@@ -464,7 +464,7 @@
 
 .approveButton {
   padding: 12px 24px;
-  background: #10b981;
+  background: #036b49;
   color: white;
   border: none;
   border-radius: 6px;
@@ -670,4 +670,28 @@
   margin-bottom: 15px;
   color: #6c757d;
   font-size: 14px;
+}
+
+.deleteButton {
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  margin-left: 8px;
+  transition: background-color 0.2s;
+}
+
+.deleteButton:hover {
+  background: #c82333;
+}
+
+.deleteButton:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+}
+.statusBadge{
+  color: white;
 }

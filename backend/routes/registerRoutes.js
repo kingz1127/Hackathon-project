@@ -546,4 +546,38 @@ router.get("/admin/registration-statistics", async (req, res) => {
   }
 });
 
+// Add this route to registerRoutes.js - Delete rejected registration
+router.delete("/admin/delete-registration/:submissionId", async (req, res) => {
+  try {
+    const { submissionId } = req.params;
+
+    console.log("Deleting registration:", submissionId);
+
+    // Find and delete the submission
+    const submission = await Registration.findOneAndDelete({ id: submissionId });
+
+    if (!submission) {
+      return res.status(404).json({
+        success: false,
+        message: "Registration submission not found",
+      });
+    }
+
+    console.log("✅ Registration deleted successfully:", submissionId);
+
+    res.json({
+      success: true,
+      message: "Registration deleted successfully",
+      deletedSubmission: submission,
+    });
+
+  } catch (error) {
+    console.error("Error deleting registration:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to delete registration",
+    });
+  }
+});
+
 export default router;

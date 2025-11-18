@@ -35,9 +35,9 @@ import FinancePage from "./Components/AdminDashboard/FinancePage";
 import StudentResources from "./Components/Student/StudentResources";
 import StudentSettings from "./Components/Student/StudentSettings";
 import StudentFinancePage from "./Components/Student/StudentFinancePage";
-import AdminSettings from "./Components/AdminDashboard/AdminSettings";
 import AdminNotification from "./Components/AdminDashboard/AdminNotification";
 import { NotificationProvider } from './context/NotificationContext.jsx'; 
+import AdminSettings from "./Components/AdminDashboard/AdminSettings.jsx";
 
 export default function App() {
   return (

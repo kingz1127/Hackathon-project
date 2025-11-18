@@ -19,7 +19,7 @@ const adminSchema = new mongoose.Schema({
   username: {
     // Changed back to username to match existing logic
     type: String,
-    required: true,
+    required: true, 
     unique: true,
     trim: true,
   },
@@ -91,7 +91,7 @@ async function createDefaultAdmin() {
     if (!existingAdmin) {
       const defaultAdmin = new Admin({
         username: "admin",
-        email: "admin@school.com", // Added email for consistency
+        email: "osunyingboadedeji1@gmail.com", // Added email for consistency
         password: "admin123", // 👉 change this after first login!
       });
       await defaultAdmin.save();

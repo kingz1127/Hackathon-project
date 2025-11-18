@@ -37,7 +37,7 @@ body {
 
 .main-content {
   flex: 1;
-  margin-left: 12rem;
+  /* margin-left: 12rem; */
   padding: 25px;
   min-width: 0;
   background: var(--light);
@@ -399,7 +399,8 @@ body {
    CLASSES SECTION (Grid, Stats, Actions)
 ========================================================= */
 .main-content {
-  margin-left: 250px; /* keep sidebar intact */
+  /* margin-left: 250px; */
+  margin-left: 12rem;
   padding: 20px;
 }
 
@@ -912,6 +913,7 @@ body {
 .profile-page h2 {
   margin-bottom: 20px;
   font-size: 22px;
+  margin-left: 12rem;
   color: #23144b; /* deep blue */
 }
 
@@ -919,6 +921,7 @@ body {
   background: #fff;
   padding: 20px;
   margin-bottom: 20px;
+  margin-left: 12rem;
   border-radius: 8px;
   box-shadow: 0 2px 5px rgba(0,0,0,0.08);
 }

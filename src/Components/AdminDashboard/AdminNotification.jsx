@@ -182,45 +182,44 @@ function AdminNotification() {
     setShowRegistrationModal(true);
   };
 
-  // // Update payment status (approve/decline)
-  // const updatePaymentStatus = async (submissionId, status, notes) => {
-  //   try {
-  //     const response = await fetch(`http://localhost:5000/api/payment-submissions/admin/update-status/${submissionId}`, {
-  //       method: 'PUT',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //       },
-  //       body: JSON.stringify({
-  //         status: status,
-  //         adminNotes: notes
-  //       })
-  //     });
+  // Add this function in your AdminNotification.jsx component
+const deleteRegistration = async (submissionId) => {
+  if (!window.confirm('Are you sure you want to delete this rejected registration? This action cannot be undone.')) {
+    return;
+  }
 
-  //     const result = await response.json();
+  try {
+    const response = await fetch(`http://localhost:5000/api/admin/delete-registration/${submissionId}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    const result = await response.json();
+    
+    if (result.success) {
+      // Refresh the registration data
+      fetchRegistrationData();
+      fetchRegistrationStatistics();
       
-  //     if (result.success) {
-  //       // Refresh the submissions data
-  //       fetchSubscriptions();
-        
-  //       // Show success notification
-  //       addNotification({
-  //         id: Date.now(),
-  //         message: `Payment ${status} successfully`,
-  //         type: status === 'approved' ? 'success' : 'warning'
-  //       });
-  //     } else {
-  //       throw new Error(result.message);
-  //     }
-  //   } catch (error) {
-  //     console.error('Error updating payment status:', error);
-  //     addNotification({
-  //       id: Date.now(),
-  //       message: 'Failed to update payment status',
-  //       type: 'error'
-  //     });
-  //   }
-  // };
-
+      addNotification({
+        id: Date.now(),
+        message: 'Registration deleted successfully',
+        type: 'success'
+      });
+    } else {
+      throw new Error(result.message);
+    }
+  } catch (error) {
+    console.error('Error deleting registration:', error);
+    addNotification({
+      id: Date.now(),
+      message: 'Failed to delete registration',
+      type: 'error'
+    });
+  }
+};
 
   // In your AdminNotification.jsx - update the approve function
 const updatePaymentStatus = async (submissionId, status, approvedAmount = null) => {
@@ -262,7 +261,7 @@ const updatePaymentStatus = async (submissionId, status, approvedAmount = null) 
   } catch (error) {
     console.error('Error updating payment status:', error);
     throw error;
-  }
+  } 
 };
 
 
@@ -637,7 +636,7 @@ const updatePaymentStatus = async (submissionId, status, approvedAmount = null) 
                         </span>
                         <span className={`${styles.statusBadge} ${getStatusBadgeClass(submission.status)}`}>
                           {submission.status}
-                        </span>
+                        </span> 
                       </div>
                     </div>
 
@@ -697,63 +696,74 @@ const updatePaymentStatus = async (submissionId, status, approvedAmount = null) 
         </div>
       ) : (
         <div className={styles.registrationsGrid}>
-          {filteredRegistrationData.map((submission) => (
-                  <div key={submission.id} className={styles.registrationCard}>
-                    <div className={styles.cardHeader}>
-                      <div className={styles.studentInfo}>
-                        <h3>{submission.FullName}</h3>
-                        <p>Email: {submission.Email}</p>
-                        <p>Course: {submission.Course}</p>
-                      </div>
-                      <div className={styles.submissionMeta}>
-                        <span className={styles.submissionDate}>
-                          {formatDate(submission.submittedAt)}
-                        </span>
-                        <span 
-                          className={styles.statusBadge}
-                          style={{ backgroundColor: REGISTRATION_STATUS_COLORS[submission.status] }}
-                        >
-                          {REGISTRATION_STATUS_LABELS[submission.status]}
-                        </span>
-                      </div>
-                    </div>
+  {filteredRegistrationData.map((submission) => (
+    <div key={submission.id} className={styles.registrationCard}>
+      <div className={styles.cardHeader}>
+        <div className={styles.studentInfo}>
+          <h3>{submission.FullName}</h3>
+          <p>Email: {submission.Email}</p>
+          <p>Course: {submission.Course}</p>
+        </div>
+        <div className={styles.submissionMeta}>
+          <span className={styles.submissionDate}>
+            {formatDate(submission.submittedAt)}
+          </span>
+          <span 
+            className={styles.statusBadge}
+            style={{ backgroundColor: REGISTRATION_STATUS_COLORS[submission.status] }}
+          >
+            {REGISTRATION_STATUS_LABELS[submission.status]}
+          </span>
+        </div>
+      </div>
 
-                    <div className={styles.registrationDetails}>
-                      <div className={styles.detailRow}>
-                        <span>Phone:</span>
-                        <span>{submission.PhoneNumber}</span>
-                      </div>
-                      <div className={styles.detailRow}>
-                        <span>Grade:</span>
-                        <span>{submission.Grade}</span>
-                      </div>
-                      <div className={styles.detailRow}>
-                        <span>Country:</span>
-                        <span>{submission.Country}</span>
-                      </div>
-                      <div className={styles.detailRow}>
-                        <span>Guardian:</span>
-                        <span>{submission.Guardian} ({submission.GuardianPhoneNumber})</span>
-                      </div>
-                      {submission.studentId && (
-                        <div className={styles.detailRow}>
-                          <span>Student ID:</span>
-                          <span className={styles.studentId}>{submission.studentId}</span>
-                        </div>
-                      )}
-                    </div>
+      <div className={styles.registrationDetails}>
+        <div className={styles.detailRow}>
+          <span>Phone:</span>
+          <span>{submission.PhoneNumber}</span>
+        </div>
+        <div className={styles.detailRow}>
+          <span>Grade:</span>
+          <span>{submission.Grade}</span>
+        </div>
+        <div className={styles.detailRow}>
+          <span>Country:</span>
+          <span>{submission.Country}</span>
+        </div>
+        <div className={styles.detailRow}>
+          <span>Guardian:</span>
+          <span>{submission.Guardian} ({submission.GuardianPhoneNumber})</span>
+        </div>
+        {submission.studentId && (
+          <div className={styles.detailRow}>
+            <span>Student ID:</span>
+            <span className={styles.studentId}>{submission.studentId}</span>
+          </div>
+        )}
+      </div>
 
-                    <div className={styles.cardActions}>
-                      <button
-                        className={styles.reviewButton}
-                        onClick={() => handleRegistrationReview(submission)}
-                      >
-                        {submission.status === REGISTRATION_STATUSES.PENDING ? 'Review' : 'View Details'}
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
+      <div className={styles.cardActions}>
+        <button
+          className={styles.reviewButton}
+          onClick={() => handleRegistrationReview(submission)}
+        >
+          {submission.status === REGISTRATION_STATUSES.PENDING ? 'Review' : 'View Details'}
+        </button>
+        
+        {/* Add Delete Button for Rejected Registrations */}
+        {submission.status === REGISTRATION_STATUSES.REJECTED && (
+          <button
+            className={styles.deleteButton}
+            onClick={() => deleteRegistration(submission.id)}
+            title="Delete this rejected registration"
+          >
+            🗑️ Delete
+          </button>
+        )}
+      </div>
+    </div>
+  ))}
+</div>
             )}
           </div>
         )}

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import "./Teacher.css";
 
 export default function Settings({ teacher, setTeacher }) {
   const teacherId = teacher?.teacherId || localStorage.getItem("teacherId");
@@ -7,7 +8,7 @@ export default function Settings({ teacher, setTeacher }) {
   // Initialize with empty strings to avoid controlled/uncontrolled warnings
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
-  const [oldPassword, setOldPassword] = useState("");
+  const [oldPassword, setOldPassword] = useState("••••••••"); // Prefilled with dots
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [verificationCode, setVerificationCode] = useState("");
@@ -41,9 +42,9 @@ export default function Settings({ teacher, setTeacher }) {
   };
 
 
-  // Step 1: Request password change (validates old password, sends email)
+  // Step 1: Request password change (old password is prefilled and disabled)
   const handleRequestPasswordChange = async () => {
-    if (!oldPassword || !newPassword || !confirmPassword) {
+    if (!newPassword || !confirmPassword) {
       return showMessage("❌ Please fill all password fields.", "error");
     }
     if (newPassword !== confirmPassword) {
@@ -60,7 +61,10 @@ export default function Settings({ teacher, setTeacher }) {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ oldPassword, newPassword }),
+          body: JSON.stringify({ 
+            oldPassword: "••••••••", // Send the placeholder value
+            newPassword 
+          }),
         }
       );
       const data = await res.json();
@@ -97,7 +101,6 @@ export default function Settings({ teacher, setTeacher }) {
       showMessage("✅ Password changed successfully! Logging you out in 3 seconds...", "success");
       
       // Reset all fields
-      setOldPassword("");
       setNewPassword("");
       setConfirmPassword("");
       setVerificationCode("");
@@ -129,7 +132,7 @@ export default function Settings({ teacher, setTeacher }) {
   };
 
   return (
-    <div className={"settings-container"}>
+    <div className={"settings-container"}> 
 
       <h2>⚙️ Teacher Settings</h2>
 
@@ -171,13 +174,16 @@ export default function Settings({ teacher, setTeacher }) {
         {!awaitingVerification ? (
           <>
             <div className="settings-item">
-              <label>Old Password:</label>
+              <label>Current Password:</label>
               <input
                 type="password"
                 value={oldPassword}
                 onChange={(e) => setOldPassword(e.target.value)}
-                placeholder="Enter current password"
+                placeholder="Current password"
+                disabled
+                className="disabled-field"
               />
+              <p className="field-note">Your current password is securely stored</p>
             </div>
             <div className="settings-item">
               <label>New Password:</label>
@@ -185,7 +191,7 @@ export default function Settings({ teacher, setTeacher }) {
                 type="password"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                placeholder="Min. 8 characters"
+                placeholder="Enter new password (min. 8 characters)"
               />
             </div>
             <div className="settings-item">
@@ -200,12 +206,12 @@ export default function Settings({ teacher, setTeacher }) {
             <button
               className="save-btn"
               onClick={handleRequestPasswordChange}
-              disabled={loading}
+              disabled={loading || !newPassword || !confirmPassword}
             >
               {loading ? "Sending Code..." : "Request Password Change"}
             </button>
             <p className="help-text">
-              ℹ️ You'll receive a verification code via email
+              ℹ️ You'll receive a verification code via email for security
             </p>
           </>
         ) : (

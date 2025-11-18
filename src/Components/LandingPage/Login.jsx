@@ -45,7 +45,7 @@ export default function Login() {
         if (data.admin) {
           localStorage.setItem("userRole", "admin");
           localStorage.setItem("adminId", data.admin.id);
-          navigate("/admindashboard");
+          navigate("/admindashboard/admindashboard1");
         } else if (data.teacher) {
           localStorage.setItem("userRole", "teacher");
           localStorage.setItem("teacherId", data.teacher.id);
@@ -178,7 +178,7 @@ export default function Login() {
         <form className={styles.form} onSubmit={handleSubmit}>
           <input
             type="text"
-            placeholder="Enter your ID number"
+            placeholder="Enter your Registered Email"
             value={schoolID}
             onChange={(e) => setSchoolID(e.target.value)}
             className={styles.formtext}

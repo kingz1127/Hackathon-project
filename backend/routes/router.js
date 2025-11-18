@@ -103,6 +103,7 @@ transporter = setupEmailTransporter();
 // ============================================
 
 // ✅ STEP 1: Request password change
+// ✅ STEP 1: Request password change (UPDATED - no old password verification)
 router.post("/teacher/:teacherId/request-password-change", async (req, res) => {
   try {
     const { teacherId } = req.params;
@@ -110,8 +111,8 @@ router.post("/teacher/:teacherId/request-password-change", async (req, res) => {
 
     console.log("🔐 Password change request for:", teacherId);
 
-    if (!oldPassword || !newPassword) {
-      return res.status(400).json({ message: "Old and new passwords are required" });
+    if (!newPassword) {
+      return res.status(400).json({ message: "New password is required" });
     }
 
     // Find teacher
@@ -123,12 +124,8 @@ router.post("/teacher/:teacherId/request-password-change", async (req, res) => {
 
     console.log("✅ Teacher found:", teacher.email);
 
-    // Verify old password
-    const isMatch = await bcrypt.compare(oldPassword, teacher.password);
-    if (!isMatch) {
-      console.log("❌ Old password incorrect");
-      return res.status(400).json({ message: "Old password is incorrect" });
-    }
+    // Skip old password verification since it's prefilled and disabled
+    // The oldPassword field is just for API consistency
 
     // Generate 6-digit verification code
     const code = Math.floor(100000 + Math.random() * 900000).toString();
@@ -142,7 +139,7 @@ router.post("/teacher/:teacherId/request-password-change", async (req, res) => {
 
     console.log("📧 Generated verification code:", code);
 
-    // Send email
+    // Send email (keep your existing email code)
     if (transporter) {
       try {
         await transporter.sendMail({
@@ -154,6 +151,7 @@ router.post("/teacher/:teacherId/request-password-change", async (req, res) => {
               <h2 style="color: #ff9800;">⚠️ Password Change Request</h2>
               <p>Hello <strong>${teacher.fullName}</strong>,</p>
               <p>Someone requested to change your password on <strong>${new Date().toLocaleString()}</strong>.</p>
+              <p>Ignore if this wasn't you.</p>
               
               <div style="background-color: #fff3cd; padding: 20px; margin: 20px 0; border-radius: 8px; border-left: 4px solid #ff9800;">
                 <h3 style="margin-top: 0; color: #856404;">Verification Code</h3>

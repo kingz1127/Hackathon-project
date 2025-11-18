@@ -583,25 +583,7 @@ export default function AdminDashboard() {
             </div>
           </div>
           
-          <div className={styles.statCard}>
-            <div className={styles.statIcon} style={{backgroundColor: 'var(--emerald)'}}>
-              <MdPayment />
-            </div>
-            <div className={styles.statInfo}>
-              <h3>{paidStudents}</h3>
-              <p>Paid Students</p>
-            </div>
-          </div>
-          
-          <div className={styles.statCard}>
-            <div className={styles.statIcon} style={{backgroundColor: 'var(--ruby)'}}>
-              <FaMoneyCheckAlt />
-            </div>
-            <div className={styles.statInfo}>
-              <h3>{pendingPayments}</h3>
-              <p>Pending Payments</p>
-            </div>
-          </div>
+         
 
           <div className={styles.statCard}>
             <div className={styles.statIcon} style={{backgroundColor: 'var(--sky)'}}>
@@ -705,7 +687,7 @@ export default function AdminDashboard() {
                       <th>Email</th>
                       <th>Course</th>
                       <th>Grade</th>
-                      <th>Status</th>
+                     
                       <th>Actions</th>
                     </tr>
                   </thead>
@@ -738,15 +720,7 @@ export default function AdminDashboard() {
                           <td>{student.Email}</td>
                           <td>{student.Course}</td>
                           <td>{student.GradeLevel}</td>
-                          <td>
-                            <span className={
-                              student.paymentStatus === "Paid" 
-                                ? styles.statusPaid 
-                                : styles.statusPending
-                            }>
-                              {student.paymentStatus || "Pending"}
-                            </span>
-                          </td>
+                         
                           <td>
                             <div className={styles.actionButtons}>
                               <button 
@@ -756,14 +730,7 @@ export default function AdminDashboard() {
                               >
                                 <FaEdit />
                               </button>
-                              <button 
-                                className={styles.paymentBtn}
-                                onClick={() => handlePayment(student.studentId)}
-                                disabled={student.paymentStatus === "Paid"}
-                                title={student.paymentStatus === "Paid" ? "Already Paid" : "Mark as Paid"}
-                              >
-                                <FaMoneyCheckAlt />
-                              </button>
+                              
                               <button 
                                 className={styles.deleteBtn}
                                 onClick={() => handleDeleteStudent(student.studentId)}
