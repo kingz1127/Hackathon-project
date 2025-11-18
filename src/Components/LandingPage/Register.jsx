@@ -263,8 +263,6 @@ export default function Register() {
               <Link to="/contact">Contact</Link>
             </li>
           </ul>
-
-          <button onClick={() => navigate("/register")}>ENROLL NOW</button>
         </nav>
       </header>
 

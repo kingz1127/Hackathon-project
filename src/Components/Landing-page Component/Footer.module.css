@@ -13,7 +13,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 2rem;
-  max-width: 1200px;
+  max-width: 1000px;
   margin: 0 auto;
   margin-bottom: 2rem;
 }
@@ -23,7 +23,7 @@
 .column h4 {
   color: #fff;
   margin-bottom: 1rem;
-  font-size: 1.1rem;
+  font-size: 2rem;
   text-transform: capitalize;
 }
 
@@ -104,7 +104,7 @@
 }
 
 .bottom p {
-  font-size: 0.9rem;
+  font-size: 1.4rem;
   color: #d9e3f7;
   margin: 0;
   white-space: nowrap; /* Keeps it on one line */

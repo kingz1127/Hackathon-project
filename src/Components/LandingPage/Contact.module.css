@@ -1,5 +1,3 @@
-
-
 /* ===========================================================
 🧭 HEADER SECTION
 =========================================================== */
@@ -25,7 +23,7 @@
   padding: 0.6rem 5%;
   background-color: transparent;
   color: white;
-  font-size: 1rem;
+  font-size: 1.5rem;
   z-index: 900;
 }
 
@@ -33,7 +31,7 @@
 .authLinks {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
+  gap: 2rem;
   flex-wrap: nowrap;
 }
 
@@ -64,7 +62,7 @@
 }
 
 .logo {
-  font-size: 2rem;
+  font-size: 3.5rem;
   font-weight: bold;
 }
 
@@ -173,6 +171,7 @@
   font-size: 1.1rem;
   cursor: pointer;
   transition: background-color 0.3s ease;
+  flex-shrink: 0; /* Prevents button from shrinking */
 }
 
 .mainNav button:hover {
@@ -190,6 +189,7 @@
   height: 18px;
   cursor: pointer;
   z-index: 1100;
+  flex-shrink: 0; /* Prevents hamburger from shrinking */
 }
 
 .hamburger span {
@@ -233,7 +233,7 @@
 }
 
 .spacer h2 {
-  font-size: 2.5rem;
+  font-size: 3rem;
   font-weight: 700;
   margin-bottom: 2rem;
   line-height: 1.3;
@@ -242,11 +242,10 @@
 }
 
 .spacer p {
-  font-size: 1.5rem;
+  font-size: 2rem;
   color: #f0f0f0;
-  margin-bottom: 0.8rem;
+  margin-bottom: 2.8rem;
   letter-spacing: 0.5px;
-  max-width: 600px;
 }
 
 .spacer button {
@@ -255,7 +254,7 @@
   padding: 0.9rem 2rem;
   border-radius: 30px;
   color: white;
-  font-size: 1.1rem;
+  font-size: 1.8rem;
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.3s ease, transform 0.2s ease;
@@ -297,10 +296,11 @@
 @media (max-width: 767px) {
   .hamburger {
     display: flex;
+    margin-left: 17rem; /* pushes hamburger menu to the right */
   }
 
   .mainNav {
-    padding: 0.8rem 5%;
+    padding: 1.5rem 5%;
   }
 
   .navLinks {
@@ -326,19 +326,15 @@
     visibility: visible;
   }
 
-  .mainNav button {
-    display: none;
-  }
-
   .topBar {
     flex-direction: column;
     gap: 0.6rem;
-    font-size: 0.85rem;
+    font-size: 1.5rem;
   }
 
   .contactInfo,
   .authLinks {
-    gap: 1rem;
+    gap: 2rem;
   }
 
   .dropdownMenu {
@@ -354,27 +350,57 @@
 /* --- 480px & below --- */
 @media (max-width: 480px) {
   .logo {
-    font-size: 1.5rem;
+    font-size: 2rem;
   }
+
   .topBar {
-    font-size: 0.8rem;
+    font-size: 0.9rem;
+    padding: 0.5rem 3%;
   }
+
+  .contactInfo,
+  .authLinks {
+    gap: 1rem;
+  }
+
   .mainNav {
-    padding: 0.6rem 4%;
+    padding: 1rem 3%;
   }
+
+  /* Keep hamburger visible and properly sized */
+  .hamburger {
+    display: flex;
+    width: 25px;
+    height: 18px;
+  }
+
+  /* Maintain enroll button size */
+  .mainNav button {
+    height: 3rem;
+    width: 10rem;
+    font-size: 1.1rem;
+  }
+
   .navLinks {
     gap: 1rem;
   }
 
+  .spacer {
+    margin-top: 12rem;
+  }
+
   .spacer h2 {
-    font-size: 1.7rem;
+    font-size: 1.8rem;
+    padding: 0 1rem;
   }
 
   .spacer p {
-    font-size: 0.9rem;
+    font-size: 1rem;
+    padding: 0 1rem;
   }
 
   .spacer button {
-    font-size: 0.9rem;
+    font-size: 1rem;
+    padding: 0.8rem 1.5rem;
   }
 }

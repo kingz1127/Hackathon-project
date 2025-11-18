@@ -1,4 +1,3 @@
-
 /* =====================================================
  🧭 HEADER BACKGROUND
 ===================================================== */
@@ -23,7 +22,7 @@
   padding: 0.6rem 5%;
   background-color: transparent;
   color: white;
-  font-size: 1rem;
+  font-size: 1.5rem;
   z-index: 900;
 }
 
@@ -31,7 +30,7 @@
 .authLinks {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
+  gap: 2rem;
   flex-wrap: nowrap;
 }
 
@@ -48,7 +47,7 @@
 ===================================================== */
 .mainNav {
   position: fixed;
-  top: 4.2rem;
+  top: 6.2rem;
   left: 0;
   right: 0;
   z-index: 1000;
@@ -64,6 +63,7 @@
 .logo {
   font-size: 2rem;
   font-weight: bold;
+  flex-shrink: 0;
 }
 
 /* ✅ Center nav links horizontally */
@@ -191,6 +191,7 @@
   font-size: 1.1rem;
   cursor: pointer;
   transition: background-color 0.3s ease;
+  flex-shrink: 0; /* Prevents button from shrinking */
 }
 
 .mainNav button:hover {
@@ -208,6 +209,7 @@
   height: 18px;
   cursor: pointer;
   z-index: 1100;
+  flex-shrink: 0; /* Prevents hamburger from shrinking */
 }
 
 .hamburger span {
@@ -232,22 +234,22 @@
 }
 
 /* =====================================================
- 🧾 LOGIN FORM
+ 📝 REGISTER FORM
 ===================================================== */
 .login {
-  max-width: 400px;
+  max-width: 650px;
   margin: 5rem auto;
   background: #ffffff;
-  padding: 2.5rem;
+  padding: 3.5rem;
   border-radius: 12px;
   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
   text-align: center;
 }
 
 .login h1 {
-  margin-bottom: 1.8rem;
+  margin-bottom: 2rem;
   color: #0f3460;
-  font-size: 1.8rem;
+  font-size: 2.5rem;
   font-weight: 700;
   letter-spacing: 0.5px;
 }
@@ -255,7 +257,7 @@
 .form {
   display: flex;
   flex-direction: column;
-  gap: 1.2rem;
+  gap: 1.5rem;
 }
 
 .formtext {
@@ -304,7 +306,7 @@
   box-shadow: 0 4px 10px rgba(15, 52, 96, 0.3);
 }
 
-/* Optional extra inputs */
+/* Date of Birth & Country Selectors */
 .dobIn,
 .selectCountry {
   display: flex;
@@ -313,8 +315,13 @@
   width: 100%;
 }
 
-.dobIn input,
-.selectCountry {
+.dobIn label {
+  margin-right: 0.5rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.dobIn input {
   width: 100%;
   height: 3rem;
   border-radius: 8px;
@@ -325,8 +332,7 @@
   transition: 0.3s ease;
 }
 
-.dobIn input:focus,
-.selectCountry:focus {
+.dobIn input:focus {
   border-color: #0f3460;
   box-shadow: 0 0 4px rgba(15, 52, 96, 0.3);
 }
@@ -350,12 +356,14 @@
 
 /* --- Tablets (≤768px) --- */
 @media (max-width: 768px) {
-  .hamburger {
-    display: flex;
-  }
-
   .mainNav {
     padding: 0.8rem 5%;
+    flex-wrap: nowrap;
+  }
+
+  .hamburger {
+    display: flex;
+    margin-left: 1.5rem; /* spacing between enroll button and hamburger */
   }
 
   .navLinks {
@@ -381,18 +389,57 @@
     visibility: visible;
   }
 
-  .mainNav button {
+  /* Dropdown menu on mobile */
+  .dropdownMenu {
     display: none;
+    width: 100%;
+    position: static;
+    transform: none;
+    box-shadow: none;
+    background: rgba(22, 99, 214, 0.95);
   }
 
-  /* Center login form */
+  .dropdown.open > .dropdownMenu {
+    display: flex;
+    flex-direction: column;
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .dropdownMenu2 {
+    display: none;
+    position: static;
+    transform: none;
+    box-shadow: none;
+    background: rgba(22, 99, 214, 0.9);
+    padding-left: 1rem;
+  }
+
+  .dropdownMenu li.open > .dropdownMenu2 {
+    display: flex;
+    flex-direction: column;
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* Keep enroll button visible on tablets */
+  .mainNav button {
+    display: block;
+    height: 3rem;
+    width: 10rem;
+    font-size: 1.1rem;
+  }
+
+  /* Center register form */
   .login {
-    position: relative;
-    top: 50%;
-    transform: translateY(-50%);
-    margin: 0 auto;
     width: 90%;
-    max-width: 400px;
+    max-width: 500px;
+    margin: 3rem auto;
+    padding: 2.5rem 2rem;
+  }
+
+  .login h1 {
+    font-size: 2rem;
   }
 }
 
@@ -403,11 +450,36 @@
   }
 
   .topBar {
-    font-size: 0.8rem;
+    font-size: 0.85rem;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.5rem 3%;
+  }
+
+  .contactInfo,
+  .authLinks {
+    gap: 1rem;
+    font-size: 0.85rem;
   }
 
   .mainNav {
-    padding: 0.6rem 4%;
+    padding: 0.8rem 4%;
+  }
+
+  /* Keep hamburger visible with proper dimensions */
+  .hamburger {
+    display: flex;
+    width: 25px;
+    height: 18px;
+    margin-left: 1.5rem;
+  }
+
+  /* Maintain enroll button size */
+  .mainNav button {
+    display: block;
+    height: 3rem;
+    width: 10rem;
+    font-size: 1.1rem;
   }
 
   .navLinks {
@@ -415,38 +487,111 @@
   }
 
   .login {
-    top: 45%;
-    transform: translateY(-45%);
-    width: 90%;
-    padding: 2rem 1.2rem;
+    width: 92%;
+    margin: 2rem auto;
+    padding: 2rem 1.5rem;
   }
 
   .login h1 {
-    font-size: 1.6rem;
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
   }
 
   .formtext {
-    font-size: 1rem;
-    height: 3.5rem;
+    font-size: 0.95rem;
+    padding: 0.8rem 0.9rem;
+  }
+
+  .dobIn {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .dobIn label {
+    font-size: 0.9rem;
+  }
+
+  .dobIn input {
+    height: 3rem;
   }
 
   .form button {
-    height: 3.2rem;
+    padding: 0.85rem;
+    font-size: 1rem;
+  }
+
+  .remember {
+    font-size: 0.85rem;
   }
 }
 
 /* --- Very Small Phones (≤360px) --- */
 @media (max-width: 360px) {
+  .logo {
+    font-size: 1.3rem;
+  }
+
+  .topBar {
+    font-size: 0.75rem;
+  }
+
+  .contactInfo,
+  .authLinks {
+    gap: 0.8rem;
+    font-size: 0.75rem;
+  }
+
+  .mainNav {
+    padding: 0.7rem 3%;
+  }
+
+  /* Maintain spacing and visibility */
+  .hamburger {
+    display: flex;
+    width: 25px;
+    height: 18px;
+    margin-left: 1rem;
+  }
+
+  /* Slightly smaller button for very small screens */
+  .mainNav button {
+    display: block;
+    height: 2.5rem;
+    width: 8rem;
+    font-size: 1rem;
+  }
+
+  .login {
+    width: 95%;
+    padding: 1.5rem 1rem;
+  }
+
   .login h1 {
-    font-size: 1.4rem;
+    font-size: 1.5rem;
+    margin-bottom: 1.2rem;
   }
 
   .formtext {
     font-size: 0.9rem;
+    padding: 0.7rem 0.8rem;
+  }
+
+  .dobIn label {
+    font-size: 0.85rem;
   }
 
   .form button {
-    font-size: 0.9rem;
+    font-size: 0.95rem;
+    padding: 0.8rem;
+  }
+
+  .remember {
+    font-size: 0.8rem;
+  }
+
+  .remember p {
+    line-height: 1.4;
   }
 }
 

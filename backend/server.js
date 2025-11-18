@@ -12,21 +12,23 @@ import { fileURLToPath } from "url";
 import Admin from "./models/Admin.js";
 import Student from "./models/Student.js";
 import Teacher from "./models/Teacher.js";
+import assignmentRoutes from "./routes/assignmentRoutes.js";
 import attendanceRoutes from "./routes/attendance.js";
-import coursesRoutes from "./routes/coursesRoutes.js";
+import classRoutes from "./routes/classRoutes.js";
 import eventRoutes from "./routes/eventRoutes.js";
+import gradeRoutes from "./routes/gradeRoutes.js";
 import messageRoutes from "./routes/message.js";
 import registerRoutes from "./routes/registerRoutes.js";
 import resourceRoutes from "./routes/resourceRoutes.js";
 import teacherRoutes from "./routes/router.js";
 import studentRoutes from "./routes/studentRoutes.js";
+import submissionRoutes from "./routes/submissionRoutes.js";
+
+// Add this to your existing server.js imports
 import financeRoutes from "./routes/financeRoutes.js";
 import Payment from "./models/Payment.js";
-import Transaction from "./models/Transaction.js";
 import Receipt from "./models/Receipt.js";
-import PaymentMethod from "./models/PaymentMethod.js";
-import FinancialAid from "./models/FinancialAid.js";
-import PaymentPlan from "./models/PaymentPlan.js";
+import Transaction from "./models/Transaction.js";
 
 import paymentSubmissionRoutes from "./routes/paymentSubmissionRoutes.js";
 
@@ -100,6 +102,12 @@ app.use("/", messageRoutes);
 app.use("/api/resources", resourceRoutes);
 app.use("/api/students", studentRoutes);
 app.use("/api/finance", financeRoutes);
+
+app.use(express.urlencoded({ extended: true })); // For form data
+app.use("/attendance", attendanceRoutes);app.use('/api/classes', classRoutes);
+app.use('/', assignmentRoutes);
+app.use('/', submissionRoutes);
+app.use('/', gradeRoutes);
 
 const paymentUploadsDir = path.join(__dirname, "uploads", "payments");
 if (!fs.existsSync(paymentUploadsDir)) {

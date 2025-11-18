@@ -13,31 +13,36 @@ import OurStaff from "./Components/LandingPage/OurStaff";
 import Register from "./Components/LandingPage/Register";
 import Announcements from "./Components/Teacher/Announcements";
 import Attendance from "./Components/Teacher/Attendance";
-import MyClasses from "./Components/Teacher/MyClasses";
 import MyProfile from "./Components/Teacher/Profile";
 import Resources from "./Components/Teacher/Resources";
 import Settings from "./Components/Teacher/Settings";
 import Student from "./Components/Teacher/Student";
+import TeacherAsssignmentsPage from "./Components/Teacher/TeacherAssignmentsPage";
+import TeacherClassesPage from "./Components/Teacher/TeacherClassesPage";
 import TeacherDashboard from "./Components/Teacher/TeacherDashboard";
 import "./index.css";
 
 import StudentDashboard from "./Components/Student/StudentDashboard";
 
+import AdminNotification from "./Components/AdminDashboard/AdminNotification";
+import AdminSettings from "./Components/AdminDashboard/AdminSettings";
+import EventsPage from "./Components/AdminDashboard/EventPage";
+import FinancePage from "./Components/AdminDashboard/FinancePage";
+import AnnouncementStudent from "./Components/Student/AnnoucementStudent";
 import Assignments from "./Components/Student/Assignments";
 import Attendancestu from "./Components/Student/Attendancestu";
-import Courses from "./Components/Student/Courses";
 import Dashboard from "./Components/Student/Dashboard";
 import Grades from "./Components/Student/Grades";
-import TeacherDashboardLayout from "./Components/Teacher/TeacherDashboardLayout";
-import EventsPage from "./Components/AdminDashboard/EventPage";
-import AnnouncementStudent from "./Components/Student/AnnoucementStudent";
-import FinancePage from "./Components/AdminDashboard/FinancePage";
+import StudentAssignmentsPage from "./Components/Student/StudentAssignmentsPage.jsx";
+import StudentClassesPage from "./Components/Student/StudentClassesPage.jsx";
+import StudentFinancePage from "./Components/Student/StudentFinancePage";
 import StudentResources from "./Components/Student/StudentResources";
 import StudentSettings from "./Components/Student/StudentSettings";
-import StudentFinancePage from "./Components/Student/StudentFinancePage";
-import AdminNotification from "./Components/AdminDashboard/AdminNotification";
+
 import { NotificationProvider } from './context/NotificationContext.jsx'; 
-import AdminSettings from "./Components/AdminDashboard/AdminSettings.jsx";
+
+import TeacherDashboardLayout from "./Components/Teacher/TeacherDashboardLayout";
+
 
 export default function App() {
   return (
@@ -71,7 +76,8 @@ export default function App() {
         {/* Teacher page routes */}
         <Route path="/" element={<TeacherDashboardLayout />}>
           <Route path="teachdashboard" element={<TeacherDashboard />} />
-          <Route path="teachclasses" element={<MyClasses />} />
+          <Route path="teachclasses" element={<TeacherClassesPage />} />
+          <Route path="teachassignments" element={<TeacherAsssignmentsPage />} />
           <Route path="teachprofile" element={<MyProfile />} />
           <Route path="teachattendance" element={<Attendance />} />
           <Route path="teachstudent" element={<Student />} />
@@ -83,7 +89,8 @@ export default function App() {
         {/* Student page routesstudentassignments */}
         <Route path="/" element={<StudentDashboard />}>
           <Route path="student" element={<Dashboard />} />
-          <Route path="studentcourses" element={<Courses />} />
+          <Route path="studentcourses" element={<StudentClassesPage />} />
+           <Route path="studentassignments" element={<StudentAssignmentsPage />} />
           <Route path="studentattendance" element={<Attendancestu />} />
           <Route path="studentgrades" element={<Grades />} />
           <Route path="studentassignments" element={<Assignments />} />

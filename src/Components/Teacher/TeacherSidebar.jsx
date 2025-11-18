@@ -58,6 +58,10 @@ export default function TeacherSidebar() {
       <div><p> <FaBook /></p> <p>My Classes</p></div>   
       </NavLink>
 
+      <NavLink to="/teachassignments" className="nav-link">
+      <div><p> <FaBook /></p> <p>Assignments</p></div>   
+      </NavLink>
+
       <NavLink to="/teachattendance" className="nav-link">
       <div><p> <FaClipboardCheck /></p> <p>Attendance</p></div>
       </NavLink>

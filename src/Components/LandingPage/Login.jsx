@@ -10,6 +10,7 @@ import { IoMdCall, IoMdPerson } from "react-icons/io";
 import { Link, useNavigate } from "react-router-dom";
 import styles from "./Login.module.css";
 import Footer from "../Landing-page Component/Footer";
+
 export default function Login() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -19,7 +20,7 @@ export default function Login() {
   const [schoolID, setSchoolID] = useState("");
   const [schoolPassword, setSchoolPassword] = useState("");
   const [error, setError] = useState("");
-  const [showPassword, setShowPassword] = useState(false); // 👈 toggle state
+  const [showPassword, setShowPassword] = useState(false);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
 
   const handleSubmit = async (e) => {
@@ -74,7 +75,7 @@ export default function Login() {
     <>
       <header className={styles.header}>
         {/* Top bar */}
-        <div className={styles.topBar}> 
+        <div className={styles.topBar}>
           <div className={styles.contactInfo}>
             <span>
               <AiOutlineQuestionCircle /> Have a question?
@@ -169,10 +170,9 @@ export default function Login() {
               <Link to="/contact">Contact</Link>
             </li>
           </ul>
-
-          <button onClick={() => navigate("/register")}>ENROLL NOW</button>
         </nav>
       </header>
+
       <div className={styles.login}>
         <h1>Login</h1>
         <form className={styles.form} onSubmit={handleSubmit}>
@@ -184,32 +184,40 @@ export default function Login() {
             className={styles.formtext}
           />
 
-          {/* Password with eye toggle */}
+          {/* Password with eye toggle - FIXED */}
           <div className={styles.passwordWrapper}>
             <input
               type={showPassword ? "text" : "password"}
               placeholder="Password"
               value={schoolPassword}
               onChange={(e) => setSchoolPassword(e.target.value)}
-              className={styles.formtext}
             />
             <span
               className={styles.eyeIcon}
               onClick={() => setShowPassword(!showPassword)}
             >
-              {showPassword ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
+              {showPassword ? (
+                <AiOutlineEyeInvisible size={24} />
+              ) : (
+                <AiOutlineEye size={24} />
+              )}
             </span>
           </div>
 
           <div className={styles.remember}>
-            <input type="checkbox" />
-            <p>Remember me</p>
+            <div>
+              <input type="checkbox" />
+              <p>Remember me</p>
+            </div>
+            <Link to="/forgot-password" className={styles.forgotPassword}>
+              Forgot Password?
+            </Link>
           </div>
 
           {error && <p style={{ color: "red" }}>{error}</p>}
 
           <button type="submit">Login</button>
-          <p>{isAuthenticating && "loading..."}</p>
+          {isAuthenticating && <p>loading...</p>}
         </form>
       </div>
       <Footer />
