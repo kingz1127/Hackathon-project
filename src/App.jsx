@@ -20,6 +20,7 @@ import Student from "./Components/Teacher/Student";
 import TeacherAsssignmentsPage from "./Components/Teacher/TeacherAssignmentsPage";
 import TeacherClassesPage from "./Components/Teacher/TeacherClassesPage";
 import TeacherDashboard from "./Components/Teacher/TeacherDashboard";
+import ForgetPassword from "./Components/LandingPage/ForgetPassword.jsx";
 import "./index.css";
 
 import StudentDashboard from "./Components/Student/StudentDashboard";
@@ -39,68 +40,77 @@ import StudentFinancePage from "./Components/Student/StudentFinancePage";
 import StudentResources from "./Components/Student/StudentResources";
 import StudentSettings from "./Components/Student/StudentSettings";
 
-import { NotificationProvider } from './context/NotificationContext.jsx'; 
+import { NotificationProvider } from "./context/NotificationContext.jsx";
 
 import TeacherDashboardLayout from "./Components/Teacher/TeacherDashboardLayout";
-
 
 export default function App() {
   return (
     <NotificationProvider>
-    <BrowserRouter>
-      <Routes>
-        {/* This is the Landing Page Route */}
-        <Route path="/" element={<Home />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/ourstaff" element={<OurStaff />} />
-        <Route path="/news" element={<News />} />
-        <Route path="/gallery" element={<Gallery />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        {/* Other routes stay below */}
+      <BrowserRouter>
+        <Routes>
+          {/* This is the Landing Page Route */}
+          <Route path="/" element={<Home />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/ourstaff" element={<OurStaff />} />
+          <Route path="/news" element={<News />} />
+          <Route path="/gallery" element={<Gallery />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/forgetpassword" element={<ForgetPassword />} />
+          <Route path="/register" element={<Register />} />
+          {/* Other routes stay below */}
 
-        {/* Admin page routes */}
+          {/* Admin page routes */}
 
-        <Route path="/admindashboard" element={<AdminDashboard />}>
-          <Route path="admindashboard1" element={<AdminDashboard1 />} />
-          <Route path="adminstudent" element={<AdminStudent />} />
-          <Route path="adminteacher" element={<AdminTeacher />} />
-          <Route path="adminFinance" element={<FinancePage />} />
-          <Route path="adminmessages" element={<EventsPage />} />
-          <Route path="adminSettings" element={<AdminSettings />} />
-          <Route path="adminNotify" element={<AdminNotification />} />
-          <Route path="*" element={<p>Invalid route (404 Not Found)!!!</p>} />
-        </Route>
+          <Route path="/admindashboard" element={<AdminDashboard />}>
+            <Route path="admindashboard1" element={<AdminDashboard1 />} />
+            <Route path="adminstudent" element={<AdminStudent />} />
+            <Route path="adminteacher" element={<AdminTeacher />} />
+            <Route path="adminFinance" element={<FinancePage />} />
+            <Route path="adminmessages" element={<EventsPage />} />
+            <Route path="adminSettings" element={<AdminSettings />} />
+            <Route path="adminNotify" element={<AdminNotification />} />
+            <Route path="*" element={<p>Invalid route (404 Not Found)!!!</p>} />
+          </Route>
 
-        {/* Teacher page routes */}
-        <Route path="/" element={<TeacherDashboardLayout />}>
-          <Route path="teachdashboard" element={<TeacherDashboard />} />
-          <Route path="teachclasses" element={<TeacherClassesPage />} />
-          <Route path="teachassignments" element={<TeacherAsssignmentsPage />} />
-          <Route path="teachprofile" element={<MyProfile />} />
-          <Route path="teachattendance" element={<Attendance />} />
-          <Route path="teachstudent" element={<Student />} />
-          <Route path="teachannouncements" element={<Announcements />} />
-          <Route path="teachresources" element={<Resources />} />
-          <Route path="teachsettings" element={<Settings />} />
-        </Route>
+          {/* Teacher page routes */}
+          <Route path="/" element={<TeacherDashboardLayout />}>
+            <Route path="teachdashboard" element={<TeacherDashboard />} />
+            <Route path="teachclasses" element={<TeacherClassesPage />} />
+            <Route
+              path="teachassignments"
+              element={<TeacherAsssignmentsPage />}
+            />
+            <Route path="teachprofile" element={<MyProfile />} />
+            <Route path="teachattendance" element={<Attendance />} />
+            <Route path="teachstudent" element={<Student />} />
+            <Route path="teachannouncements" element={<Announcements />} />
+            <Route path="teachresources" element={<Resources />} />
+            <Route path="teachsettings" element={<Settings />} />
+          </Route>
 
-        {/* Student page routesstudentassignments */}
-        <Route path="/" element={<StudentDashboard />}>
-          <Route path="student" element={<Dashboard />} />
-          <Route path="studentcourses" element={<StudentClassesPage />} />
-           <Route path="studentassignments" element={<StudentAssignmentsPage />} />
-          <Route path="studentattendance" element={<Attendancestu />} />
-          <Route path="studentgrades" element={<Grades />} />
-          <Route path="studentassignments" element={<Assignments />} />
-          <Route path="studentresources" element={<StudentResources />} />
-          <Route path="studentAnnoucement" element={<AnnouncementStudent />} />
-          <Route path="studentFinance" element={<StudentFinancePage />} />
-          <Route path="studentsettings" element={<StudentSettings />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+          {/* Student page routesstudentassignments */}
+          <Route path="/" element={<StudentDashboard />}>
+            <Route path="student" element={<Dashboard />} />
+            <Route path="studentcourses" element={<StudentClassesPage />} />
+            <Route
+              path="studentassignments"
+              element={<StudentAssignmentsPage />}
+            />
+            <Route path="studentattendance" element={<Attendancestu />} />
+            <Route path="studentgrades" element={<Grades />} />
+            <Route path="studentassignments" element={<Assignments />} />
+            <Route path="studentresources" element={<StudentResources />} />
+            <Route
+              path="studentAnnoucement"
+              element={<AnnouncementStudent />}
+            />
+            <Route path="studentFinance" element={<StudentFinancePage />} />
+            <Route path="studentsettings" element={<StudentSettings />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
     </NotificationProvider>
   );
 }

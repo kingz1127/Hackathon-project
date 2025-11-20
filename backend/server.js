@@ -25,10 +25,10 @@ import studentRoutes from "./routes/studentRoutes.js";
 import submissionRoutes from "./routes/submissionRoutes.js";
 
 // Add this to your existing server.js imports
-import financeRoutes from "./routes/financeRoutes.js";
 import Payment from "./models/Payment.js";
 import Receipt from "./models/Receipt.js";
 import Transaction from "./models/Transaction.js";
+import financeRoutes from "./routes/financeRoutes.js";
 // import coursesRoutes from "./routes/coursesRoutes.js";
 
 import paymentSubmissionRoutes from "./routes/paymentSubmissionRoutes.js";
@@ -106,9 +106,9 @@ app.use("/api/finance", financeRoutes);
 
 app.use(express.urlencoded({ extended: true })); // For form data
 app.use("/attendance", attendanceRoutes);app.use('/api/classes', classRoutes);
-app.use('/', assignmentRoutes);
-app.use('/', submissionRoutes);
-app.use('/', gradeRoutes);
+app.use('/api/assignment', assignmentRoutes);
+app.use('/api/submission', submissionRoutes);
+app.use('/api/grade', gradeRoutes);
 
 const paymentUploadsDir = path.join(__dirname, "uploads", "payments");
 if (!fs.existsSync(paymentUploadsDir)) {

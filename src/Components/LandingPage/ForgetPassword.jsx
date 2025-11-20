@@ -1,67 +1,62 @@
 import { useEffect, useState } from "react";
-import {
-  AiOutlineEye,
-  AiOutlineEyeInvisible,
-  AiOutlineQuestionCircle,
-} from "react-icons/ai";
+import { AiOutlineQuestionCircle, AiOutlineMail } from "react-icons/ai";
 import { BiLockAlt } from "react-icons/bi";
 import { HiMail } from "react-icons/hi";
 import { IoMdCall, IoMdPerson } from "react-icons/io";
 import { Link, useNavigate } from "react-router-dom";
-import styles from "./Login.module.css";
+import styles from "./ForgetPassword.module.css";
 import Footer from "../Landing-page Component/Footer";
 
-export default function Login() {
+export default function ForgetPassword() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const navigate = useNavigate();
 
-  const [schoolID, setSchoolID] = useState("");
-  const [schoolPassword, setSchoolPassword] = useState("");
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
   const [error, setError] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [isAuthenticating, setIsAuthenticating] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
+    setMessage("");
+
+    // Basic email validation
+    if (!email || !email.includes("@")) {
+      setError("Please enter a valid email address");
+      return;
+    }
+
     try {
-      setIsAuthenticating(true);
-      const response = await fetch("http://localhost:5000/admin/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          username: schoolID.includes("@") ? undefined : schoolID,
-          email: schoolID.includes("@") ? schoolID : undefined,
-          password: schoolPassword,
-        }),
-      });
+      setIsLoading(true);
+      const response = await fetch(
+        "http://localhost:5000/api/forgot-password",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email }),
+        }
+      );
 
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data.message);
+        setError(data.message || "Something went wrong");
       } else {
-        localStorage.setItem("token", data.token);
-        if (data.admin) {
-          localStorage.setItem("userRole", "admin");
-          localStorage.setItem("adminId", data.admin.id);
-          navigate("/admindashboard/admindashboard1");
-        } else if (data.teacher) {
-          localStorage.setItem("userRole", "teacher");
-          localStorage.setItem("teacherId", data.teacher.id);
-          localStorage.setItem("teacherName", data.teacher.fullName);
-          navigate("/teachdashboard");
-        } else if (data.student) {
-          localStorage.setItem("userRole", "student");
-          localStorage.setItem("studentId", data.studentId);
-          setIsAuthenticating(false);
-          navigate("/student");
-        }
+        setMessage("Password reset link has been sent to your email!");
+        setEmail("");
+        // Optionally redirect to login after 3 seconds
+        setTimeout(() => {
+          navigate("/login");
+        }, 3000);
       }
     } catch (err) {
-      console.error("Login failed", err);
-      setError("Something went wrong. Try again.");
+      console.error("Error:", err);
+      setError("Failed to send reset email. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -155,7 +150,7 @@ export default function Login() {
             </li>
 
             <li>
-              <Link to="/ourstaff">Our Staff</Link>
+              <Link to="/staff">Our Staff</Link>
             </li>
             <li>
               <Link to="/news">News</Link>
@@ -173,53 +168,58 @@ export default function Login() {
         </nav>
       </header>
 
-      <div className={styles.login}>
-        <h1>Login</h1>
-        <form className={styles.form} onSubmit={handleSubmit}>
-          <input
-            type="text"
-            placeholder="Enter your Registered Email"
-            value={schoolID}
-            onChange={(e) => setSchoolID(e.target.value)}
-            className={styles.formtext}
-          />
-
-          {/* Password with eye toggle - FIXED */}
-          <div className={styles.passwordWrapper}>
-            <input
-              type={showPassword ? "text" : "password"}
-              placeholder="Password"
-              value={schoolPassword}
-              onChange={(e) => setSchoolPassword(e.target.value)}
-            />
-            <span
-              className={styles.eyeIcon}
-              onClick={() => setShowPassword(!showPassword)}
-            >
-              {showPassword ? (
-                <AiOutlineEyeInvisible size={24} />
-              ) : (
-                <AiOutlineEye size={24} />
-              )}
-            </span>
+      <div className={styles.forgotPasswordContainer}>
+        <div className={styles.forgotPasswordBox}>
+          <div className={styles.iconWrapper}>
+            <AiOutlineMail className={styles.mailIcon} />
           </div>
 
-          <div className={styles.remember}>
-            <div>
-              <input type="checkbox" />
-              <p>Remember me</p>
+          <h1>Forgot Password?</h1>
+          <p className={styles.description}>
+            No worries! Enter your email address and we'll send you a link to
+            reset your password.
+          </p>
+
+          <form className={styles.form} onSubmit={handleSubmit}>
+            <div className={styles.inputWrapper}>
+              <HiMail className={styles.inputIcon} />
+              <input
+                type="email"
+                placeholder="Enter your email address"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className={styles.formtext}
+                required
+              />
             </div>
-            <Link to="/forgetpassword" className={styles.forgotPassword}>
-              Forgot Password?
-            </Link>
+
+            {error && (
+              <div className={styles.errorMessage}>
+                <p>{error}</p>
+              </div>
+            )}
+
+            {message && (
+              <div className={styles.successMessage}>
+                <p>{message}</p>
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={isLoading}
+              className={styles.submitBtn}
+            >
+              {isLoading ? "Sending..." : "Send Reset Link"}
+            </button>
+          </form>
+
+          <div className={styles.backToLogin}>
+            <Link to="/login">← Back to Login</Link>
           </div>
-
-          {error && <p style={{ color: "red" }}>{error}</p>}
-
-          <button type="submit">Login</button>
-          {isAuthenticating && <p>loading...</p>}
-        </form>
+        </div>
       </div>
+
       <Footer />
     </>
   );
