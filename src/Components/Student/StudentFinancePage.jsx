@@ -897,213 +897,406 @@ const ReceiptsTabContent = () => {
   }
 
   // Payment Modal Component
-  const PaymentModal = ({ isOpen, onClose, payment, student }) => {
-    if (!isOpen || !payment) return null;
+ // Payment Modal Component with Local State
+const PaymentModal = ({ isOpen, onClose, payment, student }) => {
+  // ✅ FIX: Use LOCAL state instead of parent state
+  const [localPaymentForm, setLocalPaymentForm] = useState({
+    amount: '',
+    paymentMethod: 'bank_transfer',
+    transactionId: '',
+    receiptFile: null,
+    receiptPreview: null,
+    notes: ''
+  });
+  const [localUploading, setLocalUploading] = useState(false);
+  const [localFileUploadError, setLocalFileUploadError] = useState('');
+  const [localFormErrors, setLocalFormErrors] = useState({});
 
-    const amountRemaining = payment.amountRemaining || (payment.amount - (payment.amountPaid || 0));
+  // ✅ FIX: Initialize local state when modal opens
+  useEffect(() => {
+    if (isOpen && payment) {
+      const amountRemaining = payment.amountRemaining || (payment.amount - (payment.amountPaid || 0));
+      setLocalPaymentForm({
+        amount: amountRemaining.toString(),
+        paymentMethod: 'bank_transfer',
+        transactionId: '',
+        receiptFile: null,
+        receiptPreview: null,
+        notes: ''
+      });
+      setLocalFileUploadError('');
+      setLocalFormErrors({});
+    }
+  }, [isOpen, payment]);
 
-    return (
-      <div className={styles.modalOverlay} onClick={onClose}>
-        <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-          <div className={styles.modalHeader}>
-            <h2>Submit Payment</h2>
-            <button 
+  // ✅ FIX: Local handler that doesn't trigger parent re-render
+  const handleInputChange = (field, value) => {
+    setLocalPaymentForm(prev => ({
+      ...prev,
+      [field]: value
+    }));
+    // Clear error when user starts typing
+    if (localFormErrors[field]) {
+      setLocalFormErrors(prev => ({
+        ...prev,
+        [field]: ''
+      }));
+    }
+  };
+
+  // ✅ FIX: Local file upload handler
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    setLocalFileUploadError('');
+    
+    if (file) {
+      // Check file type
+      const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf'];
+      if (!validTypes.includes(file.type)) {
+        setLocalFileUploadError('Please upload a valid file (JPEG, PNG, JPG, or PDF)');
+        return;
+      }
+
+      // Check file size (5MB max)
+      if (file.size > 5 * 1024 * 1024) {
+        setLocalFileUploadError('File size must be less than 5MB');
+        return;
+      }
+
+      setLocalPaymentForm(prev => ({
+        ...prev,
+        receiptFile: file
+      }));
+
+      // Create preview for images
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          setLocalPaymentForm(prev => ({
+            ...prev,
+            receiptPreview: e.target.result
+          }));
+        };
+        reader.readAsDataURL(file);
+      } else {
+        // For PDF files, clear any existing preview
+        setLocalPaymentForm(prev => ({
+          ...prev,
+          receiptPreview: null
+        }));
+      }
+    }
+  };
+
+  // ✅ FIX: Local form validation
+  const validateForm = () => {
+    const errors = {};
+    
+    if (!localPaymentForm.amount || parseFloat(localPaymentForm.amount) <= 0) {
+      errors.amount = 'Please enter a valid amount';
+    }
+    
+    if (!localPaymentForm.receiptFile) {
+      errors.receiptFile = 'Please upload a receipt';
+    }
+    
+    setLocalFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  // ✅ FIX: Local payment submission handler
+  const handleSubmitPayment = async (e) => {
+    e.preventDefault();
+    
+    if (!payment) return;
+
+    // Validate form
+    if (!validateForm()) {
+      return;
+    }
+
+    try {
+      setLocalUploading(true);
+
+      const formData = new FormData();
+      
+      // Use the correct payment ID field
+      const paymentId = payment._id || payment.id || payment.paymentId;
+      console.log('Payment ID being sent:', paymentId);
+      
+      if (!paymentId) {
+        alert('Error: Could not find payment ID. Please try again.');
+        return;
+      }
+
+      formData.append('paymentId', paymentId);
+      formData.append('studentId', localStorage.getItem("studentId"));
+      formData.append('amount', localPaymentForm.amount);
+      formData.append('paymentMethod', localPaymentForm.paymentMethod);
+      formData.append('transactionId', localPaymentForm.transactionId || '');
+      formData.append('notes', payment.description || 'Payment submission');
+      
+      if (localPaymentForm.receiptFile) {
+        formData.append('receipt', localPaymentForm.receiptFile);
+      }
+
+      console.log('Submitting payment with details:', {
+        paymentId: paymentId,
+        studentId: localStorage.getItem("studentId"),
+        amount: localPaymentForm.amount,
+        description: payment.description
+      });
+
+      const response = await fetch('http://localhost:5000/api/payment-submissions/submit-payment', {
+        method: 'POST',
+        body: formData,
+      });
+
+      console.log('Response status:', response.status);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Server response:', errorText);
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log('Submission result:', result);
+      
+      if (result.success) {
+        alert('Payment submitted successfully! It will be reviewed by the finance department.');
+        
+        // Reset form and close modal
+        onClose();
+        
+        // Refresh parent data
+        fetchStudentData(); 
+        fetchPaymentDetails();
+        fetchStudentReceipts();
+      } else {
+        throw new Error(result.message || 'Failed to submit payment');
+      }
+
+    } catch (err) {
+      console.error('Error submitting payment:', err);
+      
+      // Show user-friendly error message
+      if (err.message.includes('timed out') || err.message.includes('connection')) {
+        alert('Database connection issue. Please try again in a moment.');
+      } else {
+        alert(`Failed to submit payment. Please try again. Error: ${err.message}`);
+      }
+    } finally {
+      setLocalUploading(false);
+    }
+  };
+
+  if (!isOpen || !payment) return null;
+
+  const amountRemaining = payment.amountRemaining || (payment.amount - (payment.amountPaid || 0));
+
+  return (
+    <div className={styles.modalOverlay} onClick={onClose}>
+      <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+        <div className={styles.modalHeader}>
+          <h2>Submit Payment</h2>
+          <button 
+            type="button"
+            className={styles.closeButton} 
+            onClick={onClose}
+            disabled={localUploading}
+          >
+            ×
+          </button>
+        </div>
+        
+        <form onSubmit={handleSubmitPayment} className={styles.paymentForm} noValidate>
+          {/* Payment Information */}
+          <div className={styles.formSection}>
+            <h3>Payment Information</h3>
+            <h3>School Account: 6019306025 Keystone</h3>
+            <h3>School Account Name: Oshunyingbo Adedeji</h3>
+            <div className={styles.paymentSummary}>
+              <div className={styles.summaryRow}>
+                <span>Payment Description:</span>
+                <strong>{payment.description}</strong>
+              </div>
+              <div className={styles.summaryRow}>
+                <span>Total Amount:</span>
+                <span>{formatCurrency(payment.amount)}</span>
+              </div>
+              <div className={styles.summaryRow}>
+                <span>Amount Paid:</span>
+                <span style={{ color: '#10b981' }}>{formatCurrency(payment.amountPaid || 0)}</span>
+              </div>
+              <div className={styles.summaryRow}>
+                <span>Amount Remaining:</span>
+                <span style={{ color: '#ef4444', fontWeight: 'bold' }}>
+                  {formatCurrency(amountRemaining)}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Payment Details */}
+          <div className={styles.formSection}>
+            <h3>Payment Details</h3>
+            
+            <div className={styles.formGroup}>
+              <label>Amount to Pay *</label>
+              <input
+                type="number"
+                value={localPaymentForm.amount}
+                onChange={(e) => handleInputChange('amount', e.target.value)}
+                min="0.01"
+                max={amountRemaining}
+                step="0.01"
+                className={localFormErrors.amount ? styles.inputError : ''}
+              />
+              {localFormErrors.amount && (
+                <span className={styles.errorText}>{localFormErrors.amount}</span>
+              )}
+              <small>Maximum: {formatCurrency(amountRemaining)}</small>
+            </div>
+
+            <div className={styles.formGroup}>
+              <label>Payment Method *</label>
+              <select
+                value={localPaymentForm.paymentMethod}
+                onChange={(e) => handleInputChange('paymentMethod', e.target.value)}
+              >
+                <option value="bank_transfer">Bank Transfer</option>
+                <option value="credit_card">Credit Card</option>
+                <option value="debit_card">Debit Card</option>
+                <option value="mobile_money">Mobile Money</option>
+                <option value="cash">Cash</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+
+            <div className={styles.formGroup}>
+              <label>Transaction ID/Reference (Optional)</label>
+              <input
+                type="text"
+                value={localPaymentForm.transactionId}
+                onChange={(e) => handleInputChange('transactionId', e.target.value)}
+                placeholder="Enter transaction reference number (if available)"
+              />
+              <small>Leave blank if not applicable</small>
+            </div>
+
+            <div className={styles.formGroup}>
+              <label>Additional Notes</label>
+              <textarea
+                value={localPaymentForm.notes}
+                onChange={(e) => handleInputChange('notes', e.target.value)}
+                placeholder="Any additional information about this payment..."
+                rows="3"
+              />
+            </div>
+          </div>
+
+          {/* Receipt Upload */}
+          <div className={styles.formSection}>
+            <h3>Upload Receipt *</h3>
+            <div className={styles.fileUploadSection}>
+              <div className={`${styles.uploadArea} ${localFormErrors.receiptFile ? styles.uploadAreaError : ''}`}>
+                <input
+                  type="file"
+                  id="receiptUpload"
+                  onChange={handleFileUpload}
+                  accept=".jpg,.jpeg,.png,.pdf"
+                  className={styles.fileInput}
+                />
+                <label htmlFor="receiptUpload" className={styles.uploadLabel}>
+                  <div className={styles.uploadIcon}>📎</div>
+                  <div>
+                    <strong>Click to upload receipt</strong>
+                    <p>Supported formats: JPG, PNG, PDF (Max 5MB)</p>
+                  </div>
+                </label>
+              </div>
+
+              {localFileUploadError && (
+                <div className={styles.fileUploadError}>
+                  {localFileUploadError}
+                </div>
+              )}
+
+              {localFormErrors.receiptFile && (
+                <div className={styles.fileUploadError}>
+                  {localFormErrors.receiptFile}
+                </div>
+              )}
+
+              {localPaymentForm.receiptFile && (
+                <div className={styles.filePreview}>
+                  <div className={styles.fileInfo}>
+                    <span className={styles.fileName}>{localPaymentForm.receiptFile.name}</span>
+                    <span className={styles.fileSize}>
+                      {(localPaymentForm.receiptFile.size / 1024 / 1024).toFixed(2)} MB
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setLocalPaymentForm(prev => ({
+                          ...prev,
+                          receiptFile: null,
+                          receiptPreview: null
+                        }));
+                        setLocalFileUploadError('');
+                        setLocalFormErrors(prev => ({
+                          ...prev,
+                          receiptFile: ''
+                        }));
+                      }}
+                      className={styles.removeFile}
+                      disabled={localUploading}
+                    >
+                      Remove
+                    </button>
+                  </div>
+                  
+                  {localPaymentForm.receiptPreview && (
+                    <div className={styles.imagePreview}>
+                      <img src={localPaymentForm.receiptPreview} alt="Receipt preview" />
+                    </div>
+                  )}
+                  
+                  {localPaymentForm.receiptFile.type === 'application/pdf' && (
+                    <div className={styles.pdfPreview}>
+                      <div className={styles.pdfIcon}>📄</div>
+                      <span>PDF Document</span>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Form Actions */}
+          <div className={styles.formActions}>
+            <button
               type="button"
-              className={styles.closeButton} 
               onClick={onClose}
-              disabled={uploading}
+              className={styles.cancelButton}
+              disabled={localUploading}
             >
-              ×
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className={styles.submitButton}
+              disabled={localUploading}
+            >
+              {localUploading ? 'Submitting...' : 'Submit Payment'}
             </button>
           </div>
-          
-          <form onSubmit={handleSubmitPayment} className={styles.paymentForm} noValidate>
-            {/* Payment Information */}
-            <div className={styles.formSection}>
-              <h3>Payment Information</h3>
-              <h3>School Account: 6019306025 Keystone</h3>
-              <h3>School Account Name: Oshunyingbo Adedeji</h3>
-              <div className={styles.paymentSummary}>
-                <div className={styles.summaryRow}>
-                  <span>Payment Description:</span>
-                  <strong>{payment.description}</strong>
-                </div>
-                <div className={styles.summaryRow}>
-                  <span>Total Amount:</span>
-                  <span>{formatCurrency(payment.amount)}</span>
-                </div>
-                <div className={styles.summaryRow}>
-                  <span>Amount Paid:</span>
-                  <span style={{ color: '#10b981' }}>{formatCurrency(payment.amountPaid || 0)}</span>
-                </div>
-                <div className={styles.summaryRow}>
-                  <span>Amount Remaining:</span>
-                  <span style={{ color: '#ef4444', fontWeight: 'bold' }}>
-                    {formatCurrency(amountRemaining)}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Payment Details */}
-            <div className={styles.formSection}>
-              <h3>Payment Details</h3>
-              
-              <div className={styles.formGroup}>
-                <label>Amount to Pay *</label>
-                <input
-                  type="number"
-                  value={paymentForm.amount}
-                  onChange={(e) => handleInputChange('amount', e.target.value)}
-                  min="0.01"
-                  max={amountRemaining}
-                  step="0.01"
-                  className={formErrors.amount ? styles.inputError : ''}
-                />
-                {formErrors.amount && (
-                  <span className={styles.errorText}>{formErrors.amount}</span>
-                )}
-                <small>Maximum: {formatCurrency(amountRemaining)}</small>
-              </div>
-
-              <div className={styles.formGroup}>
-                <label>Payment Method *</label>
-                <select
-                  value={paymentForm.paymentMethod}
-                  onChange={(e) => handleInputChange('paymentMethod', e.target.value)}
-                >
-                  <option value="bank_transfer">Bank Transfer</option>
-                  <option value="credit_card">Credit Card</option>
-                  <option value="debit_card">Debit Card</option>
-                  <option value="mobile_money">Mobile Money</option>
-                  <option value="cash">Cash</option>
-                  <option value="other">Other</option>
-                </select>
-              </div>
-
-              <div className={styles.formGroup}>
-                <label>Transaction ID/Reference (Optional)</label>
-                <input
-                  type="text"
-                  value={paymentForm.transactionId}
-                  onChange={(e) => handleInputChange('transactionId', e.target.value)}
-                  placeholder="Enter transaction reference number (if available)"
-                />
-                <small>Leave blank if not applicable</small>
-              </div>
-
-              <div className={styles.formGroup}>
-                <label>Additional Notes</label>
-                <textarea
-                  value={paymentForm.notes}
-                  onChange={(e) => handleInputChange('notes', e.target.value)}
-                  placeholder="Any additional information about this payment..."
-                  rows="3"
-                />
-              </div>
-            </div>
-
-            {/* Receipt Upload */}
-            <div className={styles.formSection}>
-              <h3>Upload Receipt *</h3>
-              <div className={styles.fileUploadSection}>
-                <div className={`${styles.uploadArea} ${formErrors.receiptFile ? styles.uploadAreaError : ''}`}>
-                  <input
-                    type="file"
-                    id="receiptUpload"
-                    onChange={handleFileUpload}
-                    accept=".jpg,.jpeg,.png,.pdf"
-                    className={styles.fileInput}
-                  />
-                  <label htmlFor="receiptUpload" className={styles.uploadLabel}>
-                    <div className={styles.uploadIcon}>📎</div>
-                    <div>
-                      <strong>Click to upload receipt</strong>
-                      <p>Supported formats: JPG, PNG, PDF (Max 5MB)</p>
-                    </div>
-                  </label>
-                </div>
-
-                {fileUploadError && (
-                  <div className={styles.fileUploadError}>
-                    {fileUploadError}
-                  </div>
-                )}
-
-                {formErrors.receiptFile && (
-                  <div className={styles.fileUploadError}>
-                    {formErrors.receiptFile}
-                  </div>
-                )}
-
-                {paymentForm.receiptFile && (
-                  <div className={styles.filePreview}>
-                    <div className={styles.fileInfo}>
-                      <span className={styles.fileName}>{paymentForm.receiptFile.name}</span>
-                      <span className={styles.fileSize}>
-                        {(paymentForm.receiptFile.size / 1024 / 1024).toFixed(2)} MB
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setPaymentForm(prev => ({
-                            ...prev,
-                            receiptFile: null,
-                            receiptPreview: null
-                          }));
-                          setFileUploadError('');
-                          setFormErrors(prev => ({
-                            ...prev,
-                            receiptFile: ''
-                          }));
-                        }}
-                        className={styles.removeFile}
-                        disabled={uploading}
-                      >
-                        Remove
-                      </button>
-                    </div>
-                    
-                    {paymentForm.receiptPreview && (
-                      <div className={styles.imagePreview}>
-                        <img src={paymentForm.receiptPreview} alt="Receipt preview" />
-                      </div>
-                    )}
-                    
-                    {paymentForm.receiptFile.type === 'application/pdf' && (
-                      <div className={styles.pdfPreview}>
-                        <div className={styles.pdfIcon}>📄</div>
-                        <span>PDF Document</span>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Form Actions */}
-            <div className={styles.formActions}>
-              <button
-                type="button"
-                onClick={onClose}
-                className={styles.cancelButton}
-                disabled={uploading}
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className={styles.submitButton}
-                disabled={uploading}
-              >
-                {uploading ? 'Submitting...' : 'Submit Payment'}
-              </button>
-            </div>
-          </form>
-        </div>
+        </form>
       </div>
-    );
-  };
+    </div>
+  );
+};
 
   // Enhanced Receipt Modal Component
   const ReceiptModal = ({ receipt, onClose }) => {
@@ -1494,6 +1687,7 @@ const ReceiptsTabContent = () => {
                       <button 
                         className={styles.payButton}
                         onClick={() => handlePayNow(payment)}
+                        style={{backgroundColor: "#10b981", cursor: "pointer"}}
                       >
                         Pay Now
                       </button>
