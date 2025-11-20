@@ -4,17 +4,17 @@ import { BiLockAlt } from "react-icons/bi";
 import { HiMail } from "react-icons/hi";
 import { IoMdCall, IoMdPerson } from "react-icons/io";
 import { Link, useNavigate } from "react-router-dom";
-import styles from "./Home.module.css";
-import Testimonials from "../Landing-page Component/Testimonials";
-import WhyChooseUs from "../Landing-page Component/WhyChooseUs";
-import Pricing from "../Landing-page Component/Pricing";
-import NewsSection from "../Landing-page Component/NewsSection";
 import AboutUs from "../Landing-page Component/AboutUs";
-import Footer from "../Landing-page Component/Footer";
+import BrowseCategory from "../Landing-page Component/BrowseCategory";
 import CourseSection from "../Landing-page Component/CourseSection";
 import EducationSection from "../Landing-page Component/EducationSection";
+import Footer from "../Landing-page Component/Footer";
 import InstructorSection from "../Landing-page Component/InstructorSection";
-import BrowseCategory from "../Landing-page Component/BrowseCategory";
+import NewsSection from "../Landing-page Component/NewsSection";
+import Pricing from "../Landing-page Component/Pricing";
+import Testimonials from "../Landing-page Component/Testimonials";
+import WhyChooseUs from "../Landing-page Component/WhyChooseUs";
+import styles from "./Home.module.css";
 
 export default function Home() {
   const [isScrolled, setIsScrolled] = useState(false);
