@@ -7,7 +7,7 @@ const eventSchema = new mongoose.Schema(
     date: { type: Date, required: true },
     location: { type: String },
     organizer: { type: String },
-    participants: [{ type: String }], // array of participant names/emails
+    participants: [{ type: String }], // array of participant names/emailscd h
   },
   { timestamps: true } // auto add createdAt & updatedAt
 );
