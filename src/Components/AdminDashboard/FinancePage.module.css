@@ -758,7 +758,7 @@
 
 /* Enhanced Receipt Modal */
 .modalOverlay {
-  position: fixed;
+  position: absolute;
   top: 0;
   left: 0;
   right: 0;
@@ -769,6 +769,7 @@
   justify-content: center;
   z-index: 1000;
   padding: 2rem;
+  margin-bottom: -5rem;
 }
 
 .modalContent {
@@ -777,10 +778,14 @@
   box-shadow: var(--shadow-lg);
   width: 90%;
   max-width: 800px;
-  max-height: 90vh;
+  height: 103vh;
   display: flex;
   flex-direction: column;
+  margin-top: 2rem;
+  margin-bottom: 5rem;
 }
+
+
 
 .modalHeader {
   display: flex;

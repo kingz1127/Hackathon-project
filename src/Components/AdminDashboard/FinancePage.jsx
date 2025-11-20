@@ -36,26 +36,27 @@ const FinancePage = () => {
 
   // Add this modal component before your existing modals
   const PaymentsModal = ({ isOpen, onClose, payments, student }) => {
-    if (!isOpen || !payments.length) return null;
+  if (!isOpen || !payments.length) return null;
 
-    const handleEditPayment = (payment) => {
-      const totalDue = payment.amount || payment.totalAmount || 0;
-      const amountPaid = payment.amountPaid || 0;
-      
-      setEditingPayment({
-        id: payment.id,
-        studentId: student.id,
-        studentName: student.name,
-        description: payment.description || "Payment",
-        totalAmount: totalDue,
-        amountPaid: amountPaid,
-        status: payment.status || "pending",
-        dueDate: payment.dueDate || "",
-        type: payment.type || "tuition"
-      });
-      setShowPaymentsModal(false);
-      setShowEditModal(true);
-    };
+  const handleEditPayment = (payment) => {
+    const totalDue = payment.amount || payment.totalAmount || 0;
+    const amountPaid = payment.amountPaid || 0;
+    
+    // ✅ This sets the parent state but only ONCE when clicking "Edit"
+    setEditingPayment({
+      id: payment.id,
+      studentId: student.id,
+      studentName: student.name,
+      description: payment.description || "Payment",
+      totalAmount: totalDue,
+      amountPaid: amountPaid,
+      status: payment.status || "pending",
+      dueDate: payment.dueDate || "",
+      type: payment.type || "tuition"
+    });
+    setShowPaymentsModal(false);
+    setShowEditModal(true);
+  };
 
     // In your student payment display section, update the status calculation:
 const getPaymentStatus = (payment) => {
@@ -1195,256 +1196,156 @@ const createBasicReceipt = async (receiptId) => {
 
   if (!financialData) return null;
 
-  const PaymentModal = ({ isOpen, onClose }) => {
-    if (!isOpen) return null;
+ const PaymentModal = ({ isOpen, onClose, selectedStudentFromParent }) => {
+  // ✅ FIX: Use LOCAL state instead of parent state
+  const [localPaymentForm, setLocalPaymentForm] = useState({
+    amount: "",
+    description: "",
+    dueDate: "",
+    type: "tuition",
+  });
+  const [localSelectedStudent, setLocalSelectedStudent] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [showDropdown, setShowDropdown] = useState(false);
 
-    const handleInputChange = (field, value) => {
-      setPaymentForm(prev => ({
-        ...prev,
-        [field]: value
-      }));
-    };
+  // ✅ FIX: Initialize local state when modal opens OR when selectedStudentFromParent changes
+  useEffect(() => {
+    if (isOpen) {
+      if (selectedStudentFromParent) {
+        // If a student was selected from the table, auto-select it
+        setLocalSelectedStudent(selectedStudentFromParent);
+        setSearchTerm(selectedStudentFromParent.name);
+      } else {
+        setLocalSelectedStudent(null);
+        setSearchTerm("");
+      }
+      setLocalPaymentForm({
+        amount: "",
+        description: "",
+        dueDate: "",
+        type: "tuition",
+      });
+    }
+  }, [isOpen, selectedStudentFromParent]);
 
-    return (
-      <div className={styles.modalOverlay} onClick={onClose}>
-        <div
-          className={styles.modalContent}
-          onClick={(e) => e.stopPropagation()}
-        >
-          <div className={styles.modalHeader}>
-            <h2>Set Payment for Student</h2>
-            <button className={styles.closeButton} onClick={onClose}>
-              ×
-            </button>
-          </div>
-
-          <form onSubmit={handleSetPayment} style={{ padding: "20px" }}>
-            <div style={{ marginBottom: "16px" }}>
-              <label
-                style={{
-                  display: "block",
-                  marginBottom: "8px",
-                  fontWeight: "500",
-                }}
-              >
-                Select Student
-              </label>
-              <select
-                value={selectedStudent?.id || ""}
-                onChange={(e) => {
-                  const studentId = e.target.value;
-                  const student = students.find((s) => s.id === studentId);
-                  setSelectedStudent(student);
-                }}
-                required
-                style={{
-                  width: "100%",
-                  padding: "10px",
-                  borderRadius: "6px",
-                  border: "1px solid #e2e8f0",
-                }}
-              >
-                <option value="">Select a student</option>
-                {students.map((student) => (
-                  <option key={student.id} value={student.id}>
-                    {student.name} (ID: {student.id})
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div style={{ marginBottom: "16px" }}>
-              <label
-                style={{
-                  display: "block",
-                  marginBottom: "8px",
-                  fontWeight: "500",
-                }}
-              >
-                Payment Type
-              </label>
-              <select
-                value={paymentForm.type}
-                onChange={(e) => handleInputChange('type', e.target.value)}
-                style={{
-                  width: "100%",
-                  padding: "10px",
-                  borderRadius: "6px",
-                  border: "1px solid #e2e8f0",
-                }}
-              >
-                <option value="tuition">Tuition</option>
-                <option value="housing">Housing</option>
-                <option value="meal">Meal Plan</option>
-                <option value="fees">Fees</option>
-                <option value="other">Other</option>
-              </select>
-            </div>
-
-            <div style={{ marginBottom: "16px" }}>
-              <label
-                style={{
-                  display: "block",
-                  marginBottom: "8px",
-                  fontWeight: "500",
-                }}
-              >
-                Description
-              </label>
-              <input
-                type="text"
-                value={paymentForm.description}
-                onChange={(e) => handleInputChange('description', e.target.value)}
-                placeholder="e.g., Fall 2024 Tuition"
-                required
-                style={{
-                  width: "100%",
-                  padding: "10px",
-                  borderRadius: "6px",
-                  border: "1px solid #e2e8f0",
-                }}
-              />
-            </div>
-
-            <div style={{ marginBottom: "16px" }}>
-              <label
-                style={{
-                  display: "block",
-                  marginBottom: "8px",
-                  fontWeight: "500",
-                }}
-              >
-                Amount
-              </label>
-              <input
-                type="number"
-                value={paymentForm.amount}
-                onChange={(e) => handleInputChange('amount', e.target.value)}
-                placeholder="0.00"
-                step="0.01"
-                min="0"
-                required
-                style={{
-                  width: "100%",
-                  padding: "10px",
-                  borderRadius: "6px",
-                  border: "1px solid #e2e8f0",
-                }}
-              />
-            </div>
-
-            <div style={{ marginBottom: "20px" }}>
-              <label
-                style={{
-                  display: "block",
-                  marginBottom: "8px",
-                  fontWeight: "500",
-                }}
-              >
-                Due Date
-              </label>
-              <input
-                type="date"
-                value={paymentForm.dueDate}
-                onChange={(e) => handleInputChange('dueDate', e.target.value)}
-                required
-                style={{
-                  width: "100%",
-                  padding: "10px",
-                  borderRadius: "6px",
-                  border: "1px solid #e2e8f0",
-                }}
-              />
-            </div>
-
-            <div
-              style={{
-                display: "flex",
-                gap: "12px",
-                justifyContent: "flex-end",
-              }}
-            >
-              <button
-                type="button"
-                onClick={onClose}
-                style={{
-                  padding: "10px 20px",
-                  borderRadius: "6px",
-                  border: "1px solid #e2e8f0",
-                  background: "white",
-                  cursor: "pointer",
-                }}
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                style={{
-                  padding: "10px 20px",
-                  borderRadius: "6px",
-                  border: "none",
-                  background: "#3b82f6",
-                  color: "white",
-                  cursor: "pointer",
-                }}
-              >
-                Set Payment
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    );
-  };
-
-  const EditPaymentModal = ({ isOpen, onClose }) => {
-  if (!isOpen || !editingPayment) return null;
-
-  const amountRemaining = editingPayment.totalAmount - editingPayment.amountPaid;
-
+  // ✅ FIX: Local handler that doesn't trigger parent re-render
   const handleInputChange = (field, value) => {
-    setEditingPayment(prev => ({
+    setLocalPaymentForm(prev => ({
       ...prev,
       [field]: value
     }));
   };
 
+  // ✅ FIX: Enhanced student search and selection
+  const handleSearchChange = (value) => {
+    setSearchTerm(value);
+    setShowDropdown(true);
+    
+    // If user clears search, clear selection
+    if (value === "") {
+      setLocalSelectedStudent(null);
+    }
+  };
+
+  const handleStudentSelect = (student) => {
+    setLocalSelectedStudent(student);
+    setSearchTerm(student.name);
+    setShowDropdown(false);
+  };
+
+  const filteredStudents = students.filter(student => 
+    student.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    student.id?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // ✅ FIX: Only update parent on SUBMIT, not on every change
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!localSelectedStudent) {
+      alert("Please select a student");
+      return;
+    }
+
+    try {
+      const paymentData = {
+        studentId: localSelectedStudent.id,
+        studentName: localSelectedStudent.name,
+        amount: parseFloat(localPaymentForm.amount),
+        description: localPaymentForm.description,
+        dueDate: localPaymentForm.dueDate,
+        type: localPaymentForm.type,
+      };
+
+      const response = await fetch(
+        `http://localhost:5000/api/finance/admin/set-payment`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(paymentData),
+        }
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        let errorMessage = 'Failed to set payment';
+        try {
+          const errorData = JSON.parse(errorText);
+          errorMessage = errorData.message || errorMessage;
+        } catch {
+          errorMessage = `Server error: ${response.status}`;
+        }
+        alert(`Failed to set payment: ${errorMessage}`);
+        return;
+      }
+
+      const result = await response.json();
+      alert("Payment successfully set for student!");
+      
+      // ✅ ONLY UPDATE PARENT STATE HERE (on success)
+      setPaymentForm({
+        amount: "",
+        description: "",
+        dueDate: "",
+        type: "tuition",
+      });
+      setSelectedStudent(null);
+      
+      onClose(); // Close modal
+      fetchFinancialData();
+      fetchAllStudents();
+    } catch (err) {
+      console.error("Error setting payment:", err);
+      alert(`Network error: ${err.message}`);
+    }
+  };
+
+  if (!isOpen) return null;
+
   return (
     <div className={styles.modalOverlay} onClick={onClose}>
       <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
-          <h2>Edit Payment Record</h2>
+          <h2>Set Payment for Student</h2>
           <button className={styles.closeButton} onClick={onClose}>×</button>
         </div>
 
-        <form onSubmit={handleEditPayment} style={{ padding: "20px" }}>
-          <div style={{ marginBottom: "16px" }}>
+        <form onSubmit={handleSubmit} style={{ padding: "20px" }}>
+          {/* Enhanced Student Selection with Search */}
+          <div style={{ marginBottom: "16px", position: "relative" }}>
             <label style={{ display: "block", marginBottom: "8px", fontWeight: "500" }}>
-              Student
+              Select Student {localSelectedStudent && `- Selected: ${localSelectedStudent.name}`}
             </label>
+            
+            {/* Search Input */}
             <input
               type="text"
-              value={editingPayment.studentName}
-              disabled
-              style={{
-                width: "100%",
-                padding: "10px",
-                borderRadius: "6px",
-                border: "1px solid #e2e8f0",
-                background: "#f8fafc",
-              }}
-            />
-          </div>
-
-          <div style={{ marginBottom: "16px" }}>
-            <label style={{ display: "block", marginBottom: "8px", fontWeight: "500" }}>
-              Description
-            </label>
-            <input
-              type="text"
-              value={editingPayment.description || ""}
-              onChange={(e) => handleInputChange('description', e.target.value)}
-              placeholder="Enter payment description"
+              value={searchTerm}
+              onChange={(e) => handleSearchChange(e.target.value)}
+              onFocus={() => setShowDropdown(true)}
+              placeholder="Type student name or ID to search..."
               style={{
                 width: "100%",
                 padding: "10px",
@@ -1452,72 +1353,84 @@ const createBasicReceipt = async (receiptId) => {
                 border: "1px solid #e2e8f0",
               }}
             />
-          </div>
-
-          <div style={{ marginBottom: "16px" }}>
-            <label style={{ display: "block", marginBottom: "8px", fontWeight: "500" }}>
-              Total Amount
-            </label>
-            <input
-              type="number"
-              value={editingPayment.totalAmount || ""}
-              onChange={(e) => handleInputChange('totalAmount', e.target.value)}
-              step="0.01"
-              min="0"
-              style={{
-                width: "100%",
-                padding: "10px",
-                borderRadius: "6px",
+            
+            {/* Dropdown List */}
+            {showDropdown && searchTerm && (
+              <div style={{
+                position: "absolute",
+                top: "100%",
+                left: 0,
+                right: 0,
+                backgroundColor: "white",
                 border: "1px solid #e2e8f0",
-              }}
-            />
-          </div>
-
-          <div style={{ marginBottom: "16px" }}>
-            <label style={{ display: "block", marginBottom: "8px", fontWeight: "500" }}>
-              Amount Paid
-            </label>
-            <input
-              type="number"
-              value={editingPayment.amountPaid || ""}
-              onChange={(e) => handleInputChange('amountPaid', e.target.value)}
-              step="0.01"
-              min="0"
-              max={editingPayment.totalAmount}
-              style={{
-                width: "100%",
-                padding: "10px",
                 borderRadius: "6px",
-                border: "1px solid #e2e8f0",
-              }}
-            />
+                maxHeight: "200px",
+                overflowY: "auto",
+                zIndex: 1000,
+                boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)"
+              }}>
+                {filteredStudents.length > 0 ? (
+                  filteredStudents.map((student) => (
+                    <div
+                      key={student.id}
+                      onClick={() => handleStudentSelect(student)}
+                      style={{
+                        padding: "10px",
+                        cursor: "pointer",
+                        borderBottom: "1px solid #f1f5f9",
+                        backgroundColor: localSelectedStudent?.id === student.id ? "#f1f5f9" : "white",
+                        ":hover": {
+                          backgroundColor: "#f8fafc"
+                        }
+                      }}
+                      onMouseEnter={(e) => e.target.style.backgroundColor = "#f8fafc"}
+                      onMouseLeave={(e) => e.target.style.backgroundColor = localSelectedStudent?.id === student.id ? "#f1f5f9" : "white"}
+                    >
+                      <div style={{ fontWeight: "500" }}>{student.name}</div>
+                      <div style={{ fontSize: "12px", color: "#6b7280" }}>ID: {student.id}</div>
+                      {student.totalAmount > 0 && (
+                        <div style={{ fontSize: "12px", color: "#ef4444" }}>
+                          Balance: {formatCurrency(student.totalAmount - (student.amountPaid || 0))}
+                        </div>
+                      )}
+                    </div>
+                  ))
+                ) : (
+                  <div style={{ padding: "10px", color: "#6b7280", textAlign: "center" }}>
+                    No students found
+                  </div>
+                )}
+              </div>
+            )}
+            
+            {/* Selected Student Info */}
+            {localSelectedStudent && (
+              <div style={{
+                marginTop: "8px",
+                padding: "8px",
+                backgroundColor: "#f0f9ff",
+                borderRadius: "4px",
+                border: "1px solid #bae6fd"
+              }}>
+                <div style={{ fontSize: "14px", fontWeight: "500" }}>
+                  ✅ Selected: {localSelectedStudent.name} (ID: {localSelectedStudent.id})
+                </div>
+                {localSelectedStudent.totalAmount > 0 && (
+                  <div style={{ fontSize: "12px", color: "#0369a1" }}>
+                    Current Balance: {formatCurrency(localSelectedStudent.totalAmount - (localSelectedStudent.amountPaid || 0))}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
-          {/* ✅ ADD DUE DATE EDITING */}
-          <div style={{ marginBottom: "16px" }}>
-            <label style={{ display: "block", marginBottom: "8px", fontWeight: "500" }}>
-              Due Date
-            </label>
-            <input
-              type="date"
-              value={editingPayment.dueDate ? editingPayment.dueDate.split('T')[0] : ""}
-              onChange={(e) => handleInputChange('dueDate', e.target.value)}
-              style={{
-                width: "100%",
-                padding: "10px",
-                borderRadius: "6px",
-                border: "1px solid #e2e8f0",
-              }}
-            />
-          </div>
-
-          {/* ✅ ADD PAYMENT TYPE EDITING */}
+          {/* Payment Type */}
           <div style={{ marginBottom: "16px" }}>
             <label style={{ display: "block", marginBottom: "8px", fontWeight: "500" }}>
               Payment Type
             </label>
             <select
-              value={editingPayment.type || "tuition"}
+              value={localPaymentForm.type}
               onChange={(e) => handleInputChange('type', e.target.value)}
               style={{
                 width: "100%",
@@ -1534,7 +1447,320 @@ const createBasicReceipt = async (receiptId) => {
             </select>
           </div>
 
-          <div style={{ marginBottom: "16px", padding: "12px", background: "#f8fafc", borderRadius: "6px" }}>
+          {/* Description */}
+          <div style={{ marginBottom: "16px" }}>
+            <label style={{ display: "block", marginBottom: "8px", fontWeight: "500" }}>
+              Description
+            </label>
+            <input
+              type="text"
+              value={localPaymentForm.description}
+              onChange={(e) => handleInputChange('description', e.target.value)}
+              placeholder="e.g., Fall 2024 Tuition"
+              required
+              style={{
+                width: "100%",
+                padding: "10px",
+                borderRadius: "6px",
+                border: "1px solid #e2e8f0",
+              }}
+            />
+          </div>
+
+          {/* Amount */}
+          <div style={{ marginBottom: "16px" }}>
+            <label style={{ display: "block", marginBottom: "8px", fontWeight: "500" }}>
+              Amount
+            </label>
+            <input
+              type="number"
+              value={localPaymentForm.amount}
+              onChange={(e) => handleInputChange('amount', e.target.value)}
+              placeholder="0.00"
+              step="0.01"
+              min="0"
+              required
+              style={{
+                width: "100%",
+                padding: "10px",
+                borderRadius: "6px",
+                border: "1px solid #e2e8f0",
+              }}
+            />
+          </div>
+
+          {/* Due Date */}
+          <div style={{ marginBottom: "20px" }}>
+            <label style={{ display: "block", marginBottom: "8px", fontWeight: "500" }}>
+              Due Date
+            </label>
+            <input
+              type="date"
+              value={localPaymentForm.dueDate}
+              onChange={(e) => handleInputChange('dueDate', e.target.value)}
+              required
+              style={{
+                width: "100%",
+                padding: "10px",
+                borderRadius: "6px",
+                border: "1px solid #e2e8f0",
+              }}
+            />
+          </div>
+
+          <div style={{ display: "flex", gap: "12px", justifyContent: "flex-end" }}>
+            <button
+              type="button"
+              onClick={onClose}
+              style={{
+                padding: "10px 20px",
+                borderRadius: "6px",
+                border: "1px solid #e2e8f0",
+                background: "white",
+                cursor: "pointer",
+              }}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={!localSelectedStudent}
+              
+              style={{
+                padding: "10px 20px",
+                borderRadius: "6px",
+                border: "none",
+                background: localSelectedStudent ? "#3b82f6" : "#9ca3af",
+                color: "white",
+                cursor: localSelectedStudent ? "pointer" : "not-allowed",
+              }}
+            >
+              Set Payment
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+
+ const EditPaymentModal = ({ isOpen, onClose }) => {
+  // ✅ FIX: Use LOCAL state instead of parent state
+  const [localEditingPayment, setLocalEditingPayment] = useState(null);
+
+  // ✅ FIX: Initialize local state when modal opens or editingPayment changes
+  useEffect(() => {
+    if (isOpen && editingPayment) {
+      setLocalEditingPayment({
+        ...editingPayment,
+        // Ensure we have proper values
+        totalAmount: editingPayment.totalAmount || 0,
+        amountPaid: editingPayment.amountPaid || 0,
+        description: editingPayment.description || "",
+        status: editingPayment.status || "pending",
+        dueDate: editingPayment.dueDate ? editingPayment.dueDate.split('T')[0] : "",
+        type: editingPayment.type || "tuition"
+      });
+    }
+  }, [isOpen, editingPayment]);
+
+  // ✅ FIX: Local handler that doesn't trigger parent re-render
+  const handleInputChange = (field, value) => {
+    setLocalEditingPayment(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  // ✅ FIX: Only update parent on SUBMIT, not on every change
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!localEditingPayment) return;
+
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/finance/admin/edit-payment/${localEditingPayment.id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            amountPaid: parseFloat(localEditingPayment.amountPaid),
+            totalAmount: parseFloat(localEditingPayment.totalAmount),
+            status: localEditingPayment.status,
+            description: localEditingPayment.description,
+            dueDate: localEditingPayment.dueDate,
+            type: localEditingPayment.type,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to update payment");
+      }
+
+      const result = await response.json();
+
+      if (localEditingPayment.status === "completed" || localEditingPayment.status === "paid") {
+        const receiptResponse = await fetch(
+          `http://localhost:5000/api/finance/admin/generate-receipt/${localEditingPayment.id}`,
+          {
+            method: "POST",
+          }
+        );
+
+        if (receiptResponse.ok) {
+          const receiptResult = await receiptResponse.json();
+          alert("Payment successfully updated and receipt generated!");
+        } else {
+          alert("Payment updated but failed to generate receipt.");
+        }
+      } else {
+        alert("Payment successfully updated!");
+      }
+
+      // ✅ ONLY UPDATE PARENT STATE HERE (on success)
+      setEditingPayment(null);
+      onClose();
+      fetchFinancialData();
+      fetchAllStudents();
+    } catch (err) {
+      console.error("Error updating payment:", err);
+      alert("Failed to update payment. Please try again.");
+    }
+  };
+
+  if (!isOpen || !localEditingPayment) return null;
+
+  const amountRemaining = localEditingPayment.totalAmount - localEditingPayment.amountPaid;
+
+  return (
+    <div className={styles.modalOverlay} onClick={onClose}>
+      <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+        <div className={styles.modalHeader}>
+          <h2>Edit Payment Record</h2>
+          <button className={styles.closeButton} onClick={onClose}>×</button>
+        </div>
+
+        <form onSubmit={handleSubmit} style={{ padding: "10px"}}>
+          <div style={{ marginBottom: "8px" }}>
+            <label style={{ display: "block", marginBottom: "4px", fontWeight: "500" }}>
+              Student
+            </label>
+            <input
+              type="text"
+              value={localEditingPayment.studentName}
+              disabled
+              style={{
+                width: "100%",
+                padding: "10px",
+                borderRadius: "6px",
+                border: "1px solid #e2e8f0",
+                background: "#f8fafc",
+              }}
+            />
+          </div>
+
+          <div style={{ marginBottom: "8px" }}>
+            <label style={{ display: "block", marginBottom: "4px", fontWeight: "500" }}>
+              Description
+            </label>
+            <input
+              type="text"
+              value={localEditingPayment.description || ""}
+              onChange={(e) => handleInputChange('description', e.target.value)}
+              placeholder="Enter payment description"
+              style={{
+                width: "100%",
+                padding: "10px",
+                borderRadius: "6px",
+                border: "1px solid #e2e8f0",
+              }}
+            />
+          </div>
+
+          <div style={{ marginBottom: "8px" }}>
+            <label style={{ display: "block", marginBottom: "4px", fontWeight: "500" }}>
+              Total Amount
+            </label>
+            <input
+              type="number"
+              value={localEditingPayment.totalAmount || ""}
+              onChange={(e) => handleInputChange('totalAmount', e.target.value)}
+              step="0.01"
+              min="0"
+              style={{
+                width: "100%",
+                padding: "10px",
+                borderRadius: "6px",
+                border: "1px solid #e2e8f0",
+              }}
+            />
+          </div>
+
+          <div style={{ marginBottom: "8px" }}>
+            <label style={{ display: "block", marginBottom: "4px", fontWeight: "500" }}>
+              Amount Paid
+            </label>
+            <input
+              type="number"
+              value={localEditingPayment.amountPaid || ""}
+              onChange={(e) => handleInputChange('amountPaid', e.target.value)}
+              step="0.01"
+              min="0"
+              max={localEditingPayment.totalAmount}
+              style={{
+                width: "100%",
+                padding: "10px",
+                borderRadius: "6px",
+                border: "1px solid #e2e8f0",
+              }}
+            />
+          </div>
+
+          <div style={{ marginBottom: "8px" }}>
+            <label style={{ display: "block", marginBottom: "4px", fontWeight: "500" }}>
+              Due Date
+            </label>
+            <input
+              type="date"
+              value={localEditingPayment.dueDate || ""}
+              onChange={(e) => handleInputChange('dueDate', e.target.value)}
+              style={{
+                width: "100%",
+                padding: "10px",
+                borderRadius: "6px",
+                border: "1px solid #e2e8f0",
+              }}
+            />
+          </div>
+
+          <div style={{ marginBottom: "8px" }}>
+            <label style={{ display: "block", marginBottom: "4px", fontWeight: "500" }}>
+              Payment Type
+            </label>
+            <select
+              value={localEditingPayment.type || "tuition"}
+              onChange={(e) => handleInputChange('type', e.target.value)}
+              style={{
+                width: "100%",
+                padding: "10px",
+                borderRadius: "6px",
+                border: "1px solid #e2e8f0",
+              }}
+            >
+              <option value="tuition">Tuition</option>
+              <option value="housing">Housing</option>
+              <option value="meal">Meal Plan</option>
+              <option value="fees">Fees</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+
+          <div style={{ marginBottom: "8px", padding: "12px", background: "#f8fafc", borderRadius: "6px" }}>
             <div style={{ display: "flex", justifyContent: "space-between", paddingTop: "8px", borderTop: "1px solid #e2e8f0" }}>
               <span>Amount Remaining:</span>
               <strong style={{ color: amountRemaining > 0 ? "#ef4444" : "#10b981" }}>
@@ -1543,12 +1769,12 @@ const createBasicReceipt = async (receiptId) => {
             </div>
           </div>
 
-          <div style={{ marginBottom: "20px" }}>
-            <label style={{ display: "block", marginBottom: "8px", fontWeight: "500" }}>
+          <div style={{ marginBottom: "10px" }}>
+            <label style={{ display: "block", marginBottom: "4px", fontWeight: "500" }}>
               Status
             </label>
             <select
-              value={editingPayment.status || "pending"}
+              value={localEditingPayment.status || "pending"}
               onChange={(e) => handleInputChange('status', e.target.value)}
               style={{
                 width: "100%",
@@ -2247,6 +2473,7 @@ const ReceiptModal = ({ receipt, onClose }) => {
                               console.log("Setting payment for:", student.name);
                               setSelectedStudent(student);
                               setShowPaymentModal(true);
+                              
                             }}
                             style={{ marginRight: "8px" }}
                           >
@@ -2741,6 +2968,8 @@ const ReceiptModal = ({ receipt, onClose }) => {
               type: "tuition",
             });
           }}
+
+          selectedStudentFromParent={selectedStudent}
         />
 
         {/* Add this new modal */}
