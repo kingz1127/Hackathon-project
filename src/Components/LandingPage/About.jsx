@@ -121,7 +121,7 @@ export default function About() {
             </li>
 
             <li>
-              <Link to="/outstaff">Our Staff</Link>
+              <Link to="/ourstaff">Our Staff</Link>
             </li>
             <li>
               <Link to="/news">News</Link>

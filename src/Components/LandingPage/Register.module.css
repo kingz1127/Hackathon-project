@@ -171,6 +171,7 @@
 .scrolled {
   background-color: white;
   color: black;
+  top: 0;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
@@ -249,7 +250,7 @@
 .login h1 {
   margin-bottom: 2rem;
   color: #0f3460;
-  font-size: 2.5rem;
+  font-size: 3rem;
   font-weight: 700;
   letter-spacing: 0.5px;
 }
@@ -265,7 +266,8 @@
   border: 1px solid #ccc;
   border-radius: 8px;
   outline: none;
-  font-size: 1rem;
+  font-size: 1.5rem;
+  font-weight: 400;
   transition: all 0.3s ease;
 }
 
@@ -279,7 +281,7 @@
   align-items: center;
   justify-content: flex-start;
   gap: 0.5rem;
-  font-size: 0.9rem;
+  font-size: 1.2rem;
   color: #555;
 }
 
@@ -294,7 +296,7 @@
   border: none;
   padding: 0.9rem;
   border-radius: 8px;
-  font-size: 1rem;
+  font-size: 1.5rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -595,9 +597,6 @@
   }
 }
 
-
-
-
 /* Photo Upload Styles */
 .photoUploadSection {
   margin: 20px 0;
@@ -747,23 +746,23 @@
   .uploadArea {
     padding: 20px;
   }
-  
+
   .uploadButton {
     gap: 8px;
   }
-  
+
   .uploadIcon {
     font-size: 1.5rem;
   }
-  
+
   .uploadButton strong {
     font-size: 1rem;
   }
-  
+
   .uploadButton p {
     font-size: 0.8rem;
   }
-  
+
   .previewImage img {
     max-width: 150px;
     max-height: 150px;

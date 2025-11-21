@@ -3,7 +3,7 @@
 =========================================================== */
 .header {
   background: linear-gradient(rgba(0, 153, 255, 0.9), rgba(0, 132, 255, 0.9)),
-    url("src/assets/gallery.jpg");
+    url("src/assets/about.jpg");
   background-size: cover;
   background-position: center;
   height: 75rem;
@@ -218,6 +218,7 @@
   background-color: white;
   color: black;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+   top: 0;
 }
 
 .scrolled a {

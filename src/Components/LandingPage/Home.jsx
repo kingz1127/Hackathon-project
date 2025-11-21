@@ -76,6 +76,7 @@ export default function Home() {
           </div>
 
           {/* Navigation Links */}
+
           <ul className={`${styles.navLinks} ${menuOpen ? styles.show : ""}`}>
             <li>
               <Link to="/">Home</Link>
@@ -84,7 +85,7 @@ export default function Home() {
             {/* Dropdown Menu */}
             <li
               className={`${styles.dropdown} ${
-                dropdownOpen ? styles.open : "" 
+                dropdownOpen ? styles.open : ""
               }`}
               onClick={() => setDropdownOpen(!dropdownOpen)}
             >

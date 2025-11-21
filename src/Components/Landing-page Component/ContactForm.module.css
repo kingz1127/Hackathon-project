@@ -36,7 +36,7 @@
   padding: 0.8rem 1rem;
   border: 1px solid #ddd;
   border-radius: 0.25rem;
-  font-size: 1.5rem;
+  font-size: 2rem;
   outline: none;
   transition: border-color 0.3s ease;
 }
@@ -54,7 +54,7 @@
   padding: 0.8rem 2rem;
   border-radius: 2rem;
   font-weight: 600;
-  font-size: 1.2rem;
+  font-size: 1.5rem;
   align-self: center;
   cursor: pointer;
   transition: background-color 0.3s ease;
@@ -80,19 +80,19 @@
 
 .icon {
   color: #177bff;
-  font-size: 1.8rem;
+  font-size: 2rem;
   margin-top: 0.25rem;
 }
 
 .infoItem h4 {
-  font-size: 1.5rem;
+  font-size: 1.8rem;
   font-weight: 600;
   margin-bottom: 0.25rem;
   color: #000;
 }
 
 .infoItem p {
-  font-size: 1.2rem;
+  font-size: 1.5rem;
   color: #6b7280;
 }
 

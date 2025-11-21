@@ -11,7 +11,7 @@
 
 .heading {
   color: #2563eb; /* blue */
-  font-size: 30px;
+  font-size: 3rem;
   margin: 0 0 10px 0;
   font-weight: 600;
 }
@@ -20,7 +20,8 @@
   color: #6b7280;
   max-width: 720px;
   margin: 0 auto 40px;
-  font-size: 15px;
+  font-size: 1.5rem;
+  font-weight: 500;
 }
 
 /* Grid that holds the horizontal cards */
