@@ -16,7 +16,6 @@
   margin-bottom: 3rem;
 }
 
-/* Grid Layout */
 .grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -24,7 +23,6 @@
   justify-content: center;
 }
 
-/* Card Styling */
 .card {
   background-color: #f8fbff;
   padding: 2rem 1rem;
@@ -42,7 +40,6 @@
   transform: translateY(-1px);
 }
 
-/* Icon Styling */
 .icon {
   color: #2563eb;
   font-size: 1.5rem;
@@ -51,12 +48,10 @@
   transition: transform 0.3s ease, color 0.3s ease;
 }
 
-/* Icon hover animation */
 .card:hover .icon {
   color: #1e40af;
 }
 
-/* Text Styling */
 .card h3 {
   color: #111827;
   font-size: 1.8rem;
@@ -70,7 +65,6 @@
   margin: 0;
 }
 
-/* Footer Text */
 .footerText {
   color: #374151;
   margin-top: 2.5rem;
@@ -87,7 +81,6 @@
   text-decoration: underline;
 }
 
-/* Responsive Layout */
 @media (max-width: 1024px) {
   .grid {
     grid-template-columns: repeat(3, 1fr);

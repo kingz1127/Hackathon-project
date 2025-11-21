@@ -51,20 +51,17 @@ export default function Register() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  // Handle passport photo upload
   const handlePhotoUpload = (e) => {
     const file = e.target.files[0];
     setFileError("");
 
     if (file) {
-      // Check file type
       const validTypes = ["image/jpeg", "image/jpg", "image/png"];
       if (!validTypes.includes(file.type)) {
         setFileError("Please upload a valid image (JPEG, JPG, or PNG)");
         return;
       }
 
-      // Check file size (2MB max for passport photos)
       if (file.size > 2 * 1024 * 1024) {
         setFileError("Passport photo must be less than 2MB");
         return;
@@ -72,7 +69,6 @@ export default function Register() {
 
       setPassportPhoto(file);
 
-      // Create preview
       const reader = new FileReader();
       reader.onload = (e) => {
         setPhotoPreview(e.target.result);
@@ -81,12 +77,10 @@ export default function Register() {
     }
   };
 
-  // Remove passport photo
   const removePhoto = () => {
     setPassportPhoto(null);
     setPhotoPreview(null);
     setFileError("");
-    // Reset file input
     const fileInput = document.getElementById("passportPhoto");
     if (fileInput) fileInput.value = "";
   };
@@ -102,18 +96,14 @@ export default function Register() {
     try {
       setUploading(true);
 
-      // Create FormData for file upload
       const formData = new FormData();
 
-      // Append all form fields
       Object.keys(form).forEach((key) => {
         if (form[key]) {
-          // Only append if value exists
           formData.append(key, form[key]);
         }
       });
 
-      // Append passport photo
       formData.append("passportPhoto", passportPhoto);
 
       console.log("FormData contents:");
@@ -123,7 +113,7 @@ export default function Register() {
 
       const res = await fetch("http://localhost:5000/api/register", {
         method: "POST",
-        body: formData, // Don't set Content-Type header for FormData
+        body: formData,
       });
 
       console.log("Response status:", res.status);
@@ -136,7 +126,6 @@ export default function Register() {
           result.message ||
             "✅ Registration submitted! Check your mail for Admin feedback"
         );
-        // Reset form
         setForm({
           Email: "",
           FullName: "",
@@ -171,7 +160,6 @@ export default function Register() {
   return (
     <>
       <header className={styles.header}>
-        {/* Top bar */}
         <div className={styles.topBar}>
           <div className={styles.contactInfo}>
             <span>
@@ -197,13 +185,11 @@ export default function Register() {
 
         <hr className={styles.divider} />
 
-        {/* Main nav */}
         <nav
           className={`${styles.mainNav} ${isScrolled ? styles.scrolled : ""}`}
         >
           <div className={styles.logo}>Learner.</div>
 
-          {/* Hamburger */}
           <div
             className={`${styles.hamburger} ${menuOpen ? styles.active : ""}`}
             onClick={() => setMenuOpen(!menuOpen)}
@@ -213,13 +199,11 @@ export default function Register() {
             <span></span>
           </div>
 
-          {/* Nav Links */}
           <ul className={`${styles.navLinks} ${menuOpen ? styles.show : ""}`}>
             <li>
               <Link to="/">Home</Link>
             </li>
 
-            {/* Dropdown */}
             <li
               className={`${styles.dropdown} ${
                 dropdownOpen ? styles.open : ""
@@ -313,12 +297,12 @@ export default function Register() {
                 new Date(new Date().setFullYear(new Date().getFullYear() - 15))
                   .toISOString()
                   .split("T")[0]
-              } // max = 15 years ago
+              }
               min={
                 new Date(new Date().setFullYear(new Date().getFullYear() - 60))
                   .toISOString()
                   .split("T")[0]
-              } // min = 60 years ago
+              }
               required
             />
           </div>
@@ -370,7 +354,6 @@ export default function Register() {
             </option>
           </select>
 
-          {/* ✅ Searchable Country Select */}
           <div className={styles.selectCountry}>
             <Select
               options={options}
@@ -413,7 +396,6 @@ export default function Register() {
             <option value="Female">Female</option>
           </select>
 
-          {/* Passport Photo Upload */}
           <div className={styles.photoUploadSection}>
             <label className={styles.uploadLabel}>Passport Photo *</label>
             <div

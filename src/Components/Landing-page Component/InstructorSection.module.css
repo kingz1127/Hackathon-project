@@ -69,13 +69,12 @@
   background-color: #1e40af;
 }
 
-/* Image Section */
 .imageContainer {
   flex: 1;
   min-width: 320px;
   display: flex;
   justify-content: center;
-  overflow: hidden; /* Keeps image inside container while zooming */
+  overflow: hidden;
   border-radius: 0.5rem;
 }
 
@@ -87,13 +86,11 @@
   transition: transform 0.5s ease, box-shadow 0.5s ease;
 }
 
-/* Zoom effect on hover */
 .imageContainer:hover img {
   transform: scale(1.05);
   box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
 }
 
-/* Responsive */
 @media (max-width: 900px) {
   .container {
     flex-direction: column-reverse;

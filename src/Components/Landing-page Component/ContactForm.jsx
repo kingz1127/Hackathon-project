@@ -6,7 +6,6 @@ const ContactForm = () => {
   return (
     <section className={styles.contactSection}>
       <div className={styles.container}>
-        {/* Contact Form */}
         <div className={styles.formContainer}>
           <form className={styles.form}>
             <div className={styles.inputGroup}>
@@ -37,7 +36,6 @@ const ContactForm = () => {
           </form>
         </div>
 
-        {/* Contact Information */}
         <div className={styles.infoContainer}>
           <div className={styles.infoItem}>
             <FaMapMarkerAlt className={styles.icon} />

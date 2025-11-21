@@ -10,7 +10,7 @@
 }
 
 .heading {
-  color: #2563eb; /* blue */
+  color: #2563eb;
   font-size: 3rem;
   margin: 0 0 10px 0;
   font-weight: 600;
@@ -24,7 +24,6 @@
   font-weight: 500;
 }
 
-/* Grid that holds the horizontal cards */
 .newsGrid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -32,7 +31,6 @@
   align-items: stretch;
 }
 
-/* Each card is a horizontal flex row: image on left, content on right */
 .card {
   display: flex;
   background: #fff;
@@ -40,7 +38,7 @@
   box-shadow: 0 8px 22px rgba(30, 41, 59, 0.08);
   overflow: hidden;
   transition: transform 0.18s ease, box-shadow 0.18s ease;
-  align-items: stretch; /* ensures image height matches content */
+  align-items: stretch;
 }
 
 .card:hover {
@@ -48,15 +46,13 @@
   box-shadow: 0 14px 30px rgba(30, 41, 59, 0.12);
 }
 
-/* left image wrapper - fixed width so text column flows naturally */
 .imgWrap {
-  flex: 0 0 220px; /* width of image column; adjust to taste */
+  flex: 0 0 220px;
   min-width: 160px;
   display: block;
   overflow: hidden;
 }
 
-/* image stretches to match card height */
 .cardImg {
   display: block;
   width: 100%;
@@ -64,7 +60,6 @@
   object-fit: cover;
 }
 
-/* Right side content */
 .cardContent {
   padding: 22px 26px;
   flex: 1;
@@ -105,10 +100,9 @@
   color: #2563eb;
   text-decoration: none;
   font-weight: 500;
-  margin-top: auto; /* push Learn More to the bottom when possible */
+  margin-top: auto;
 }
 
-/* Responsive: stack image on top for narrow viewports */
 @media (max-width: 880px) {
   .newsGrid {
     grid-template-columns: 1fr;
@@ -121,7 +115,7 @@
   .imgWrap {
     width: 100%;
     flex: 0 0 auto;
-    height: 220px; /* fixed height for stacked view */
+    height: 220px;
   }
 
   .cardImg {

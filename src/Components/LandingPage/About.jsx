@@ -14,10 +14,9 @@ import {
 import { IoMdCall, IoMdPerson } from "react-icons/io";
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-// <<<<<<< HEAD
-// <<<<<<< HEAD
+
 import Register from "./Register";
-// =======
+
 import styles from "./About.module.css";
 import Footer from "../Landing-page Component/Footer";
 import InstructorSection from "../Landing-page Component/InstructorSection";
@@ -40,7 +39,6 @@ export default function About() {
   return (
     <>
       <header className={styles.header}>
-        {/* Top bar */}
         <div className={styles.topBar}>
           <div className={styles.contactInfo}>
             <span>
@@ -66,13 +64,11 @@ export default function About() {
 
         <hr className={styles.divider} />
 
-        {/* Main nav */}
         <nav
           className={`${styles.mainNav} ${isScrolled ? styles.scrolled : ""}`}
         >
           <div className={styles.logo}>Learner.</div>
 
-          {/* Hamburger */}
           <div
             className={`${styles.hamburger} ${menuOpen ? styles.active : ""}`}
             onClick={() => setMenuOpen(!menuOpen)}
@@ -82,13 +78,11 @@ export default function About() {
             <span></span>
           </div>
 
-          {/* Nav Links */}
           <ul className={`${styles.navLinks} ${menuOpen ? styles.show : ""}`}>
             <li>
               <Link to="/">Home</Link>
             </li>
 
-            {/* Dropdown */}
             <li
               className={`${styles.dropdown} ${
                 dropdownOpen ? styles.open : ""
@@ -140,13 +134,12 @@ export default function About() {
           <button onClick={() => navigate("/register")}>ENROLL NOW</button>
         </nav>
 
-        {/* 🎬 Hero Section */}
         <div className={styles.spacer}>
           <h2>About Us</h2>
           <p>
             Another free template by Untree.co. Far far away, behind the word
-            mountains, far from the countries Vokalia and Consonantia, there
-            live.
+            mountains,
+            <br /> far from the countries Vokalia and Consonantia, there live.
           </p>
           <button onClick={() => navigate("/register")}>Explore Courses</button>
         </div>

@@ -6,7 +6,6 @@ const InstructorSection = () => {
   return (
     <section className={styles.section}>
       <div className={styles.container}>
-        {/* Left Side */}
         <div className={styles.textContainer}>
           <h2>Become an Instructor</h2>
           <p>
@@ -30,7 +29,6 @@ const InstructorSection = () => {
           <button className={styles.button}>Get Started</button>
         </div>
 
-        {/* Right Side */}
         <div className={styles.imageContainer}>
           <img
             src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=800&q=80"

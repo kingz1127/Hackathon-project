@@ -28,7 +28,6 @@ const WhyChooseUs = () => {
   return (
     <section className={styles.whyChoose}>
       <div className={styles.container}>
-        {/* Left Image */}
         <div className={styles.imageBox}>
           <img
             src="https://themewagon.github.io/learner/images/img-school-5-min.jpg"
@@ -36,7 +35,6 @@ const WhyChooseUs = () => {
           />
         </div>
 
-        {/* Right Content */}
         <div className={styles.contentBox}>
           <h2>Why Choose Us</h2>
           <p>

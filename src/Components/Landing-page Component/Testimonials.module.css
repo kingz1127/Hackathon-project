@@ -15,13 +15,11 @@
   margin-bottom: 1rem;
 }
 
-/* holds slides; fixed height to avoid layout jump */
 .slideWrap {
   position: relative;
   height: 240px;
 }
 
-/* each slide sits on top of the others */
 .slide {
   position: absolute;
   left: 0;
@@ -73,7 +71,6 @@
   font-size: 1.5rem;
 }
 
-/* dots */
 .dots {
   display: flex;
   gap: 10px;
@@ -96,7 +93,6 @@
   border-color: #1663d6;
 }
 
-/* Responsive */
 @media (max-width: 700px) {
   .slideWrap {
     height: 320px;

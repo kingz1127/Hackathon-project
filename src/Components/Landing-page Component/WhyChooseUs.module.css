@@ -62,7 +62,6 @@
   font-size: 1.2rem;
 }
 
-/* Content inside accordion */
 .content {
   margin-top: 0.8rem;
 }
@@ -87,7 +86,6 @@
   line-height: 1.5;
 }
 
-/* Active state */
 .active {
   background-color: #1663d6;
   color: #fff;
@@ -102,7 +100,6 @@
   color: #f5f7fa;
 }
 
-/* Responsive */
 @media (max-width: 900px) {
   .container {
     grid-template-columns: 1fr;
