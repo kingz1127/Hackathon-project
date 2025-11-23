@@ -8,51 +8,40 @@ export default function TeacherClassesPage() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingClass, setEditingClass] = useState(null);
-  const [filterSemester, setFilterSemester] = useState('');
-  const [filterStatus, setFilterStatus] = useState('');
-  
+  const [filterSemester, setFilterSemester] = useState("");
+  const [filterStatus, setFilterStatus] = useState("");
+
   const [formData, setFormData] = useState({
-    courseId: '',
-    className: '',
-    description: '',
-    scheduleDay: 'Monday',
-    scheduleTime: '',
-    scheduleDuration: 90,
-    semester: 'Fall',
-    academicYear: '2024-2025',
-    room: '',
-    maxStudents: 30
+    teacherId: "",
+    className: "",
+    description: "",
+    scheduleDay: "Monday",
+    scheduleTime: "",
+    scheduleDuration: "90",
+    semester: "Fall",
+    academicYear: "2024-2025",
+    room: "",
+    maxStudents: "30",
   });
 
+  // Fetch classes from API
   useEffect(() => {
     fetchClasses();
   }, [filterSemester, filterStatus]);
-const fetchClasses = async () => {
+
+  const fetchClasses = async () => {
   setLoading(true);
-  setClasses([]);
   try {
-    const token = localStorage.getItem('token');
-    if (!token) throw new Error('No token found. Please login.');
-
-    const params = new URLSearchParams();
-    if (filterSemester) params.append('semester', filterSemester);
-    if (filterStatus) params.append('status', filterStatus);
-
-    const res = await fetch(`http://localhost:5000/api/classes/teacher?${params}`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-
-    const data = await res.json();
-
+    const res = await fetch("http://localhost:5000/api/classes/teacher");
+    
     if (!res.ok) {
-      throw new Error(data.message || 'Failed to fetch classes');
+      throw new Error(`HTTP error! status: ${res.status}`);
     }
 
-    // Ensure classes is always an array
+    const data = await res.json();
     setClasses(Array.isArray(data) ? data : []);
-  } catch (error) {
-    console.error('Error fetching classes:', error);
-    alert(error.message || 'Failed to fetch classes');
+  } catch (err) {
+    console.error("Error fetching classes:", err);
     setClasses([]);
   } finally {
     setLoading(false);
@@ -62,130 +51,113 @@ const fetchClasses = async () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleCreateClass = async (e) => {
     e.preventDefault();
     try {
-      const token = localStorage.getItem('token');
       const payload = {
         ...formData,
-        schedule: {
-          day: formData.scheduleDay,
-          time: formData.scheduleTime,
-          duration: parseInt(formData.scheduleDuration)
-        }
+        schedule: [
+          {
+            day: formData.scheduleDay,
+            startTime: formData.scheduleTime,
+            endTime: "", // optional
+          },
+        ],
       };
-      
-      const res = await fetch('http://localhost:5000/api/classes/teacher', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify(payload)
+
+      const res = await fetch("http://localhost:5000/api/classes/teacher", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
       });
-      
-      if (!res.ok) throw new Error('Failed to create class');
+
       const data = await res.json();
-      
       setClasses([data, ...classes]);
       setIsCreateModalOpen(false);
       resetForm();
-      alert('Class created successfully!');
-    } catch (error) {
-      console.error('Error creating class:', error);
-      alert('Failed to create class');
+    } catch (err) {
+      console.error("Error creating class:", err);
     }
   };
 
   const handleEditClass = async (e) => {
     e.preventDefault();
     try {
-      const token = localStorage.getItem('token');
       const payload = {
         ...formData,
-        schedule: {
-          day: formData.scheduleDay,
-          time: formData.scheduleTime,
-          duration: parseInt(formData.scheduleDuration)
-        }
+        schedule: [
+          {
+            day: formData.scheduleDay,
+            startTime: formData.scheduleTime,
+            endTime: "", // optional
+          },
+        ],
       };
-      
-      const res = await fetch(`http://localhost:5000/api/classes/teacher/${editingClass._id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify(payload)
-      });
-      
-      if (!res.ok) throw new Error('Failed to update class');
+
+      const res = await fetch(
+        `http://localhost:5000/api/classes/teacher/${editingClass._id}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        }
+      );
+
       const data = await res.json();
-      
-      setClasses(classes.map(c => c._id === editingClass._id ? data : c));
+      setClasses(classes.map((c) => (c._id === editingClass._id ? data : c)));
       setIsEditModalOpen(false);
       setEditingClass(null);
       resetForm();
-      alert('Class updated successfully!');
-    } catch (error) {
-      console.error('Error updating class:', error);
-      alert('Failed to update class');
+    } catch (err) {
+      console.error("Error updating class:", err);
     }
   };
 
   const handleDeleteClass = async (classId) => {
-    if (!confirm('Are you sure you want to delete this class?')) return;
-    
+    if (!confirm("Are you sure you want to delete this class?")) return;
     try {
-      const token = localStorage.getItem('token');
-      const res = await fetch(`http://localhost:5000/api/classes/teacher/${classId}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` }
+      await fetch(`http://localhost:5000/api/classes/teacher/${classId}`, {
+        method: "DELETE",
       });
-      
-      if (!res.ok) throw new Error('Failed to delete class');
-      
-      setClasses(classes.filter(c => c._id !== classId));
+      setClasses(classes.filter((c) => c._id !== classId));
       if (expandedClass === classId) setExpandedClass(null);
-      alert('Class deleted successfully!');
-    } catch (error) {
-      console.error('Error deleting class:', error);
-      alert('Failed to delete class');
+    } catch (err) {
+      console.error("Error deleting class:", err);
     }
   };
 
   const openEditModal = (classData) => {
     setEditingClass(classData);
     setFormData({
-      courseId: classData.courseId?._id || '',
+      teacherId: classData.teacherId,
       className: classData.className,
-      description: classData.description || '',
-      scheduleDay: classData.schedule?.day || 'Monday',
-      scheduleTime: classData.schedule?.time || '',
-      scheduleDuration: classData.schedule?.duration || 90,
+      description: classData.description || "",
+      scheduleDay: classData.schedule?.[0]?.day || "Monday",
+      scheduleTime: classData.schedule?.[0]?.startTime || "",
+      scheduleDuration: classData.schedule?.[0]?.duration || "90",
       semester: classData.semester,
       academicYear: classData.academicYear,
-      room: classData.room || '',
-      maxStudents: classData.maxStudents || 30
+      room: classData.room || "",
+      maxStudents: classData.maxStudents || "30",
     });
     setIsEditModalOpen(true);
   };
 
   const resetForm = () => {
     setFormData({
-      courseId: '',
-      className: '',
-      description: '',
-      scheduleDay: 'Monday',
-      scheduleTime: '',
-      scheduleDuration: 90,
-      semester: 'Fall',
-      academicYear: '2024-2025',
-      room: '',
-      maxStudents: 30
+      teacherId: "",
+      className: "",
+      description: "",
+      scheduleDay: "Monday",
+      scheduleTime: "",
+      scheduleDuration: "90",
+      semester: "Fall",
+      academicYear: "2024-2025",
+      room: "",
+      maxStudents: "30",
     });
   };
 
@@ -193,14 +165,7 @@ const fetchClasses = async () => {
     setExpandedClass(expandedClass === classId ? null : classId);
   };
 
-  if (loading) {
-    return (
-      <div className="loading-container">
-        <div className="spinner"></div>
-        <p>Loading classes...</p>
-      </div>
-    );
-  }
+  if (loading) return <p>Loading classes...</p>;
 
   return (
     <>
@@ -350,27 +315,19 @@ const fetchClasses = async () => {
         </div>
       )}
 
-      {/* Create/Edit Modal */}
-      {(isCreateModalOpen || isEditModalOpen) && (
-        <div className="modal-overlay" onClick={() => {
-          setIsCreateModalOpen(false);
-          setIsEditModalOpen(false);
-          resetForm();
-        }}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2>{isEditModalOpen ? 'Edit Class' : 'Create New Class'}</h2>
-              <button 
-                onClick={() => {
-                  setIsCreateModalOpen(false);
-                  setIsEditModalOpen(false);
-                  resetForm();
-                }} 
-                className="close-btn"
-              >
-                ✕
-              </button>
-            </div>
+  {/* Create/Edit Modal */}
+{(isCreateModalOpen || isEditModalOpen) && (
+  <div 
+    className="modal-overlay" 
+    onClick={() => {
+      closeModal();
+    }}
+  >
+    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+      <div className="modal-header">
+        <h2>{isEditModalOpen ? 'Edit Class' : 'Create New Class'}</h2>
+        <button onClick={closeModal} className="close-btn">✕</button>
+      </div>
 
             <div className="modal-form">
               <div className="form-group">

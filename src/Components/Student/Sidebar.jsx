@@ -66,7 +66,7 @@ export default function Sidebar() {
               isActive ? "sidebar-btn active" : "sidebar-btn"
             }
           >
-            <span className="icon">📚</span> Courses
+            <span className="icon">📚</span> Classes
           </NavLink>
         </li>
         <li>
