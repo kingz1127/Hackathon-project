@@ -10,7 +10,7 @@
 }
 
 .title {
-  font-size: 1.8rem;
+  font-size: 3rem;
   color: #1663d6;
   margin-bottom: 0.5rem;
 }
@@ -19,7 +19,8 @@
   max-width: 700px;
   margin: 0 auto 3rem;
   color: #666;
-  font-size: 1rem;
+  font-weight: 500;
+  font-size: 1.5rem;
   line-height: 1.6;
 }
 
@@ -43,7 +44,7 @@
 
 .plan {
   color: #1663d6;
-  font-size: 1.2rem;
+  font-size: 2rem;
   margin-bottom: 1rem;
 }
 
@@ -55,15 +56,16 @@
 }
 
 .period {
-  font-size: 0.9rem;
+  font-size: 1.5rem;
   color: #666;
-  font-weight: 400;
+  font-weight: 600;
   margin-left: 2px;
 }
 
 .desc {
-  font-size: 0.95rem;
+  font-size: 1.5rem;
   color: #666;
+  font-weight: 600;
   line-height: 1.5;
   margin-bottom: 1.5rem;
 }
@@ -71,7 +73,8 @@
 .button {
   padding: 0.7rem 1.5rem;
   border-radius: 25px;
-  font-size: 0.9rem;
+  font-size: 1.4rem;
+  font-weight: 600;
   cursor: pointer;
   border: 1px solid #1663d6;
   transition: all 0.3s ease;
@@ -96,7 +99,6 @@
   opacity: 0.9;
 }
 
-/* Responsive */
 @media (max-width: 900px) {
   .grid {
     grid-template-columns: 1fr;

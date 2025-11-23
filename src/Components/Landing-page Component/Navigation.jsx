@@ -21,7 +21,6 @@ const Navigation = () => {
             <li className={styles.active}>
               <a href="/">Home</a>
             </li>
-            {/* ...Add other menu items here... */}
             <li>
               <a href="/ourstaff">Our Staff</a>
             </li>
@@ -44,14 +43,14 @@ const Navigation = () => {
         </div>
       </div>
       <section className={styles.hero}>
-            <div className={styles.overlay}></div>
-      
-            <div className={styles.content}>
-              <p className={styles.subtitle}>WATCH THE VIDEO</p>
-              <h1 className={styles.title}>Education for Tomorrow's Leaders</h1>
-              <button className={styles.btn}>Enroll Now</button>
-            </div>
-          </section>
+        <div className={styles.overlay}></div>
+
+        <div className={styles.content}>
+          <p className={styles.subtitle}>WATCH THE VIDEO</p>
+          <h1 className={styles.title}>Education for Tomorrow's Leaders</h1>
+          <button className={styles.btn}>Enroll Now</button>
+        </div>
+      </section>
     </div>
   );
 };

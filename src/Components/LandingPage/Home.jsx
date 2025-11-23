@@ -31,7 +31,6 @@ export default function Home() {
   return (
     <>
       <header className={styles.header}>
-        {/* ============ 🟦 Top Bar ============ */}
         <div className={styles.topBar}>
           <div className={styles.contactInfo}>
             <span>
@@ -58,14 +57,11 @@ export default function Home() {
 
         <hr className={styles.divider} />
 
-        {/* ============ 🟨 Main Navigation ============ */}
         <nav
           className={`${styles.mainNav} ${isScrolled ? styles.scrolled : ""}`}
         >
-          {/* Logo */}
           <div className={styles.logo}>Learner.</div>
 
-          {/* Hamburger Menu */}
           <div
             className={`${styles.hamburger} ${menuOpen ? styles.active : ""}`}
             onClick={() => setMenuOpen(!menuOpen)}
@@ -75,16 +71,14 @@ export default function Home() {
             <span></span>
           </div>
 
-          {/* Navigation Links */}
           <ul className={`${styles.navLinks} ${menuOpen ? styles.show : ""}`}>
             <li>
               <Link to="/">Home</Link>
             </li>
 
-            {/* Dropdown Menu */}
             <li
               className={`${styles.dropdown} ${
-                dropdownOpen ? styles.open : "" 
+                dropdownOpen ? styles.open : ""
               }`}
               onClick={() => setDropdownOpen(!dropdownOpen)}
             >
@@ -92,24 +86,24 @@ export default function Home() {
 
               <ul className={styles.dropdownMenu}>
                 <li>
-                  <Link to="/elements">Elements</Link>
+                  <Link to="#">Elements</Link>
                 </li>
                 <li>
-                  <Link to="/menu2">Menu 2</Link>
+                  <Link to="#">Menu 2</Link>
                   <ul className={styles.dropdownMenu2}>
                     <li>
-                      <Link to="/submenu1">Submenu 1</Link>
+                      <Link to="#">Submenu 1</Link>
                     </li>
                     <li>
-                      <Link to="/submenu2">Submenu 2</Link>
+                      <Link to="#">Submenu 2</Link>
                     </li>
                     <li>
-                      <Link to="/submenu3">Submenu 3</Link>
+                      <Link to="#">Submenu 3</Link>
                     </li>
                   </ul>
                 </li>
                 <li>
-                  <Link to="/menu3">Menu 3</Link>
+                  <Link to="#">Menu 3</Link>
                 </li>
               </ul>
             </li>
@@ -131,11 +125,9 @@ export default function Home() {
             </li>
           </ul>
 
-          {/* Enroll Button */}
           <button onClick={() => navigate("/register")}>ENROLL NOW</button>
         </nav>
 
-        {/* ============ 🟩 Hero Section ============ */}
         <div className={styles.spacer}>
           <p>Watch the video</p>
           <h2>Learn Anywhere, Anytime</h2>

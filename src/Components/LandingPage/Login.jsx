@@ -74,7 +74,7 @@ export default function Login() {
   return (
     <>
       <header className={styles.header}>
-        {/* Top bar */}
+  
         <div className={styles.topBar}>
           <div className={styles.contactInfo}>
             <span>
@@ -100,13 +100,11 @@ export default function Login() {
 
         <hr className={styles.divider} />
 
-        {/* Main nav */}
         <nav
           className={`${styles.mainNav} ${isScrolled ? styles.scrolled : ""}`}
         >
           <div className={styles.logo}>Learner.</div>
 
-          {/* Hamburger */}
           <div
             className={`${styles.hamburger} ${menuOpen ? styles.active : ""}`}
             onClick={() => setMenuOpen(!menuOpen)}
@@ -116,13 +114,11 @@ export default function Login() {
             <span></span>
           </div>
 
-          {/* Nav Links */}
           <ul className={`${styles.navLinks} ${menuOpen ? styles.show : ""}`}>
             <li>
               <Link to="/">Home</Link>
             </li>
 
-            {/* Dropdown */}
             <li
               className={`${styles.dropdown} ${
                 dropdownOpen ? styles.open : ""
@@ -184,7 +180,6 @@ export default function Login() {
             className={styles.formtext}
           />
 
-          {/* Password with eye toggle - FIXED */}
           <div className={styles.passwordWrapper}>
             <input
               type={showPassword ? "text" : "password"}

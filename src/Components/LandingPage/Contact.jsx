@@ -51,13 +51,11 @@ export default function Contact() {
 
         <hr className={styles.divider} />
 
-        {/* Main nav */}
         <nav
           className={`${styles.mainNav} ${isScrolled ? styles.scrolled : ""}`}
         >
           <div className={styles.logo}>Learner.</div>
 
-          {/* Hamburger */}
           <div
             className={`${styles.hamburger} ${menuOpen ? styles.active : ""}`}
             onClick={() => setMenuOpen(!menuOpen)}
@@ -67,13 +65,11 @@ export default function Contact() {
             <span></span>
           </div>
 
-          {/* Nav Links */}
           <ul className={`${styles.navLinks} ${menuOpen ? styles.show : ""}`}>
             <li>
               <Link to="/">Home</Link>
             </li>
 
-            {/* Dropdown */}
             <li
               className={`${styles.dropdown} ${
                 dropdownOpen ? styles.open : ""
@@ -125,7 +121,6 @@ export default function Contact() {
           <button onClick={() => navigate("/register")}>ENROLL NOW</button>
         </nav>
 
-        {/* 🎬 Hero Section */}
         <div className={styles.spacer}>
           <h2>Contact Us</h2>
           <p>

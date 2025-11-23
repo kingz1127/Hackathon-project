@@ -51,20 +51,17 @@ export default function Register() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  // Handle passport photo upload
   const handlePhotoUpload = (e) => {
     const file = e.target.files[0];
     setFileError("");
 
     if (file) {
-      // Check file type
-      const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+      const validTypes = ["image/jpeg", "image/jpg", "image/png"];
       if (!validTypes.includes(file.type)) {
         setFileError("Please upload a valid image (JPEG, JPG, or PNG)");
         return;
       }
 
-      // Check file size (2MB max for passport photos)
       if (file.size > 2 * 1024 * 1024) {
         setFileError("Passport photo must be less than 2MB");
         return;
@@ -72,7 +69,6 @@ export default function Register() {
 
       setPassportPhoto(file);
 
-      // Create preview
       const reader = new FileReader();
       reader.onload = (e) => {
         setPhotoPreview(e.target.result);
@@ -81,93 +77,89 @@ export default function Register() {
     }
   };
 
-  // Remove passport photo
   const removePhoto = () => {
     setPassportPhoto(null);
     setPhotoPreview(null);
     setFileError("");
-    // Reset file input
-    const fileInput = document.getElementById('passportPhoto');
-    if (fileInput) fileInput.value = '';
+    const fileInput = document.getElementById("passportPhoto");
+    if (fileInput) fileInput.value = "";
   };
 
- const handleSubmit = async (e) => {
-  e.preventDefault();
-  
-  if (!passportPhoto) {
-    setFileError("Passport photo is required");
-    return;
-  }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  try {
-    setUploading(true);
-
-    // Create FormData for file upload
-    const formData = new FormData();
-    
-    // Append all form fields
-    Object.keys(form).forEach(key => {
-      if (form[key]) { // Only append if value exists
-        formData.append(key, form[key]);
-      }
-    });
-    
-    // Append passport photo
-    formData.append('passportPhoto', passportPhoto);
-
-    console.log('FormData contents:');
-    for (let pair of formData.entries()) {
-      console.log(pair[0] + ': ', pair[1]);
+    if (!passportPhoto) {
+      setFileError("Passport photo is required");
+      return;
     }
 
-    const res = await fetch("http://localhost:5000/api/register", {
-      method: "POST",
-      body: formData, // Don't set Content-Type header for FormData
-    });
+    try {
+      setUploading(true);
 
-    console.log('Response status:', res.status);
+      const formData = new FormData();
 
-    const result = await res.json();
-    console.log('Response data:', result);
-
-    if (res.ok) {
-      alert(result.message || "✅ Registration submitted! Check your mail for Admin feedback");
-      // Reset form
-      setForm({
-        Email: "",
-        FullName: "",
-        DOfB: "",
-        Course: "",
-        Country: "",
-        Grade: "",
-        PhoneNumber: "",
-        Guardian: "",
-        GuardianPhoneNumber: "",
-        StateOfOrigin: "",
-        Address: "",
-        Gender: "",
+      Object.keys(form).forEach((key) => {
+        if (form[key]) {
+          formData.append(key, form[key]);
+        }
       });
-      setPassportPhoto(null);
-      setPhotoPreview(null);
-      setFileError("");
-      navigate("/login");
-    } else {
-      alert(result.message || "Error submitting registration");
+
+      formData.append("passportPhoto", passportPhoto);
+
+      console.log("FormData contents:");
+      for (let pair of formData.entries()) {
+        console.log(pair[0] + ": ", pair[1]);
+      }
+
+      const res = await fetch("http://localhost:5000/api/register", {
+        method: "POST",
+        body: formData,
+      });
+
+      console.log("Response status:", res.status);
+
+      const result = await res.json();
+      console.log("Response data:", result);
+
+      if (res.ok) {
+        alert(
+          result.message ||
+            "✅ Registration submitted! Check your mail for Admin feedback"
+        );
+        setForm({
+          Email: "",
+          FullName: "",
+          DOfB: "",
+          Course: "",
+          Country: "",
+          Grade: "",
+          PhoneNumber: "",
+          Guardian: "",
+          GuardianPhoneNumber: "",
+          StateOfOrigin: "",
+          Address: "",
+          Gender: "",
+        });
+        setPassportPhoto(null);
+        setPhotoPreview(null);
+        setFileError("");
+        navigate("/login");
+      } else {
+        alert(result.message || "Error submitting registration");
+      }
+    } catch (err) {
+      console.error("Registration error:", err);
+      alert("Server error during registration: " + err.message);
+    } finally {
+      setUploading(false);
     }
-  } catch (err) {
-    console.error('Registration error:', err);
-    alert("Server error during registration: " + err.message);
-  } finally {
-    setUploading(false);
-  }
-};
+  };
 
   const options = useMemo(() => countryList().getData(), []);
 
   return (
     <>
       <header className={styles.header}>
-        {/* Top bar */}
         <div className={styles.topBar}>
           <div className={styles.contactInfo}>
             <span>
@@ -193,13 +185,11 @@ export default function Register() {
 
         <hr className={styles.divider} />
 
-        {/* Main nav */}
         <nav
           className={`${styles.mainNav} ${isScrolled ? styles.scrolled : ""}`}
         >
           <div className={styles.logo}>Learner.</div>
 
-          {/* Hamburger */}
           <div
             className={`${styles.hamburger} ${menuOpen ? styles.active : ""}`}
             onClick={() => setMenuOpen(!menuOpen)}
@@ -209,13 +199,11 @@ export default function Register() {
             <span></span>
           </div>
 
-          {/* Nav Links */}
           <ul className={`${styles.navLinks} ${menuOpen ? styles.show : ""}`}>
             <li>
               <Link to="/">Home</Link>
             </li>
 
-            {/* Dropdown */}
             <li
               className={`${styles.dropdown} ${
                 dropdownOpen ? styles.open : ""
@@ -248,7 +236,7 @@ export default function Register() {
             </li>
 
             <li>
-              <Link to="/staff">Our Staff</Link>
+              <Link to="/ourstaff">Our Staff</Link>
             </li>
             <li>
               <Link to="/news">News</Link>
@@ -309,12 +297,12 @@ export default function Register() {
                 new Date(new Date().setFullYear(new Date().getFullYear() - 15))
                   .toISOString()
                   .split("T")[0]
-              } // max = 15 years ago
+              }
               min={
                 new Date(new Date().setFullYear(new Date().getFullYear() - 60))
                   .toISOString()
                   .split("T")[0]
-              } // min = 60 years ago
+              }
               required
             />
           </div>
@@ -366,7 +354,6 @@ export default function Register() {
             </option>
           </select>
 
-          {/* ✅ Searchable Country Select */}
           <div className={styles.selectCountry}>
             <Select
               options={options}
@@ -376,7 +363,7 @@ export default function Register() {
               required
             />
           </div>
-          
+
           <input
             type="text"
             placeholder="State of Origin"
@@ -386,7 +373,7 @@ export default function Register() {
             className={styles.formtext}
             required
           />
-          
+
           <input
             type="text"
             placeholder="Address"
@@ -409,10 +396,13 @@ export default function Register() {
             <option value="Female">Female</option>
           </select>
 
-          {/* Passport Photo Upload */}
           <div className={styles.photoUploadSection}>
             <label className={styles.uploadLabel}>Passport Photo *</label>
-            <div className={`${styles.uploadArea} ${fileError ? styles.uploadError : ''}`}>
+            <div
+              className={`${styles.uploadArea} ${
+                fileError ? styles.uploadError : ""
+              }`}
+            >
               <input
                 type="file"
                 id="passportPhoto"
@@ -431,18 +421,14 @@ export default function Register() {
               </label>
             </div>
 
-            {fileError && (
-              <div className={styles.fileError}>
-                {fileError}
-              </div>
-            )}
+            {fileError && <div className={styles.fileError}>{fileError}</div>}
 
             {photoPreview && (
               <div className={styles.photoPreview}>
                 <div className={styles.previewHeader}>
                   <span>Photo Preview</span>
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     onClick={removePhoto}
                     className={styles.removePhoto}
                   >
@@ -467,12 +453,12 @@ export default function Register() {
             <p>I agree to the terms and condition of the school</p>
           </div>
 
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             className={styles.submitButton}
             disabled={uploading}
           >
-            {uploading ? 'Submitting...' : 'Register'}
+            {uploading ? "Submitting..." : "Register"}
           </button>
         </form>
       </div>

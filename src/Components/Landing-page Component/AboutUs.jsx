@@ -5,7 +5,6 @@ const AboutUs = () => {
   return (
     <section className={styles.aboutSection}>
       <div className={styles.container}>
-        {/* Left content */}
         <div className={styles.content}>
           <h2 className={styles.heading}>About Us</h2>
           <p className={styles.text}>
@@ -42,7 +41,6 @@ const AboutUs = () => {
           </div>
         </div>
 
-        {/* Right image */}
         <div className={styles.imageWrapper}>
           <div className={styles.bgBox}></div>
           <img

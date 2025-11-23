@@ -14,7 +14,6 @@ const Footer = () => {
   return (
     <footer className={styles.footer}>
       <div className={styles.container}>
-        {/* About Us */}
         <div className={styles.column}>
           <h3>About Us</h3>
           <p>
@@ -75,7 +74,6 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Projects */}
         <div className={styles.column}>
           <h3>Projects</h3>
           <ul>
@@ -97,7 +95,6 @@ const Footer = () => {
           </ul>
         </div>
 
-        {/* Gallery */}
         <div className={styles.column}>
           <h3>Gallery</h3>
           <div className={styles.gallery}>
@@ -113,7 +110,6 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Contact */}
         <div className={styles.column}>
           <h3>Contact</h3>
           <p>

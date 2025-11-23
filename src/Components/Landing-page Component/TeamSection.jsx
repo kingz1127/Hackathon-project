@@ -27,7 +27,7 @@ const TeamSection = () => {
   return (
     <section className={styles.teamSection}>
       <div className={styles.container}>
-        <h2 className={styles.title}>Our Team</h2>
+        <h2 className={styles.title}>Our Staff</h2>
         <p className={styles.subtitle}>
           Far far away, behind the word mountains, far from the countries
           Vokalia and Consonantia, there live the blind texts.

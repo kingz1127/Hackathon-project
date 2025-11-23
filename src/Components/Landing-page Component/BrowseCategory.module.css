@@ -11,12 +11,11 @@
 
 .title {
   color: #1d4ed8;
-  font-size: 2.5rem;
+  font-size: 3rem;
   font-weight: 600;
   margin-bottom: 3rem;
 }
 
-/* Grid Layout */
 .grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -24,7 +23,6 @@
   justify-content: center;
 }
 
-/* Card Styling */
 .card {
   background-color: #f8fbff;
   padding: 2rem 1rem;
@@ -39,23 +37,21 @@
   background-color: #ffffff;
   border-color: #2563eb;
   box-shadow: 0 8px 25px rgba(37, 99, 235, 0.1);
-  transform: translateY(-5px);
+  transform: translateY(-1px);
 }
 
-/* Icon Styling */
 .icon {
   color: #2563eb;
-  font-size: 1.8rem;
+  font-size: 1.5rem;
+  justify-items: center;
+  margin-bottom: 0.6rem;
   transition: transform 0.3s ease, color 0.3s ease;
 }
 
-/* Icon hover animation */
 .card:hover .icon {
-  transform: scale(1.1);
   color: #1e40af;
 }
 
-/* Text Styling */
 .card h3 {
   color: #111827;
   font-size: 1.8rem;
@@ -65,15 +61,14 @@
 
 .card p {
   color: #6b7280;
-  font-size: 0.85rem;
+  font-size: 1.6rem;
   margin: 0;
 }
 
-/* Footer Text */
 .footerText {
   color: #374151;
   margin-top: 2.5rem;
-  font-size: 0.95rem;
+  font-size: 1.5rem;
 }
 
 .link {
@@ -86,7 +81,6 @@
   text-decoration: underline;
 }
 
-/* Responsive Layout */
 @media (max-width: 1024px) {
   .grid {
     grid-template-columns: repeat(3, 1fr);

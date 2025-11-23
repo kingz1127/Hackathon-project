@@ -1,9 +1,6 @@
-/* ===========================================================
-🧭 HEADER SECTION
-=========================================================== */
 .header {
   background: linear-gradient(rgba(0, 153, 255, 0.9), rgba(0, 132, 255, 0.9)),
-    url("src/assets/gallery.jpg");
+    url("src/assets/about.jpg");
   background-size: cover;
   background-position: center;
   height: 75rem;
@@ -11,9 +8,6 @@
   position: relative;
 }
 
-/* ===========================================================
-🔝 TOP CONTACT BAR
-=========================================================== */
 .topBar {
   display: flex;
   justify-content: space-around;
@@ -43,9 +37,6 @@
   white-space: nowrap;
 }
 
-/* ===========================================================
-🧭 MAIN NAVIGATION BAR
-=========================================================== */
 .mainNav {
   position: fixed;
   top: 4.2rem;
@@ -89,9 +80,6 @@
   border-bottom: 2px solid #fff;
 }
 
-/* ===========================================================
-⬇️ DROPDOWNS
-=========================================================== */
 .dropdown {
   position: relative;
 }
@@ -111,7 +99,6 @@
   z-index: 1000;
 }
 
-/* Level 1 */
 .dropdownMenu {
   top: 100%;
   left: 0;
@@ -141,10 +128,9 @@
 }
 
 .dropdownMenu li:hover a {
-  color: white;
+  color: black;
 }
 
-/* Level 2 */
 .dropdownMenu2 {
   top: 0;
   left: 100%;
@@ -158,9 +144,6 @@
   transform: translateX(0);
 }
 
-/* ===========================================================
-🎓 ENROLL BUTTON
-=========================================================== */
 .mainNav button {
   background-color: #00d9ff;
   border: none;
@@ -171,16 +154,13 @@
   font-size: 1.1rem;
   cursor: pointer;
   transition: background-color 0.3s ease;
-  flex-shrink: 0; /* Prevents button from shrinking */
+  flex-shrink: 0; 
 }
 
 .mainNav button:hover {
   background-color: #004fc4;
 }
 
-/* ===========================================================
-🍔 HAMBURGER MENU
-=========================================================== */
 .hamburger {
   display: none;
   flex-direction: column;
@@ -189,7 +169,7 @@
   height: 18px;
   cursor: pointer;
   z-index: 1100;
-  flex-shrink: 0; /* Prevents hamburger from shrinking */
+  flex-shrink: 0; 
 }
 
 .hamburger span {
@@ -211,22 +191,17 @@
   transform: translateY(-7.5px) rotate(-45deg);
 }
 
-/* ===========================================================
-🌫️ SCROLL EFFECT
-=========================================================== */
 .scrolled {
   background-color: white;
   color: black;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  top: 0;
 }
 
 .scrolled a {
   color: black;
 }
 
-/* ===========================================================
-🎬 HERO / SPACER SECTION
-=========================================================== */
 .spacer {
   margin-top: 20rem;
   text-align: center;
@@ -265,11 +240,7 @@
   transform: scale(1.05);
 }
 
-/* ===========================================================
-📱 RESPONSIVE BREAKPOINTS
-=========================================================== */
 
-/* --- 1200px+ (Large Screens) --- */
 @media (min-width: 1200px) {
   .mainNav {
     padding: 1rem 12%;
@@ -279,7 +250,6 @@
   }
 }
 
-/* --- 768px–1199px (Tablets) --- */
 @media (max-width: 1199px) and (min-width: 768px) {
   .mainNav {
     padding: 1rem 6%;
@@ -292,11 +262,10 @@
   }
 }
 
-/* --- Up to 767px (Mobile) --- */
 @media (max-width: 767px) {
   .hamburger {
     display: flex;
-    margin-left: 17rem; /* pushes hamburger menu to the right */
+    margin-left: 17rem; 
   }
 
   .mainNav {
@@ -347,7 +316,6 @@
   }
 }
 
-/* --- 480px & below --- */
 @media (max-width: 480px) {
   .logo {
     font-size: 2rem;
@@ -367,14 +335,12 @@
     padding: 1rem 3%;
   }
 
-  /* Keep hamburger visible and properly sized */
   .hamburger {
     display: flex;
     width: 25px;
     height: 18px;
   }
 
-  /* Maintain enroll button size */
   .mainNav button {
     height: 3rem;
     width: 10rem;

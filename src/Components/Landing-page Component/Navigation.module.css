@@ -14,7 +14,7 @@
 }
 .container {
   max-width: 1140px;
-  margin: 0 auto; 
+  margin: 0 auto;
   padding: 0 15px;
 }
 .siteNavigation {
@@ -35,7 +35,6 @@
   margin: 0;
   padding: 0;
 }
-/* More styles... */
 .btnBook {
   background: var(--color-secondary);
   color: var(--color-white);

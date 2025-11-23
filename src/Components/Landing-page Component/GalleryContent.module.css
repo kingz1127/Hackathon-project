@@ -11,14 +11,14 @@
 
 .title {
   color: #1d4ed8;
-  font-size: 2rem;
+  font-size: 3rem;
   font-weight: 600;
   margin-bottom: 0.5rem;
 }
 
 .subtitle {
   color: #6b7280;
-  font-size: 1rem;
+  font-size: 1.8rem;
   margin-bottom: 3rem;
   max-width: 700px;
   margin-left: auto;
@@ -26,7 +26,6 @@
   line-height: 1.6;
 }
 
-/* Masonry-style grid */
 .galleryGrid {
   column-count: 3;
   column-gap: 1.5rem;
@@ -47,12 +46,10 @@
   transition: transform 0.3s ease;
 }
 
-/* Hover effect */
 .imageWrapper:hover .image {
   transform: scale(1.05);
 }
 
-/* Responsive */
 @media (max-width: 900px) {
   .galleryGrid {
     column-count: 2;

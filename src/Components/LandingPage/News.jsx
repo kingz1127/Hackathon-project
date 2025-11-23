@@ -23,7 +23,6 @@ export default function News() {
   return (
     <>
       <header className={styles.header}>
-        {/* Top bar */}
         <div className={styles.topBar}>
           <div className={styles.contactInfo}>
             <span>
@@ -49,13 +48,11 @@ export default function News() {
 
         <hr className={styles.divider} />
 
-        {/* Main nav */}
         <nav
           className={`${styles.mainNav} ${isScrolled ? styles.scrolled : ""}`}
         >
           <div className={styles.logo}>Learner.</div>
 
-          {/* Hamburger */}
           <div
             className={`${styles.hamburger} ${menuOpen ? styles.active : ""}`}
             onClick={() => setMenuOpen(!menuOpen)}
@@ -65,13 +62,11 @@ export default function News() {
             <span></span>
           </div>
 
-          {/* Nav Links */}
           <ul className={`${styles.navLinks} ${menuOpen ? styles.show : ""}`}>
             <li>
               <Link to="/">Home</Link>
             </li>
 
-            {/* Dropdown */}
             <li
               className={`${styles.dropdown} ${
                 dropdownOpen ? styles.open : ""
@@ -123,13 +118,12 @@ export default function News() {
           <button onClick={() => navigate("/register")}>ENROLL NOW</button>
         </nav>
 
-        {/* 🎬 Hero Section */}
         <div className={styles.spacer}>
           <h2>News</h2>
           <p>
             Another free template by Untree.co. Far far away, behind the word
-            mountains, far from the countries Vokalia and Consonantia, there
-            live.
+            mountains,
+            <br /> far from the countries Vokalia and Consonantia, there live.
           </p>
           <button onClick={() => navigate("/register")}>Explore Courses</button>
         </div>

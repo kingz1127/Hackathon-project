@@ -11,17 +11,15 @@
 
 .title {
   color: #1663d6;
-  font-size: 1.05rem;
+  font-size: 3rem;
   margin-bottom: 1rem;
 }
 
-/* holds slides; fixed height to avoid layout jump */
 .slideWrap {
   position: relative;
   height: 240px;
 }
 
-/* each slide sits on top of the others */
 .slide {
   position: absolute;
   left: 0;
@@ -47,12 +45,12 @@
   color: #444;
   line-height: 1.7;
   margin-bottom: 1rem;
-  font-size: 0.98rem;
+  font-size: 1.98rem;
 }
 
 .avatar {
-  width: 72px;
-  height: 72px;
+  width: 82px;
+  height: 82px;
   border-radius: 50%;
   object-fit: cover;
   margin: 0.6rem 0;
@@ -64,15 +62,15 @@
   display: block;
   margin-bottom: 0.25rem;
   text-decoration: none;
+  font-size: 1.9rem;
   font-weight: 600;
 }
 
 .role {
   color: #999;
-  font-size: 0.9rem;
+  font-size: 1.5rem;
 }
 
-/* dots */
 .dots {
   display: flex;
   gap: 10px;
@@ -95,7 +93,6 @@
   border-color: #1663d6;
 }
 
-/* Responsive */
 @media (max-width: 700px) {
   .slideWrap {
     height: 320px;

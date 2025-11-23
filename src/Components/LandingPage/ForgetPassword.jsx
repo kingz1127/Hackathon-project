@@ -23,7 +23,6 @@ export default function ForgetPassword() {
     setError("");
     setMessage("");
 
-    // Basic email validation
     if (!email || !email.includes("@")) {
       setError("Please enter a valid email address");
       return;
@@ -47,7 +46,6 @@ export default function ForgetPassword() {
       } else {
         setMessage("Password reset link has been sent to your email!");
         setEmail("");
-        // Optionally redirect to login after 3 seconds
         setTimeout(() => {
           navigate("/login");
         }, 3000);
@@ -69,7 +67,6 @@ export default function ForgetPassword() {
   return (
     <>
       <header className={styles.header}>
-        {/* Top bar */}
         <div className={styles.topBar}>
           <div className={styles.contactInfo}>
             <span>
@@ -94,14 +91,11 @@ export default function ForgetPassword() {
         </div>
 
         <hr className={styles.divider} />
-
-        {/* Main nav */}
         <nav
           className={`${styles.mainNav} ${isScrolled ? styles.scrolled : ""}`}
         >
           <div className={styles.logo}>Learner.</div>
 
-          {/* Hamburger */}
           <div
             className={`${styles.hamburger} ${menuOpen ? styles.active : ""}`}
             onClick={() => setMenuOpen(!menuOpen)}
@@ -111,13 +105,11 @@ export default function ForgetPassword() {
             <span></span>
           </div>
 
-          {/* Nav Links */}
           <ul className={`${styles.navLinks} ${menuOpen ? styles.show : ""}`}>
             <li>
               <Link to="/">Home</Link>
             </li>
 
-            {/* Dropdown */}
             <li
               className={`${styles.dropdown} ${
                 dropdownOpen ? styles.open : ""
@@ -150,7 +142,7 @@ export default function ForgetPassword() {
             </li>
 
             <li>
-              <Link to="/staff">Our Staff</Link>
+              <Link to="/ourstaff">Our Staff</Link>
             </li>
             <li>
               <Link to="/news">News</Link>

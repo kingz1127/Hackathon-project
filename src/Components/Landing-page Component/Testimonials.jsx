@@ -39,7 +39,6 @@ export default function Testimonials({ autoPlay = true, interval = 5000 }) {
 
   const goTo = (i) => {
     setIndex(i);
-    // stop auto-play after manual nav (optional)
     if (timerRef.current) {
       clearInterval(timerRef.current);
       timerRef.current = null;

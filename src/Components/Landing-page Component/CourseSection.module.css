@@ -73,8 +73,6 @@
   color: #111827;
 }
 
-
-/* Responsive */
 @media (max-width: 768px) {
   .cards {
     flex-direction: column;

@@ -24,7 +24,6 @@ export default function OurStaff() {
   return (
     <>
       <header className={styles.header}>
-        {/* 🔝 Top Bar */}
         <div className={styles.topBar}>
           <div className={styles.contactInfo}>
             <span>
@@ -51,14 +50,11 @@ export default function OurStaff() {
 
         <hr className={styles.divider} />
 
-        {/* 🧭 Navigation Bar */}
         <nav
           className={`${styles.mainNav} ${isScrolled ? styles.scrolled : ""}`}
         >
-          {/* Logo */}
           <div className={styles.logo}>Learner.</div>
 
-          {/* Hamburger Menu */}
           <div
             className={`${styles.hamburger} ${menuOpen ? styles.active : ""}`}
             onClick={() => setMenuOpen(!menuOpen)}
@@ -68,56 +64,74 @@ export default function OurStaff() {
             <span></span>
           </div>
 
-          {/* Nav Links */}
           <ul className={`${styles.navLinks} ${menuOpen ? styles.show : ""}`}>
-            <li><Link to="/">Home</Link></li>
+            <li>
+              <Link to="/">Home</Link>
+            </li>
 
-            {/* Dropdown */}
             <li
-              className={`${styles.dropdown} ${dropdownOpen ? styles.open : ""}`}
+              className={`${styles.dropdown} ${
+                dropdownOpen ? styles.open : ""
+              }`}
               onClick={() => setDropdownOpen(!dropdownOpen)}
             >
               <Link to="#">Dropdown</Link>
               <ul className={styles.dropdownMenu}>
-                <li><Link to="/elements">Elements</Link></li>
+                <li>
+                  <Link to="/elements">Elements</Link>
+                </li>
                 <li>
                   <Link to="/menu2">Menu 2</Link>
                   <ul className={styles.dropdownMenu2}>
-                    <li><Link to="/submenu1">Submenu 1</Link></li>
-                    <li><Link to="/submenu2">Submenu 2</Link></li>
-                    <li><Link to="/submenu3">Submenu 3</Link></li>
+                    <li>
+                      <Link to="/submenu1">Submenu 1</Link>
+                    </li>
+                    <li>
+                      <Link to="/submenu2">Submenu 2</Link>
+                    </li>
+                    <li>
+                      <Link to="/submenu3">Submenu 3</Link>
+                    </li>
                   </ul>
                 </li>
-                <li><Link to="/menu3">Menu 3</Link></li>
+                <li>
+                  <Link to="/menu3">Menu 3</Link>
+                </li>
               </ul>
             </li>
 
-            <li><Link to="/ourstaff">Our Staff</Link></li>
-            <li><Link to="/news">News</Link></li>
-            <li><Link to="/gallery">Gallery</Link></li>
-            <li><Link to="/about">About</Link></li>
-            <li><Link to="/contact">Contact</Link></li>
+            <li>
+              <Link to="/ourstaff">Our Staff</Link>
+            </li>
+            <li>
+              <Link to="/news">News</Link>
+            </li>
+            <li>
+              <Link to="/gallery">Gallery</Link>
+            </li>
+            <li>
+              <Link to="/about">About</Link>
+            </li>
+            <li>
+              <Link to="/contact">Contact</Link>
+            </li>
           </ul>
 
-          {/* CTA Button */}
           <button onClick={() => navigate("/register")}>ENROLL NOW</button>
         </nav>
 
-        {/* 🎬 Hero Section */}
         <div className={styles.spacer}>
           <h2>School Staff</h2>
           <p>
             Another free template by Untree.co. Far far away, behind the word
-            mountains, far from the countries Vokalia and Consonantia, there live.
+            mountains,
+            <br /> far from the countries Vokalia and Consonantia, there live.
           </p>
           <button onClick={() => navigate("/register")}>Explore Courses</button>
         </div>
       </header>
 
-      {/* 👥 Team Section */}
       <TeamSection />
-
-      {/* 🦶 Footer */}
       <Footer />
     </>
   );
