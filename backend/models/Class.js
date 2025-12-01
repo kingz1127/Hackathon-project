@@ -79,6 +79,7 @@ import mongoose from "mongoose";
 
 const classSchema = new mongoose.Schema(
   {
+
     teacherId: { type: String, required: true },
 
     className: { type: String, required: true },

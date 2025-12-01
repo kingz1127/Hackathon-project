@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
-import './TeacherClasses.css';
+import { useEffect, useState } from "react";
+import "./TeacherClasses.css";
 
 export default function TeacherClassesPage() {
-  const [classes, setClasses]  = useState([]);
+  const [classes, setClasses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expandedClass, setExpandedClass] = useState(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -10,9 +10,10 @@ export default function TeacherClassesPage() {
   const [editingClass, setEditingClass] = useState(null);
   const [filterSemester, setFilterSemester] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
+  const teacherId = localStorage.getItem("teacherId");
 
   const [formData, setFormData] = useState({
-    teacherId: "",
+    teacherId: teacherId,
     className: "",
     description: "",
     scheduleDay: "Monday",
@@ -24,33 +25,25 @@ export default function TeacherClassesPage() {
     maxStudents: "30",
   });
 
-  const teacherId = localStorage.getItem("teacherId");
-
-
   // Fetch classes from API
   useEffect(() => {
     fetchClasses();
   }, [filterSemester, filterStatus]);
 
   const fetchClasses = async () => {
-  setLoading(true);
-  try {
-    const res = await fetch(`http://localhost:5000/api/classes/teacher/${teacherId}`);
-    
-    if (!res.ok) {
-      throw new Error(`HTTP error! status: ${res.status}`);
+    setLoading(true);
+    try {
+      const res = await fetch(`http://localhost:5000/api/classes/teacher/${teacherId}`);
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+      const data = await res.json();
+      setClasses(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Error fetching classes:", err);
+      setClasses([]);
+    } finally {
+      setLoading(false);
     }
-
-    const data = await res.json();
-    setClasses(Array.isArray(data) ? data : []);
-  } catch (err) {
-    console.error("Error fetching classes:", err);
-    setClasses([]);
-  } finally {
-    setLoading(false);
-  }
-};
-
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -58,33 +51,42 @@ export default function TeacherClassesPage() {
   };
 
   const handleCreateClass = async (e) => {
-    e.preventDefault();
-    try {
-      const payload = {
-        ...formData,
-        schedule: [
-          {
-            day: formData.scheduleDay,
-            startTime: formData.scheduleTime,
-            endTime: "", // optional
-          },
-        ],
-      };
+  e.preventDefault();
 
-      const res = await fetch("http://localhost:5000/api/classes/teacher", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+  // Compute endTime based on scheduleTime and scheduleDuration
+  const [hours, minutes] = formData.scheduleTime.split(":").map(Number);
+  const duration = Number(formData.scheduleDuration);
+  const endHours = hours + Math.floor((minutes + duration) / 60);
+  const endMinutes = (minutes + duration) % 60;
+  const endTime = `${String(endHours).padStart(2, "0")}:${String(endMinutes).padStart(2, "0")}`;
 
-      const data = await res.json();
-      setClasses([data, ...classes]);
-      setIsCreateModalOpen(false);
-      resetForm();
-    } catch (err) {
-      console.error("Error creating class:", err);
-    }
-  };
+  try {
+    const payload = {
+      ...formData,
+      schedule: [
+        {
+          day: formData.scheduleDay,
+          startTime: formData.scheduleTime,
+          duration: formData.scheduleDuration,
+          endTime: endTime,
+        },
+      ],
+    };
+
+    const res = await fetch("http://localhost:5000/api/classes/teacher", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await res.json();
+    setClasses([data, ...classes]);
+    setIsCreateModalOpen(false);
+    resetForm();
+  } catch (err) {
+    console.error("Error creating class:", err);
+  }
+};
 
   const handleEditClass = async (e) => {
     e.preventDefault();
@@ -95,7 +97,7 @@ export default function TeacherClassesPage() {
           {
             day: formData.scheduleDay,
             startTime: formData.scheduleTime,
-            endTime: "", // optional
+            duration: formData.scheduleDuration,
           },
         ],
       };
@@ -150,14 +152,14 @@ export default function TeacherClassesPage() {
   };
 
   const closeModal = () => {
-  setIsCreateModalOpen(false);
-  setIsEditModalOpen(false);
-  resetForm();
-};
+    setIsCreateModalOpen(false);
+    setIsEditModalOpen(false);
+    resetForm();
+  };
 
   const resetForm = () => {
     setFormData({
-      teacherId: "",
+      teacherId: teacherId,
       className: "",
       description: "",
       scheduleDay: "Monday",
@@ -177,23 +179,23 @@ export default function TeacherClassesPage() {
   if (loading) return <p>Loading classes...</p>;
 
   return (
-    <>
     <div className="teacher-classes-page">
       <div className="page-header">
         <div className="header-left">
           <h1>📚 My Classes</h1>
-          <p className="subtitle">{classes.length} {classes.length === 1 ? 'class' : 'classes'} total</p>
+          <p className="subtitle">
+            {classes.length} {classes.length === 1 ? "class" : "classes"} total
+          </p>
         </div>
         <button onClick={() => setIsCreateModalOpen(true)} className="btn-primary">
-          <span className="plus-icon">+</span>
-          Create New Class
+          <span className="plus-icon">+</span> Create New Class
         </button>
       </div>
 
       {/* Filters */}
       <div className="filters-section">
-        <select 
-          value={filterSemester} 
+        <select
+          value={filterSemester}
           onChange={(e) => setFilterSemester(e.target.value)}
           className="filter-select"
         >
@@ -203,8 +205,8 @@ export default function TeacherClassesPage() {
           <option value="Summer">Summer</option>
         </select>
 
-        <select 
-          value={filterStatus} 
+        <select
+          value={filterStatus}
           onChange={(e) => setFilterStatus(e.target.value)}
           className="filter-select"
         >
@@ -224,20 +226,24 @@ export default function TeacherClassesPage() {
         </div>
       ) : (
         <div className="classes-grid">
-          {classes.map(classItem => (
+          {classes.map((classItem) => (
             <div key={classItem._id} className="class-card">
               <div className="class-card-header">
                 <div className="class-info">
                   <h3>{classItem.className}</h3>
                   <span className={`status-badge status-${classItem.status}`}>
-                    {classItem.status}
+                    {classItem.status || "active"}
                   </span>
                 </div>
                 <div className="class-actions">
                   <button onClick={() => openEditModal(classItem)} className="btn-icon" title="Edit">
                     ✏️
                   </button>
-                  <button onClick={() => handleDeleteClass(classItem._id)} className="btn-icon btn-danger" title="Delete">
+                  <button
+                    onClick={() => handleDeleteClass(classItem._id)}
+                    className="btn-icon btn-danger"
+                    title="Delete"
+                  >
                     🗑️
                   </button>
                 </div>
@@ -245,14 +251,10 @@ export default function TeacherClassesPage() {
 
               <div className="class-card-body">
                 <div className="class-meta">
-                  <div className="meta-item">
-                    <span className="meta-icon">👥</span>
-                    <span>{classItem.enrolledStudents?.length || 0}/{classItem.maxStudents} Students</span>
-                  </div>
                   {classItem.schedule?.day && (
                     <div className="meta-item">
                       <span className="meta-icon">📅</span>
-                      <span>{classItem.schedule.day} {classItem.schedule.time}</span>
+                      <span>{classItem.schedule.day} {classItem.schedule.startTime}</span>
                     </div>
                   )}
                   {classItem.room && (
@@ -265,56 +267,41 @@ export default function TeacherClassesPage() {
                     <span className="meta-icon">📖</span>
                     <span>{classItem.semester} {classItem.academicYear}</span>
                   </div>
+                  <div className="meta-item">
+                    <span className="meta-icon">👥</span>
+                    <span>{classItem.maxStudents} Students</span>
+                  </div>
                 </div>
 
                 {classItem.description && (
                   <p className="class-description">{classItem.description}</p>
                 )}
 
-                <button 
-                  onClick={() => toggleClassExpansion(classItem._id)}
-                  className="btn-expand"
-                >
+                <button onClick={() => toggleClassExpansion(classItem._id)} className="btn-expand">
                   {expandedClass === classItem._id ? '▲ Hide Details' : '▼ Show Details'}
                 </button>
 
-                {/* Expanded Details */}
                 {expandedClass === classItem._id && (
                   <div className="class-details-expanded">
                     <div className="details-section">
                       <h4>📋 Class Information</h4>
                       <div className="details-grid">
-                        <div className="detail-row">
-                          <strong>Course Code:</strong>
-                          <span>{classItem.courseId?.code || 'N/A'}</span>
-                        </div>
-                        <div className="detail-row">
-                          <strong>Duration:</strong>
-                          <span>{classItem.schedule?.duration || 0} minutes</span>
-                        </div>
+                       <div className="detail-row">
+  <strong>Duration:</strong>
+  <span>{classItem.schedule?.[0]?.duration || 0} minutes</span>
+</div>
+
                         <div className="detail-row">
                           <strong>Max Students:</strong>
                           <span>{classItem.maxStudents}</span>
                         </div>
+                        {classItem.room && (
+                          <div className="detail-row">
+                            <strong>Room:</strong>
+                            <span>{classItem.room}</span>
+                          </div>
+                        )}
                       </div>
-                    </div>
-
-                    <div className="details-section">
-                      <h4>👥 Enrolled Students</h4>
-                      {classItem.enrolledStudents?.length > 0 ? (
-                        <div className="students-list">
-                          {classItem.enrolledStudents.map(student => (
-                            <div key={student._id} className="student-item">
-                              <div className="student-info">
-                                <span className="student-name">{student.name}</span>
-                                <span className="student-email">{student.email}</span>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <p className="no-data">No students enrolled yet</p>
-                      )}
                     </div>
                   </div>
                 )}
@@ -324,19 +311,14 @@ export default function TeacherClassesPage() {
         </div>
       )}
 
-  {/* Create/Edit Modal */}
-{/* Create/Edit Modal */}
-{(isCreateModalOpen || isEditModalOpen) && (
-  <div className="modal-overlay" onClick={closeModal}>
-    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-      <div className="modal-header">
-        <h2>{isEditModalOpen ? 'Edit Class' : 'Create New Class'}</h2>
-
-        <button onClick={closeModal} className="close-btn">
-          ✕
-        </button>
-      </div>
- 
+      {/* Create/Edit Modal */}
+      {(isCreateModalOpen || isEditModalOpen) && (
+        <div className="modal-overlay" onClick={closeModal}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>{isEditModalOpen ? 'Edit Class' : 'Create New Class'}</h2>
+              <button onClick={closeModal} className="close-btn">✕</button>
+            </div>
 
             <div className="modal-form">
               <div className="form-group">
@@ -365,12 +347,7 @@ export default function TeacherClassesPage() {
               <div className="form-row">
                 <div className="form-group">
                   <label>Day <span className="required">*</span></label>
-                  <select
-                    name="scheduleDay"
-                    value={formData.scheduleDay}
-                    onChange={handleInputChange}
-                    required
-                  >
+                  <select name="scheduleDay" value={formData.scheduleDay} onChange={handleInputChange} required>
                     <option value="Monday">Monday</option>
                     <option value="Tuesday">Tuesday</option>
                     <option value="Wednesday">Wednesday</option>
@@ -408,12 +385,7 @@ export default function TeacherClassesPage() {
               <div className="form-row">
                 <div className="form-group">
                   <label>Semester <span className="required">*</span></label>
-                  <select
-                    name="semester"
-                    value={formData.semester}
-                    onChange={handleInputChange}
-                    required
-                  >
+                  <select name="semester" value={formData.semester} onChange={handleInputChange} required>
                     <option value="Fall">Fall</option>
                     <option value="Spring">Spring</option>
                     <option value="Summer">Summer</option>
@@ -458,22 +430,10 @@ export default function TeacherClassesPage() {
               </div>
 
               <div className="form-actions">
-                <button 
-                  type="button" 
-                  onClick={() => {
-                    setIsCreateModalOpen(false);
-                    setIsEditModalOpen(false);
-                    resetForm();
-                  }} 
-                  className="btn-secondary"
-                >
+                <button type="button" onClick={closeModal} className="btn-secondary">
                   Cancel
                 </button>
-                <button 
-                  type="button"
-                  onClick={isEditModalOpen ? handleEditClass : handleCreateClass} 
-                  className="btn-primary"
-                >
+                <button type="button" onClick={isEditModalOpen ? handleEditClass : handleCreateClass} className="btn-primary">
                   {isEditModalOpen ? 'Update Class' : 'Create Class'}
                 </button>
               </div>
@@ -482,6 +442,5 @@ export default function TeacherClassesPage() {
         </div>
       )}
     </div>
-    </>
   );
 }

@@ -1,549 +1,268 @@
-/* General Page Styles */
-.teacher-classes-page,
-.teacher-assignments-page {
-  min-height: 100vh;
+/* ============================= */
+/* TEACHER CLASSES PAGE STYLES   */
+/* ============================= */
+
+.teacher-classes-page {
   padding: 2rem;
+  font-family: 'Inter', sans-serif;
+  background-color: #f9f9f9;
+  color: #1a1a1a;
 }
 
-/* Loading State */
-.loading-container {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  color: white;
-}
-
-.spinner {
-  width: 48px;
-  height: 48px;
-  border: 4px solid rgba(255, 255, 255, 0.3);
-  border-top-color: white;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin-bottom: 1rem;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-/* Page Header */
+/* -------- HEADER -------- */
 .page-header {
-  background: white;
-  border-radius: 16px;
-  padding: 1.5rem 2rem;
-  margin-bottom: 2rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .header-left h1 {
-  font-size: 2rem;
-  color: #1a202c;
-  margin: 0 0 0.25rem 0;
+  font-size: 1.8rem;
+  margin-bottom: 0.2rem;
 }
 
 .subtitle {
-  color: #718096;
-  margin: 0;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
+  color: #555;
 }
 
-/* Buttons */
 .btn-primary {
-  background: #667eea;
-  color: white;
+  background-color: #f15f11; /* Orange */
+  color: #fff;
   border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: 600;
+  padding: 0.6rem 1rem;
+  border-radius: 0.4rem;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-  transition: all 0.2s ease;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
 }
 
 .btn-primary:hover {
-  background: #5a67d8;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+  background-color: #d64e00;
 }
 
 .btn-secondary {
-  background: #f7fafc;
-  color: #4a5568;
+  background-color: #eee;
+  color: #333;
   border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: 0.4rem;
   cursor: pointer;
-  transition: all 0.2s ease;
+  font-weight: 500;
+  margin-right: 0.5rem;
 }
 
 .btn-secondary:hover {
-  background: #e2e8f0;
+  background-color: #ddd;
 }
 
 .btn-icon {
   background: none;
   border: none;
-  font-size: 1.2rem;
   cursor: pointer;
-  padding: 0.5rem;
-  border-radius: 6px;
-  transition: all 0.2s ease;
+  font-size: 1.1rem;
+  margin-left: 0.3rem;
 }
 
-.btn-icon:hover {
-  background: #f7fafc;
+.btn-danger {
+  color: #ff4d4d;
 }
 
-.btn-danger:hover {
-  background: #fff5f5;
+.btn-expand {
+  margin-top: 0.5rem;
+  background: none;
+  border: none;
+  color: #f15f11;
+  cursor: pointer;
+  font-weight: 500;
 }
 
-.plus-icon {
-  font-size: 1.5rem;
-  font-weight: bold;
-}
-
-/* Filters Section */
+/* -------- FILTERS -------- */
 .filters-section {
   display: flex;
   gap: 1rem;
-  margin-bottom: 2rem;
-  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
 }
 
 .filter-select {
-  padding: 0.75rem 1rem;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  background: white;
-  font-size: 0.95rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
+  padding: 0.5rem;
+  border-radius: 0.4rem;
+  border: 1px solid #ccc;
 }
 
-.filter-select:focus {
-  outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-}
-
-/* Empty State */
-.empty-state {
-  background: white;
-  border-radius: 16px;
-  padding: 4rem 2rem;
-  text-align: center;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-}
-
-.empty-icon {
-  font-size: 4rem;
-  display: block;
-  margin-bottom: 1rem;
-}
-
-.empty-state h3 {
-  font-size: 1.5rem;
-  color: #1a202c;
-  margin-bottom: 0.5rem;
-}
-
-.empty-state p {
-  color: #718096;
-  margin: 0;
-}
-
-/* Classes Grid */
+/* -------- CLASSES GRID -------- */
 .classes-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
 }
 
 .class-card {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s ease;
-  overflow: hidden;
+  background-color: #fff;
+  border-radius: 0.6rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  transition: transform 0.2s ease;
 }
 
 .class-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
 }
 
+/* CARD HEADER */
 .class-card-header {
-  padding: 1.5rem;
-  border-bottom: 1px solid #e2e8f0;
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
 }
 
 .class-info h3 {
-  font-size: 1.25rem;
-  color: #1a202c;
-  margin: 0 0 0.5rem 0;
+  margin: 0;
+  font-size: 1.2rem;
 }
 
 .status-badge {
-  display: inline-block;
-  padding: 0.25rem 0.75rem;
-  border-radius: 12px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
+  padding: 0.2rem 0.5rem;
+  border-radius: 0.4rem;
+  font-size: 0.8rem;
+  text-transform: capitalize;
+  color: #fff;
 }
 
-.status-active {
-  background: #c6f6d5;
-  color: #22543d;
-}
+.status-active { background-color: #4caf50; }
+.status-completed { background-color: #2196f3; }
+.status-cancelled { background-color: #f44336; }
 
-.status-completed {
-  background: #bee3f8;
-  color: #2c5282;
-}
-
-.status-cancelled {
-  background: #fed7d7;
-  color: #742a2a;
-}
-
-.class-actions {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.class-card-body {
-  padding: 1.5rem;
-}
-
+/* CARD BODY */
 .class-meta {
   display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  font-size: 0.9rem;
+  color: #555;
 }
 
 .meta-item {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 0.9rem;
-  color: #4a5568;
-}
-
-.meta-icon {
-  font-size: 1.1rem;
+  gap: 0.3rem;
 }
 
 .class-description {
-  color: #718096;
-  line-height: 1.6;
-  margin: 1rem 0;
-  font-size: 0.95rem;
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  color: #333;
 }
 
-.btn-expand {
-  width: 100%;
-  background: #f7fafc;
-  border: none;
-  padding: 0.75rem;
-  border-radius: 8px;
-  font-weight: 600;
-  color: #667eea;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  margin-top: 1rem;
-}
-
-.btn-expand:hover {
-  background: #edf2f7;
-}
-
-/* Expanded Details */
+/* DETAILS EXPANDED */
 .class-details-expanded {
-  margin-top: 1.5rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid #e2e8f0;
-}
-
-.details-section {
-  margin-bottom: 1.5rem;
+  margin-top: 0.8rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid #eee;
 }
 
 .details-section h4 {
+  margin-bottom: 0.4rem;
   font-size: 1rem;
-  color: #1a202c;
-  margin-bottom: 1rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
 }
 
 .details-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.detail-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.5rem;
-  background: #f7fafc;
-  border-radius: 6px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem 1.2rem;
 }
 
 .detail-row strong {
-  color: #4a5568;
-  font-size: 0.9rem;
+  color: #333;
 }
 
-.detail-row span {
-  color: #1a202c;
-  font-size: 0.9rem;
-}
-
-.students-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.student-item {
-  padding: 0.75rem;
-  background: #f7fafc;
-  border-radius: 8px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.student-info {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.student-name {
-  font-weight: 600;
-  color: #1a202c;
-  font-size: 0.95rem;
-}
-
-.student-email {
-  color: #718096;
-  font-size: 0.85rem;
-}
-
-.no-data {
-  color: #a0aec0;
-  font-style: italic;
+/* EMPTY STATE */
+.empty-state {
   text-align: center;
-  padding: 1rem;
+  padding: 3rem 0;
+  color: #777;
 }
 
-/* Modal Styles */
+.empty-icon {
+  font-size: 3rem;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+/* -------- MODAL -------- */
 .modal-overlay {
   position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.4);
   display: flex;
-  align-items: center;
   justify-content: center;
-  padding: 1rem;
-  z-index: 1000;
-  animation: fadeIn 0.2s ease;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  align-items: center;
+  z-index: 999;
 }
 
 .modal-content {
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
-  max-width: 700px;
-  width: 100%;
-  max-height: 90vh;
-  overflow-y: auto;
-  animation: slideUp 0.3s ease;
-}
-
-@keyframes slideUp {
-  from {
-    transform: translateY(20px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
+  background-color: #fff;
+  padding: 1.5rem;
+  border-radius: 0.6rem;
+  width: 90%;
+  max-width: 600px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  position: relative;
 }
 
 .modal-header {
-  padding: 1.5rem 2rem;
-  border-bottom: 1px solid #e2e8f0;
   display: flex;
   justify-content: space-between;
   align-items: center;
-}
-
-.modal-header h2 {
-  font-size: 1.5rem;
-  color: #1a202c;
-  margin: 0;
+  margin-bottom: 1rem;
 }
 
 .close-btn {
   background: none;
   border: none;
-  font-size: 1.5rem;
-  color: #a0aec0;
+  font-size: 1.2rem;
   cursor: pointer;
-  padding: 0.5rem;
-  border-radius: 6px;
-  transition: all 0.2s ease;
 }
 
-.close-btn:hover {
-  color: #4a5568;
-  background: #f7fafc;
+.modal-form .form-group {
+  margin-bottom: 1rem;
 }
 
-/* Form Styles */
-.modal-form {
-  padding: 2rem;
-}
-
-.form-group {
-  margin-bottom: 1.5rem;
-}
-
-.form-group label {
-  display: block;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #2d3748;
-  margin-bottom: 0.5rem;
-}
-
-.required {
-  color: #e53e3e;
-}
-
-.form-group input,
-.form-group textarea,
-.form-group select {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  border: 1px solid #cbd5e0;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-family: inherit;
-  transition: all 0.2s ease;
-}
-
-.form-group input:focus,
-.form-group textarea:focus,
-.form-group select:focus {
-  outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-}
-
-.form-group textarea {
-  resize: vertical;
-  min-height: 80px;
-}
-
-.form-row {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 1rem;
-}
-
-.form-actions {
+.modal-form .form-row {
   display: flex;
   gap: 1rem;
-  justify-content: flex-end;
-  margin-top: 2rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid #e2e8f0;
+  flex-wrap: wrap;
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-  .teacher-classes-page,
-  .teacher-assignments-page {
-    padding: 1rem;
-  }
+.modal-form label {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-weight: 500;
+}
 
-  .page-header {
-    flex-direction: column;
-    align-items: stretch;
-  }
+.modal-form input,
+.modal-form select,
+.modal-form textarea {
+  width: 100%;
+  padding: 0.5rem;
+  border-radius: 0.4rem;
+  border: 1px solid #ccc;
+  font-size: 0.9rem;
+}
 
-  .header-left h1 {
-    font-size: 1.5rem;
-  }
+.modal-form textarea {
+  resize: none;
+}
 
-  .btn-primary {
-    justify-content: center;
-  }
-
-  .classes-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .class-card-header {
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .class-actions {
-    width: 100%;
-    justify-content: flex-end;
-  }
-
-  .form-row {
-    grid-template-columns: 1fr;
-  }
-
-  .form-actions {
-    flex-direction: column-reverse;
-  }
-
-  .form-actions button {
-    width: 100%;
-  }
-
-  .modal-content {
-    margin: 0.5rem;
-  }
-
-  .modal-form {
-    padding: 1.5rem;
-  }
+.modal-form .form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1rem;
 }
