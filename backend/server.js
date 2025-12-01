@@ -14,6 +14,7 @@ import Student from "./models/Student.js";
 import Teacher from "./models/Teacher.js";
 import assignmentRoutes from "./routes/assignmentRoutes.js";
 import attendanceRoutes from "./routes/attendance.js";
+import classRoutes from "./routes/classRoutes.js";
 import eventRoutes from "./routes/eventRoutes.js";
 import gradeRoutes from "./routes/gradeRoutes.js";
 import messageRoutes from "./routes/message.js";
@@ -103,6 +104,7 @@ app.use("/api/students", studentRoutes);
 app.use("/api/finance", financeRoutes);
 
 app.use(express.urlencoded({ extended: true })); // For form dataapp.use('/api/classes', classRoutes);
+app.use('/api/classes', classRoutes);
 app.use('/api/assignment', assignmentRoutes);
 app.use('/api/submission', submissionRoutes);
 app.use('/api/grade', gradeRoutes);

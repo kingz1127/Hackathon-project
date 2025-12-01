@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import './TeacherClasses.css';
 
 export default function TeacherClassesPage() {
-  const [classes, setClasses] = useState([]);
+  const [classes, setClasses]  = useState([]);
   const [loading, setLoading] = useState(true);
   const [expandedClass, setExpandedClass] = useState(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -24,6 +24,9 @@ export default function TeacherClassesPage() {
     maxStudents: "30",
   });
 
+  const teacherId = localStorage.getItem("teacherId");
+
+
   // Fetch classes from API
   useEffect(() => {
     fetchClasses();
@@ -32,7 +35,7 @@ export default function TeacherClassesPage() {
   const fetchClasses = async () => {
   setLoading(true);
   try {
-    const res = await fetch("http://localhost:5000/api/classes/teacher");
+    const res = await fetch(`http://localhost:5000/api/classes/teacher/${teacherId}`);
     
     if (!res.ok) {
       throw new Error(`HTTP error! status: ${res.status}`);
@@ -145,6 +148,12 @@ export default function TeacherClassesPage() {
     });
     setIsEditModalOpen(true);
   };
+
+  const closeModal = () => {
+  setIsCreateModalOpen(false);
+  setIsEditModalOpen(false);
+  resetForm();
+};
 
   const resetForm = () => {
     setFormData({
@@ -316,18 +325,18 @@ export default function TeacherClassesPage() {
       )}
 
   {/* Create/Edit Modal */}
+{/* Create/Edit Modal */}
 {(isCreateModalOpen || isEditModalOpen) && (
-  <div 
-    className="modal-overlay" 
-    onClick={() => {
-      closeModal();
-    }}
-  >
+  <div className="modal-overlay" onClick={closeModal}>
     <div className="modal-content" onClick={(e) => e.stopPropagation()}>
       <div className="modal-header">
         <h2>{isEditModalOpen ? 'Edit Class' : 'Create New Class'}</h2>
-        <button onClick={closeModal} className="close-btn">✕</button>
+
+        <button onClick={closeModal} className="close-btn">
+          ✕
+        </button>
       </div>
+ 
 
             <div className="modal-form">
               <div className="form-group">
