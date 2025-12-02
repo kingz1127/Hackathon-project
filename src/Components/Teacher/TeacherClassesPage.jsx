@@ -10,6 +10,15 @@ export default function TeacherClassesPage() {
   const [editingClass, setEditingClass] = useState(null);
   const [filterSemester, setFilterSemester] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
+  const [hours, minutes] = formData.scheduleTime.split(":").map(Number);
+const duration = Number(formData.scheduleDuration);
+
+let endHours = hours + Math.floor((minutes + duration) / 60);
+let endMinutes = (minutes + duration) % 60;
+
+// Format as HH:MM
+const endTime = `${String(endHours).padStart(2, "0")}:${String(endMinutes).padStart(2, "0")}`;
+
   const teacherId = localStorage.getItem("teacherId");
 
   const [formData, setFormData] = useState({
@@ -51,42 +60,35 @@ export default function TeacherClassesPage() {
   };
 
   const handleCreateClass = async (e) => {
-  e.preventDefault();
-
-  // Compute endTime based on scheduleTime and scheduleDuration
-  const [hours, minutes] = formData.scheduleTime.split(":").map(Number);
-  const duration = Number(formData.scheduleDuration);
-  const endHours = hours + Math.floor((minutes + duration) / 60);
-  const endMinutes = (minutes + duration) % 60;
-  const endTime = `${String(endHours).padStart(2, "0")}:${String(endMinutes).padStart(2, "0")}`;
-
-  try {
-    const payload = {
-      ...formData,
-      schedule: [
-        {
-          day: formData.scheduleDay,
-          startTime: formData.scheduleTime,
-          duration: formData.scheduleDuration,
-          endTime: endTime,
-        },
-      ],
-    };
-
-    const res = await fetch("http://localhost:5000/api/classes/teacher", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-
-    const data = await res.json();
-    setClasses([data, ...classes]);
-    setIsCreateModalOpen(false);
-    resetForm();
-  } catch (err) {
-    console.error("Error creating class:", err);
-  }
+    e.preventDefault();
+    try {
+      const payload = {
+  ...formData,
+  schedule: [
+    {
+      day: formData.scheduleDay,
+      startTime: formData.scheduleTime,
+      duration: formData.scheduleDuration, // <-- important!
+      endTime: endTime, // optional
+    },
+  ],
 };
+
+
+      const res = await fetch("http://localhost:5000/api/classes/teacher", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+      setClasses([data, ...classes]);
+      setIsCreateModalOpen(false);
+      resetForm();
+    } catch (err) {
+      console.error("Error creating class:", err);
+    }
+  };
 
   const handleEditClass = async (e) => {
     e.preventDefault();

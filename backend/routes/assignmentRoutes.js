@@ -75,3 +75,4 @@ router.get('/student/:studentId', async (req, res) => {
 });
 
 export default router;
+

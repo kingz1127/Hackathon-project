@@ -105,9 +105,9 @@ app.use("/api/finance", financeRoutes);
 
 app.use(express.urlencoded({ extended: true })); // For form dataapp.use('/api/classes', classRoutes);
 app.use('/api/classes', classRoutes);
-app.use('/api/assignment', assignmentRoutes);
-app.use('/api/submission', submissionRoutes);
-app.use('/api/grade', gradeRoutes);
+app.use('/api/assignments', assignmentRoutes);
+app.use('/api/submissions', submissionRoutes);
+app.use('/api/grades', gradeRoutes);
 
 const paymentUploadsDir = path.join(__dirname, "uploads", "payments");
 if (!fs.existsSync(paymentUploadsDir)) {

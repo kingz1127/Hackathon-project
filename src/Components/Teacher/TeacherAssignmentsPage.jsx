@@ -1,168 +1,227 @@
-import { useEffect, useState } from 'react';
-import './TeacherAssignments.css';
+import { FileText } from "lucide-react";
+import { useEffect, useState } from "react";
 
-const API_BASE_URL = 'http://localhost:5000/api';
-
-const TeacherAssignmentsPage = () => {
+export default function TeacherAssignmentsPage() {
   const [assignments, setAssignments] = useState([]);
   const [classes, setClasses] = useState([]);
-  const [submissions, setSubmissions] = useState({});
-  const [expandedAssignment, setExpandedAssignment] = useState(null);
-  const [showCreateModal, setShowCreateModal] = useState(false);
-  const [showGradeModal, setShowGradeModal] = useState(null);
-  const [showAddGradeModal, setShowAddGradeModal] = useState(false);
-  const [filterClass, setFilterClass] = useState('all');
-  const [filterStatus, setFilterStatus] = useState('all');
   const [loading, setLoading] = useState(true);
-  const [selectedClass, setSelectedClass] = useState(null);
-  const [gradebook, setGradebook] = useState(null);
+  const [filterClass, setFilterClass] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingAssignment, setEditingAssignment] = useState(null);
 
-  const [newAssignment, setNewAssignment] = useState({
-    classId: '',
-    title: '',
-    description: '',
-    instructions: '',
-    dueDate: '',
+  const [formData, setFormData] = useState({
+    classId: "",
+    title: "",
+    description: "",
+    dueDate: "",
     totalPoints: 100,
-    status: 'active'
+    attachments: null,
   });
 
-  const [gradeData, setGradeData] = useState({
-    grade: 0,
-    feedback: ''
-  });
+  // API call supporting FormData
+  const apiCall = async (url, method = "GET", data = null) => {
+    const options = { method };
+    if (data) {
+      if (data instanceof FormData) {
+        options.body = data;
+      } else {
+        options.body = JSON.stringify(data);
+        options.headers = { "Content-Type": "application/json" };
+      }
+    }
 
-  const [manualGrade, setManualGrade] = useState({
-    studentId: '',
-    classId: '',
-    gradeType: 'quiz',
-    title: '',
-    score: 0,
-    maxScore: 100,
-    comments: ''
-  });
+    const response = await fetch(`${API_BASE_URL}${url}`, options);
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || "API request failed");
+    }
+    return response.json();
+  };
 
-  // Fetch classes once
+  const formatDateTimeLocal = (dateStr) => {
+    if (!dateStr) return "";
+    const date = new Date(dateStr);
+    const offset = date.getTimezoneOffset();
+    const localDate = new Date(date.getTime() - offset * 60000);
+    return localDate.toISOString().slice(0, 16);
+  };
+
   useEffect(() => {
-    fetch(`${API_BASE_URL}/classes/teacher`)
-      .then(res => res.json())
-      .then(data => setClasses(data))
-      .catch(err => console.error(err));
+    fetchClasses();
+    fetchAssignments();
   }, []);
 
-  // Fetch assignments when filters change
-  useEffect(() => {
-    const params = new URLSearchParams();
-    if (filterClass !== 'all') params.append('classId', filterClass);
-    if (filterStatus !== 'all') params.append('status', filterStatus);
-
-    setLoading(true);
-    fetch(`${API_BASE_URL}/assignments/teacher?${params.toString()}`)
-      .then(res => res.json())
-      .then(data => setAssignments(data))
-      .catch(err => console.error(err))
-      .finally(() => setLoading(false));
-  }, [filterClass, filterStatus]);
-
-  const fetchSubmissions = (assignmentId) => {
-    fetch(`${API_BASE_URL}/submissions/teacher/assignment/${assignmentId}`)
-      .then(res => res.json())
-      .then(data => setSubmissions(prev => ({ ...prev, [assignmentId]: data })))
-      .catch(err => console.error(err));
-  };
-
-  const fetchGradebook = (classId) => {
-    fetch(`${API_BASE_URL}/grades/teacher/class/${classId}`)
-      .then(res => res.json())
-      .then(data => setGradebook(data))
-      .catch(err => console.error(err));
-  };
-
-  const handleCreateAssignment = () => {
-    fetch(`${API_BASE_URL}/assignments/teacher`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newAssignment)
-    })
-      .then(() => {
-        setShowCreateModal(false);
-        setNewAssignment({
-          classId: '', title: '', description: '', instructions: '',
-          dueDate: '', totalPoints: 100, status: 'active'
-        });
-        alert('Assignment created successfully!');
-      })
-      .catch(err => alert('Failed to create assignment: ' + err.message));
-  };
-
-  const handleDeleteAssignment = (assignmentId) => {
-    if (window.confirm('Delete this assignment?')) {
-      fetch(`${API_BASE_URL}/assignments/teacher/${assignmentId}`, { method: 'DELETE' })
-        .then(() => {
-          alert('Assignment deleted successfully!');
-        })
-        .catch(err => alert('Failed to delete assignment: ' + err.message));
+  const fetchClasses = async () => {
+    try {
+      const data = await apiCall("/classes/teacher");
+      setClasses(data);
+    } catch (err) {
+      console.error("Error fetching classes:", err);
+      alert(err.message);
     }
   };
 
-  const handleGradeSubmission = (submissionId) => {
-    fetch(`${API_BASE_URL}/submissions/teacher/${submissionId}/grade`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(gradeData)
-    })
-      .then(() => {
-        setShowGradeModal(null);
-        setGradeData({ grade: 0, feedback: '' });
-        if (expandedAssignment) fetchSubmissions(expandedAssignment);
-        alert('Submission graded successfully!');
-      })
-      .catch(err => alert('Failed to grade submission: ' + err.message));
+  const fetchAssignments = async (classId = "") => {
+    try {
+      setLoading(true);
+      let url = "/teachassignments/teacher";
+      if (classId) url += `?classId=${classId}`;
+      const data = await apiCall(url);
+      setAssignments(data);
+    } catch (err) {
+      console.error("Error fetching assignments:", err);
+      alert(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleAddManualGrade = () => {
-    fetch(`${API_BASE_URL}/grades/teacher`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(manualGrade)
-    })
-      .then(() => {
-        setShowAddGradeModal(false);
-        setManualGrade({
-          studentId: '', classId: '', gradeType: 'quiz', title: '',
-          score: 0, maxScore: 100, comments: ''
-        });
-        if (selectedClass) fetchGradebook(selectedClass);
-        alert('Grade added successfully!');
-      })
-      .catch(err => alert('Failed to add grade: ' + err.message));
+  const handleInputChange = (e) => {
+    const { name, value, files } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: files ? files[0] : value,
+    }));
   };
 
-  const handleExpandAssignment = (assignmentId) => {
-    if (expandedAssignment === assignmentId) {
-      setExpandedAssignment(null);
+  const openModal = (assignment = null) => {
+    if (assignment) {
+      setEditingAssignment(assignment);
+      setFormData({
+        classId: assignment.classId._id,
+        title: assignment.title,
+        description: assignment.description,
+        dueDate: formatDateTimeLocal(assignment.dueDate),
+        totalPoints: assignment.totalPoints,
+        attachments: null,
+      });
     } else {
-      setExpandedAssignment(assignmentId);
-      fetchSubmissions(assignmentId);
+      setEditingAssignment(null);
+      setFormData({
+        classId: "",
+        title: "",
+        description: "",
+        dueDate: "",
+        totalPoints: 100,
+        attachments: null,
+      });
+    }
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => setIsModalOpen(false);
+
+  const handleSaveAssignment = async () => {
+    const { classId, title, description, dueDate, totalPoints, attachments } = formData;
+
+    if (!classId || !title || !description || !dueDate || totalPoints <= 0) {
+      alert("Please fill all required fields and ensure total points > 0");
+      return;
+    }
+
+    try {
+      const payload = new FormData();
+      payload.append("classId", classId);
+      payload.append("title", title);
+      payload.append("description", description);
+      payload.append("dueDate", dueDate);
+      payload.append("totalPoints", totalPoints);
+      if (attachments) payload.append("attachments", attachments);
+
+      let data;
+      if (editingAssignment) {
+        data = await apiCall(`/teachassignments/${editingAssignment._id}`, "PUT", payload);
+        setAssignments(assignments.map(a => a._id === data._id ? data : a));
+      } else {
+        data = await apiCall("/teachassignments", "POST", payload);
+        setAssignments([data, ...assignments]);
+      }
+
+      closeModal();
+    } catch (err) {
+      console.error(err);
+      alert("Error saving assignment: " + err.message);
     }
   };
 
-  const getSubmissionStats = (assignmentId) => {
-    const subs = submissions[assignmentId] || [];
-    const graded = subs.filter(s => s.status === 'graded').length;
-    const pending = subs.filter(s => s.status === 'submitted' || s.status === 'late').length;
-    return { total: subs.length, graded, pending };
+  const handleDeleteAssignment = async (id) => {
+    if (!confirm("Are you sure you want to delete this assignment?")) return;
+    try {
+      await apiCall(`/teachassignments/${id}`, "DELETE");
+      setAssignments(assignments.filter(a => a._id !== id));
+    } catch (err) {
+      console.error(err);
+      alert("Error deleting assignment: " + err.message);
+    }
   };
 
-  if (loading) return <div style={{padding: '40px', textAlign: 'center'}}>Loading...</div>;
+  const filteredAssignments = filterClass
+    ? assignments.filter(a => a.classId._id === filterClass)
+    : assignments;
+
+  if (loading) return <div>Loading assignments...</div>;
 
   return (
-    <div style={{padding: '24px', maxWidth: '1400px', margin: '0 auto'}}>
-      {/* Header, Tabs, Filters, Assignments, Modals */}
-      {/* Keep your current JSX here, just remove any token/auth usage */}
+    <div className="teacher-assignments-page">
+      <h1 className="page-title">
+        <FileText size={32} /> My Assignments
+      </h1>
+
+      <div className="assignments-controls">
+        <select
+          value={filterClass}
+          onChange={(e) => {
+            setFilterClass(e.target.value);
+            fetchAssignments(e.target.value);
+          }}
+        >
+          <option value="">All Classes</option>
+          {classes.map(cls => <option key={cls._id} value={cls._id}>{cls.className}</option>)}
+        </select>
+
+        <button onClick={() => openModal()}>Create Assignment</button>
+      </div>
+
+      {filteredAssignments.length === 0 ? (
+        <div>No assignments found</div>
+      ) : (
+        filteredAssignments.map(a => (
+          <div key={a._id} className="assignment-card">
+            <h3>{a.title}</h3>
+            <p>{a.description}</p>
+            <p>
+              Class: {a.classId.className} | Due: {new Date(a.dueDate).toLocaleString()} | Points: {a.totalPoints}
+            </p>
+            <div className="assignment-actions">
+              <button onClick={() => openModal(a)}>Edit</button>
+              <button onClick={() => handleDeleteAssignment(a._id)}>Delete</button>
+            </div>
+          </div>
+        ))
+      )}
+
+      {isModalOpen && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h2>{editingAssignment ? "Edit Assignment" : "Create Assignment"}</h2>
+            <div className="modal-form">
+              <select name="classId" value={formData.classId} onChange={handleInputChange} required>
+                <option value="">Select Class</option>
+                {classes.map(cls => <option key={cls._id} value={cls._id}>{cls.className}</option>)}
+              </select>
+              <input type="text" name="title" placeholder="Title" value={formData.title} onChange={handleInputChange} required />
+              <textarea name="description" placeholder="Description" value={formData.description} onChange={handleInputChange} />
+              <input type="datetime-local" name="dueDate" value={formData.dueDate} onChange={handleInputChange} required />
+              <input type="number" name="totalPoints" value={formData.totalPoints} onChange={handleInputChange} min={1} />
+              <input type="file" name="attachments" onChange={handleInputChange} />
+            </div>
+            <div className="modal-actions">
+              <button onClick={closeModal}>Cancel</button>
+              <button onClick={handleSaveAssignment}>{editingAssignment ? "Update" : "Create"}</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
-};
-
-export default TeacherAssignmentsPage;
-
+}
