@@ -1,6 +1,9 @@
 import express from 'express';
+import multer from "multer";
 import Assignment from '../models/Assignment.js';
 import Class from '../models/Class.js';
+const upload = multer({ dest: "uploads/" }); // or configure storage
+
 
 const router = express.Router();
 
@@ -9,11 +12,11 @@ const router = express.Router();
 // Create an assignment
 // POST /api/assignments
 // Body must include: teacherId, classId, title, description, dueDate, totalPoints
-router.post('/', async (req, res) => {
+router.post('/', upload.single('attachments'), async (req, res) => {
   try {
-    const { teacherId, classId, title, description, instructions, dueDate, totalPoints, attachments } = req.body;
+    const { teacherId, classId, title, description, dueDate, totalPoints } = req.body;
+    const attachments = req.file ? req.file.filename : null;
 
-    // Verify class exists and teacher owns it
     const classData = await Class.findById(classId);
     if (!classData) return res.status(404).json({ message: 'Class not found' });
     if (String(classData.teacherId) !== teacherId) return res.status(403).json({ message: 'Unauthorized' });
@@ -23,7 +26,6 @@ router.post('/', async (req, res) => {
       teacherId,
       title,
       description,
-      instructions,
       dueDate,
       totalPoints,
       attachments

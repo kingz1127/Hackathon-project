@@ -1,18 +1,19 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import "./TeacherClasses.css";
 
+
 export default function TeacherClassesPage() {
+  const teacherId = localStorage.getItem("teacherId");
+
   const [classes, setClasses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expandedClass, setExpandedClass] = useState(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingClass, setEditingClass] = useState(null);
+
   const [filterSemester, setFilterSemester] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
-  const navigate = useNavigate();
-  const teacherId = localStorage.getItem("teacherId");
 
   const [formData, setFormData] = useState({
     teacherId: teacherId,
@@ -27,7 +28,9 @@ export default function TeacherClassesPage() {
     maxStudents: "30",
   });
 
-  // Fetch classes from API
+  /* ------------------------------------------------------------------
+     FETCH CLASSES
+  ------------------------------------------------------------------ */
   useEffect(() => {
     fetchClasses();
   }, [filterSemester, filterStatus]);
@@ -35,9 +38,11 @@ export default function TeacherClassesPage() {
   const fetchClasses = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`http://localhost:5000/api/classes/teacher/${teacherId}`);
-      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+      const res = await fetch(
+        `http://localhost:5000/api/classes/teacher/${teacherId}`
+      );
       const data = await res.json();
+
       setClasses(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error("Error fetching classes:", err);
@@ -47,22 +52,35 @@ export default function TeacherClassesPage() {
     }
   };
 
+  /* ------------------------------------------------------------------
+     INPUT HANDLER
+  ------------------------------------------------------------------ */
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  /* ------------------------------------------------------------------
+     UTILITY: CALCULATE END TIME  
+  ------------------------------------------------------------------ */
+  const calculateEndTime = () => {
+    if (!formData.scheduleTime) return "";
+
+    const [h, m] = formData.scheduleTime.split(":").map(Number);
+    const duration = Number(formData.scheduleDuration);
+
+    let endH = h + Math.floor((m + duration) / 60);
+    let endM = (m + duration) % 60;
+
+    return `${String(endH).padStart(2, "0")}:${String(endM).padStart(2, "0")}`;
+  };
+
+  /* ------------------------------------------------------------------
+     CREATE CLASS
+  ------------------------------------------------------------------ */
   const handleCreateClass = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  // Compute endTime based on scheduleTime and scheduleDuration
-  const [hours, minutes] = formData.scheduleTime.split(":").map(Number);
-  const duration = Number(formData.scheduleDuration);
-  const endHours = hours + Math.floor((minutes + duration) / 60);
-  const endMinutes = (minutes + duration) % 60;
-  const endTime = `${String(endHours).padStart(2, "0")}:${String(endMinutes).padStart(2, "0")}`;
-
-  try {
     const payload = {
       ...formData,
       schedule: [
@@ -70,40 +88,46 @@ export default function TeacherClassesPage() {
           day: formData.scheduleDay,
           startTime: formData.scheduleTime,
           duration: formData.scheduleDuration,
-          endTime: endTime,
+          endTime: calculateEndTime(),
         },
       ],
     };
 
-    const res = await fetch("http://localhost:5000/api/classes/teacher", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
+    try {
+      const res = await fetch("http://localhost:5000/api/classes/teacher", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
 
-    const data = await res.json();
-    setClasses([data, ...classes]);
-    setIsCreateModalOpen(false);
-    resetForm();
-  } catch (err) {
-    console.error("Error creating class:", err);
-  }
-};
+      const data = await res.json();
+      setClasses([data, ...classes]);
+      setIsCreateModalOpen(false);
+      resetForm();
+    } catch (err) {
+      console.error("Error creating class:", err);
+    }
+  };
 
+  /* ------------------------------------------------------------------
+     EDIT CLASS
+  ------------------------------------------------------------------ */
   const handleEditClass = async (e) => {
     e.preventDefault();
-    try {
-      const payload = {
-        ...formData,
-        schedule: [
-          {
-            day: formData.scheduleDay,
-            startTime: formData.scheduleTime,
-            duration: formData.scheduleDuration,
-          },
-        ],
-      };
 
+    const payload = {
+      ...formData,
+      schedule: [
+        {
+          day: formData.scheduleDay,
+          startTime: formData.scheduleTime,
+          duration: formData.scheduleDuration,
+          endTime: calculateEndTime(),
+        },
+      ],
+    };
+
+    try {
       const res = await fetch(
         `http://localhost:5000/api/classes/teacher/${editingClass._id}`,
         {
@@ -114,7 +138,11 @@ export default function TeacherClassesPage() {
       );
 
       const data = await res.json();
-      setClasses(classes.map((c) => (c._id === editingClass._id ? data : c)));
+
+      setClasses(
+        classes.map((c) => (c._id === editingClass._id ? data : c))
+      );
+
       setIsEditModalOpen(false);
       setEditingClass(null);
       resetForm();
@@ -123,21 +151,31 @@ export default function TeacherClassesPage() {
     }
   };
 
+  /* ------------------------------------------------------------------
+     DELETE CLASS
+  ------------------------------------------------------------------ */
   const handleDeleteClass = async (classId) => {
-    if (!confirm("Are you sure you want to delete this class?")) return;
+    if (!confirm("Delete this class?")) return;
+
     try {
       await fetch(`http://localhost:5000/api/classes/teacher/${classId}`, {
         method: "DELETE",
       });
+
       setClasses(classes.filter((c) => c._id !== classId));
+
       if (expandedClass === classId) setExpandedClass(null);
     } catch (err) {
       console.error("Error deleting class:", err);
     }
   };
 
+  /* ------------------------------------------------------------------
+     MODALS & FORM RESET
+  ------------------------------------------------------------------ */
   const openEditModal = (classData) => {
     setEditingClass(classData);
+
     setFormData({
       teacherId: classData.teacherId,
       className: classData.className,
@@ -150,6 +188,7 @@ export default function TeacherClassesPage() {
       room: classData.room || "",
       maxStudents: classData.maxStudents || "30",
     });
+
     setIsEditModalOpen(true);
   };
 
@@ -228,28 +267,28 @@ export default function TeacherClassesPage() {
         </div>
       ) : (
         <div className="classes-grid">
-         {classes.map((classItem) => (
-  <div key={classItem._id} className="class-card">
-    <div className="class-card-header">
-      <div className="class-info">
-        <h3>{classItem.className}</h3>
-        <span className={`status-badge status-${classItem.status}`}>
-          {classItem.status || "active"}
-        </span>
-      </div>
-      <div className="class-actions">
-        <button onClick={() => openEditModal(classItem)} className="btn-icon" title="Edit">
-          ✏️
-        </button>
-        <button
-          onClick={() => handleDeleteClass(classItem._id)}
-          className="btn-icon btn-danger"
-          title="Delete"
-        >
-          🗑️
-        </button>
-      </div>
-    </div>
+          {classes.map((classItem) => (
+            <div key={classItem._id} className="class-card">
+              <div className="class-card-header">
+                <div className="class-info">
+                  <h3>{classItem.className}</h3>
+                  <span className={`status-badge status-${classItem.status}`}>
+                    {classItem.status || "active"}
+                  </span>
+                </div>
+                <div className="class-actions">
+                  <button onClick={() => openEditModal(classItem)} className="btn-icon" title="Edit">
+                    ✏️
+                  </button>
+                  <button
+                    onClick={() => handleDeleteClass(classItem._id)}
+                    className="btn-icon btn-danger"
+                    title="Delete"
+                  >
+                    🗑️
+                  </button>
+                </div>
+              </div>
 
               <div className="class-card-body">
                 <div className="class-meta">
@@ -307,12 +346,6 @@ export default function TeacherClassesPage() {
                     </div>
                   </div>
                 )}
-                <button
-  onClick={() => navigate(`/teacher/teachassignments?classId=${classItem._id}`)}
-  className="btn-primary"
->
-  📄 View Assignments
-</button>
               </div>
             </div>
           ))}
