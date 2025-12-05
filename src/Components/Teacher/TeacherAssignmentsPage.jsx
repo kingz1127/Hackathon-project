@@ -195,7 +195,10 @@ const totalPages = Math.ceil(
     : assignments.length) / PAGE_SIZE
 );
 
-return ( <div className="teacher-assignments-page"> <h1 className="page-title"> <FileText size={32} /> My Assignments </h1>
+return (
+  <>
+  
+   <div className="teacher-assignments-page"> <h1 className="page-title"> <FileText size={32} /> My Assignments </h1>
 
   {/* Controls */}
   <div className="assignments-controls">
@@ -278,5 +281,6 @@ return ( <div className="teacher-assignments-page"> <h1 className="page-title"> 
     </div>
   )}
 </div>
+  </>
 );
 }

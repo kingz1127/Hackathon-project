@@ -1,0 +1,80 @@
+Week 1 – Backend & Brand Setup| Day | Dev Task                                              | IG Task                                            |
+| --- | ----------------------------------------------------- | -------------------------------------------------- |
+| Mon | Set up backend project, choose DB (Supabase/Postgres) | Create IG account, profile setup (logo, bio, link) |
+| Tue | Build product & user models                           | Post carousel: brand story + UI screenshots        |
+| Wed | Set up basic auth (signup/login)                      | Story poll: “What would you love to buy online?”   |
+| Thu | Admin panel skeleton (add/edit/delete products)       | Reel: behind-the-scenes of dev work                |
+| Fri | Seed DB with test products                            | Post branded graphic: “Vela is coming soon”        |
+| Sat | Test registration/login                               | Story: Tip about online shopping + teaser          |
+| Sun | Review DB structure & models                          | Engage: comment/follow potential customers         |
+
+
+
+Week 2 – Payment & Checkout| Day | Dev Task                    | IG Task                                      |
+| --- | --------------------------- | -------------------------------------------- |
+| Mon | Integrate Paystack sandbox  | Reel: mock checkout flow                     |
+| Tue | Build cart & checkout flow  | Story poll: Paystack vs Bank transfer?       |
+| Wed | Implement order model       | Post carousel: popular products              |
+| Thu | Test payment flow           | Reel: explain secure payments                |
+| Fri | Fix payment & cart bugs     | Story Q&A: Ask anything about Vela           |
+| Sat | Add order confirmation page | Post countdown sticker: “Vela launches soon” |
+| Sun | Test end-to-end flow        | Engage: DM early followers                   |
+
+
+
+Week 3 – Logistics & Delivery| Day | Dev Task                                   | IG Task                                      |
+| --- | ------------------------------------------ | -------------------------------------------- |
+| Mon | Decide delivery model, mock delivery table | Reel: “How Vela delivers your products”      |
+| Tue | Add delivery fees to checkout              | Story: packing/delivery mockup               |
+| Wed | Implement order status tracking            | Post infographic: delivery fees & areas      |
+| Thu | Test delivery status updates               | Story poll: same-day or next-day delivery?   |
+| Fri | Fix edge cases (stock/payment issues)      | Reel: showcase delivery partners/mock riders |
+| Sat | Seed more products if needed               | Post carousel: “Top 5 products ready”        |
+| Sun | Test full flow                             | Engage: reply to DMs, repost any UGC         |
+
+
+
+Week 4 – Polish & Testing| Day | Dev Task                       | IG Task                                           |
+| --- | ------------------------------ | ------------------------------------------------- |
+| Mon | Test all flows, fix bugs       | Reel: sneak peek of first products                |
+| Tue | Frontend tweaks for usability  | Story poll: “Which product first?”                |
+| Wed | Test on mobile                 | Post carousel: final UI screenshots               |
+| Thu | QA: check broken links, errors | Story: share testimonials from testers            |
+| Fri | Debug checkout & delivery      | Reel: “Your first order with Vela—what to expect” |
+| Sat | Final tweaks & prep            | Post countdown sticker: “3 days to soft launch”   |
+| Sun | Backup & review                | Engage: follow & comment on relevant accounts     |
+
+
+
+Week 5 – Pre-Launch| Day | Dev Task                              | IG Task                              |
+| --- | ------------------------------------- | ------------------------------------ |
+| Mon | Seed platform with initial products   | Story poll: “Ready to shop?”         |
+| Tue | Test cart & payment with real friends | Reel: product lineup mockup          |
+| Wed | Finalize admin/product management     | Carousel: top voted products         |
+| Thu | Prepare FAQ & support flow            | Story: tip on safe online shopping   |
+| Fri | Run final full-flow test              | Reel: packaging/delivery showcase    |
+| Sat | Fix any last bugs                     | Countdown sticker: “1 day to launch” |
+| Sun | Backup DB & prep for launch           | Story: reminder + engage with DMs    |
+
+
+
+Week 6 – Soft Launch & Marketing| Day | Dev Task                         | IG Task                                         |
+| --- | -------------------------------- | ----------------------------------------------- |
+| Mon | Open platform to small audience  | Launch Reel: show live platform, CTA to shop    |
+| Tue | Monitor orders & payments        | Story: share first orders (blur sensitive info) |
+| Wed | Fix any emerging bugs            | Carousel: “Top 5 products ordered”              |
+| Thu | Track delivery & customer issues | Story poll: “Which product to restock?”         |
+| Fri | Iterate based on feedback        | Reel: share testimonials/reactions              |
+| Sat | Prep for scale-up                | Story: highlight new arrivals or discount       |
+| Sun | Review metrics, plan next steps  | Engage: DM early customers, repost stories      |
+
+
+💡 Pro Tips:
+
+1 hour per day on IG is enough if you batch content ahead.
+
+Backend first, frontend tweaks second. IG hype won’t sell if checkout breaks.
+
+Always engage with comments & DMs—social proof matters a lot early.
+
+Use local hashtags for Nigeria (#ShopNaija #OnlineShoppingNG #VelaNigeria).
