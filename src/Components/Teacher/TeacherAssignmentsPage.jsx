@@ -224,7 +224,7 @@ return ( <div className="teacher-assignments-page"> <h1 className="page-title"> 
         <h3>{a.title}</h3>
         <p>{a.description}</p>
         <p>
-          Class: {a.classId.className} | Due: {new Date(a.dueDate).toLocaleString()} | Points: {a.totalPoints}
+          Class: {a.classId?.className || "Unknown"} | Due: {new Date(a.dueDate).toLocaleString()} | Points: {a.totalPoints}
         </p>
         {a.attachments && (
           <p>
@@ -260,7 +260,9 @@ return ( <div className="teacher-assignments-page"> <h1 className="page-title"> 
         <div className="modal-form">
           <select name="classId" value={formData.classId} onChange={handleInputChange} required>
             <option value="">Select Class</option>
-            {classes.map(cls => <option key={cls._id} value={cls._id}>{cls.className}</option>)}
+          {classes.map(cls => (
+  <option key={cls._id} value={cls._id}>{cls.className || "Unnamed Class"}</option>
+))}
           </select>
           <input type="text" name="title" placeholder="Title" value={formData.title} onChange={handleInputChange} required />
           <textarea name="description" placeholder="Description" value={formData.description} onChange={handleInputChange} />

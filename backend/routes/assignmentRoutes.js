@@ -69,8 +69,9 @@ router.get('/student/:studentId', async (req, res) => {
     const classData = await Class.findOne({ _id: classId, enrolledStudents: studentId });
     if (!classData) return res.status(403).json({ message: 'Not enrolled in this class' });
 
-    const assignments = await Assignment.find({ classId });
-    res.json(assignments);
+    const assignments = await Assignment.find({ classId }).populate("classId");
+res.json(assignments);
+
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
