@@ -47,8 +47,8 @@ router.get('/teacher/class/:classId', async (req, res) => {
     if (!classData) return res.status(404).json({ message: 'Class not found' });
     if (String(classData.teacherId) !== teacherId) return res.status(403).json({ message: 'Unauthorized' });
 
-    const assignments = await Assignment.find({ classId });
-    res.json(assignments);
+    const assignments = await Assignment.find({ classId }).populate('classId');
+res.json(assignments);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

@@ -71,27 +71,39 @@ alert(err.message);
 };
 
 // ======== Fetch assignments for a class ========
-const fetchAssignments = async (classId = "") => {
-if (!teacherId) return;
-if (!classId) return;
+const fetchAssignments = async (classId) => {
+  if (!teacherId) return;
+  if (!classId) return;
 
-try {
-  setLoading(true);
-  const url = `/assignments/teacher/class/${classId}?teacherId=${teacherId}`;
-  const data = await apiCall(url);
-  setAssignments(data);
-  setCurrentPage(1);
-} catch (err) {
-  console.error("Error fetching assignments:", err);
-  alert(err.message);
-} finally {
-  setLoading(false);
-}
+  try {
+    setLoading(true);
+    const url = `/assignments/teacher/class/${classId}?teacherId=${teacherId}`;
+    const data = await apiCall(url);
+    setAssignments(data);
+    setCurrentPage(1);
+  } catch (err) {
+    console.error("Error fetching assignments:", err);
+    alert(err.message);
+  } finally {
+    setLoading(false);
+  }
 };
 
+// ======== Load classes on mount ========
 useEffect(() => {
-fetchClasses();
+  const load = async () => {
+    await fetchClasses(); // fetch classes first
+  };
+  load();
 }, []);
+
+// ======== Fetch assignments for the first class once classes are loaded ========
+useEffect(() => {
+  if (classes.length > 0) {
+    fetchAssignments(classes[0]._id); // fetch assignments for the first class
+  }
+}, [classes]); // runs whenever classes array changes
+
 
 const handleInputChange = (e) => {
 const { name, value, files } = e.target;
@@ -164,6 +176,24 @@ try {
 };
 
 if (loading) return <div>Loading assignments...</div>;
+
+
+// ======== Pagination logic ========
+const paginatedAssignments = () => {
+  const filtered = filterClass
+    ? assignments.filter(a => a.classId._id === filterClass)
+    : assignments;
+
+  const start = (currentPage - 1) * PAGE_SIZE;
+  const end = start + PAGE_SIZE;
+  return filtered.slice(start, end);
+};
+
+const totalPages = Math.ceil(
+  (filterClass
+    ? assignments.filter(a => a.classId._id === filterClass).length
+    : assignments.length) / PAGE_SIZE
+);
 
 return ( <div className="teacher-assignments-page"> <h1 className="page-title"> <FileText size={32} /> My Assignments </h1>
 
