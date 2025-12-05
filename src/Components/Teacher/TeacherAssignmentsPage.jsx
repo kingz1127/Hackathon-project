@@ -1,8 +1,8 @@
 import { FileText } from "lucide-react";
 import { useEffect, useState } from "react";
 
-const API_BASE_URL = "[http://localhost:5000/api](http://localhost:5000/api)"; // your backend URL
-const PAGE_SIZE = 5; // number of assignments per page
+const API_BASE_URL = "http://localhost:5000/api"; // backend base URL
+const PAGE_SIZE = 5; // assignments per page
 
 export default function TeacherAssignmentsPage() {
 const [assignments, setAssignments] = useState([]);
@@ -21,29 +21,34 @@ dueDate: "",
 totalPoints: 100,
 attachments: null,
 });
+// ======== Get teacherId from localStorage ========
+const teacherId = localStorage.getItem("teacherId"); // plain string
+if (!teacherId) console.error("teacherId not found in localStorage");
 
-// API call supporting FormData
+// ======== Generic API call ========
 const apiCall = async (url, method = "GET", data = null) => {
-const options = { method };
-if (data) {
-if (data instanceof FormData) {
-options.body = data;
-} else {
-options.body = JSON.stringify(data);
-options.headers = { "Content-Type": "application/json" };
-}
-}
+  const options = { method };
 
+  if (data) {
+    if (data instanceof FormData) {
+      options.body = data;
+    } else {
+      options.body = JSON.stringify(data);
+      options.headers = { "Content-Type": "application/json" };
+    }
+  }
 
-const response = await fetch(`${API_BASE_URL}${url}`, options);
-if (!response.ok) {
-  const error = await response.json();
-  throw new Error(error.message || "API request failed");
-}
-return response.json();
+  const response = await fetch(`${API_BASE_URL}${url}`, options);
+  const text = await response.text();
 
-
+  try {
+    return JSON.parse(text); // if backend returns JSON
+  } catch {
+    console.warn("Response not JSON, returning raw text:", text);
+    return text; // fallback
+  }
 };
+
 
 const formatDateTimeLocal = (dateStr) => {
 if (!dateStr) return "";
@@ -53,14 +58,11 @@ const localDate = new Date(date.getTime() - offset * 60000);
 return localDate.toISOString().slice(0, 16);
 };
 
-useEffect(() => {
-fetchClasses();
-fetchAssignments();
-}, []);
-
+// ======== Fetch classes for this teacher ========
 const fetchClasses = async () => {
+if (!teacherId) return;
 try {
-const data = await apiCall("/classes/teacher");
+const data = await apiCall(`/classes/teacher/${teacherId}`);
 setClasses(data);
 } catch (err) {
 console.error("Error fetching classes:", err);
@@ -68,23 +70,28 @@ alert(err.message);
 }
 };
 
-// fetchAssignments
+// ======== Fetch assignments for a class ========
 const fetchAssignments = async (classId = "") => {
-  try {
-    setLoading(true);
-    let url = "/teachassignments"; // adjust to match backend
-    if (classId) url += `/${classId}?teacherId=YOUR_TEACHER_ID`;
-    const data = await apiCall(url);
-    setAssignments(data);
-    setCurrentPage(1);
-  } catch (err) {
-    console.error(err);
-    alert(err.message);
-  } finally {
-    setLoading(false);
-  }
+if (!teacherId) return;
+if (!classId) return;
+
+try {
+  setLoading(true);
+  const url = `/assignments/teacher/class/${classId}?teacherId=${teacherId}`;
+  const data = await apiCall(url);
+  setAssignments(data);
+  setCurrentPage(1);
+} catch (err) {
+  console.error("Error fetching assignments:", err);
+  alert(err.message);
+} finally {
+  setLoading(false);
+}
 };
 
+useEffect(() => {
+fetchClasses();
+}, []);
 
 const handleInputChange = (e) => {
 const { name, value, files } = e.target;
@@ -124,7 +131,6 @@ const closeModal = () => setIsModalOpen(false);
 const handleSaveAssignment = async () => {
 const { classId, title, description, dueDate, totalPoints, attachments } = formData;
 
-
 if (!classId || !title || !description || !dueDate || totalPoints <= 0) {
   alert("Please fill all required fields and ensure total points > 0");
   return;
@@ -132,6 +138,7 @@ if (!classId || !title || !description || !dueDate || totalPoints <= 0) {
 
 try {
   const payload = new FormData();
+  payload.append("teacherId", teacherId);
   payload.append("classId", classId);
   payload.append("title", title);
   payload.append("description", description);
@@ -141,48 +148,20 @@ try {
 
   let data;
   if (editingAssignment) {
-    data = await apiCall(`/teachassignments/${editingAssignment._id}`, "PUT", payload);
-    setAssignments(assignments.map(a => a._id === data._id ? data : a));
+    // PUT not implemented in backend yet
+    alert("Editing assignments not yet supported in backend");
+    return;
   } else {
-    data = await apiCall("/teachassignments", "POST", payload);
+    data = await apiCall("/assignments", "POST", payload);
     setAssignments([data, ...assignments]);
   }
 
   closeModal();
 } catch (err) {
-  console.error(err);
+  console.error("Error saving assignment:", err);
   alert("Error saving assignment: " + err.message);
 }
-
-
 };
-
-const handleDeleteAssignment = async (id) => {
-if (!confirm("Are you sure you want to delete this assignment?")) return;
-try {
-await apiCall(`/teachassignments/${id}`, "DELETE");
-setAssignments(assignments.filter(a => a._id !== id));
-} catch (err) {
-console.error(err);
-alert("Error deleting assignment: " + err.message);
-}
-};
-
-// Pagination logic
-const paginatedAssignments = () => {
-const filtered = filterClass
-? assignments.filter(a => a.classId._id === filterClass)
-: assignments;
-const start = (currentPage - 1) * PAGE_SIZE;
-const end = start + PAGE_SIZE;
-return filtered.slice(start, end);
-};
-
-const totalPages = Math.ceil(
-(filterClass
-? assignments.filter(a => a.classId._id === filterClass).length
-: assignments.length) / PAGE_SIZE
-);
 
 if (loading) return <div>Loading assignments...</div>;
 
